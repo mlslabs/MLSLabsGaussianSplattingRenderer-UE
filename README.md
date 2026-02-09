@@ -6,7 +6,7 @@
 English | [中文](./README_CN.md)
 
 [
-  <img src="Content/Media/logo.jpg" width="600" title="MaLanShan Audio & Video Laboratory" />
+  <img src="Content/Media/mlslabs.jpg" width="600" title="MaLanShan Audio & Video Laboratory" />
 ](https://github.com/mlslabs)
 
 ---
