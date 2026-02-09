@@ -18,32 +18,45 @@ English | [中文](./README_CN.md)
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [Roadmap (Pro Version)](#roadmap-pro-version)
-- [Release Note](#release-note)
+- [Release Notes](#release-notes)
 - [Contributors](#contributors)
 
 ---
 
 ## Introduction
 
-**MLSLabsRenderer-Lite** is a high-performance Unreal Engine 5 (UE5) plugin developed by **MaLanShan Audio & Video Laboratory**. It is specifically designed for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
+**MLSLabsRenderer-Lite** is a high-performance Unreal Engine 5 (UE5) plugin developed by **MaLanShan Audio & Video Laboratory**. It is engineered for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
 
-Unlike traditional particle-based systems, our custom rendering pipeline ensures high frame rates even with millions of Gaussians, bypassing Niagara's typical limitations.
+By utilizing a custom rendering pipeline rather than traditional particle systems, the plugin ensures high frame rates even with millions of Gaussians, effectively bypassing the performance bottlenecks typical of Niagara.
 
 ---
 
 ## Project Structure
 
 ```text
-📦 MLSLabsRenderer-Lite
-├─ 📁 Source
-│  ├─ 📁 MLSLabsRenderer           # Runtime rendering module
-│  └─ 📁 MLSLabsRendererImporter    # Editor import & asset management
-├─ 📁 ThirdParty
-│  └─ 📁 Win64
-│     └─ 📁 Bin                    # Core high-performance rendering DLL
-├─ 📁 Content                      # Example assets, shaders, and media
-├─ LICENSE                         # Apache-2.0 License
-└─ README.md                       # Main overview file
+📦 MLSLabsGaussianSplattingRenderer-UE
+├─ 📁 PluginDemo
+│  ├─ Config/                # Plugin configuration presets
+│  ├─ Content/               # Example assets
+│  │  └─ Maps/               # Map assets
+│  ├─ Media/                 # Documentation images and videos
+│  ├─ Plugin/                # Plugin source code
+│  ├─ README.md              # English plugin guide
+│  └─ README_CN.md           # 中文插件指南
+├─ LICENSE
+├─ README.md                 # Main overview file
+└─ README_CN.md              # 中文概述
+```
+
+## PluginDemo
+
+The `PluginDemo` folder contains all UE5 plugin assets, source code, and documentation.
+
+**Quick Links:**
+
+- [Plugin Guide (EN)](./PluginDemo/README.md)
+- [插件指南 (中文)](./PluginDemo/README_CN.md)
+
 ### Features
 - **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 7M+ Gaussians at 50 FPS+.**
 
@@ -66,10 +79,14 @@ Unreal Engine: 5.5
 
 Platform: Windows (Win64)
 
+API: DirectX 12
+
 ###3. Installation
+Download the MLSLabsRenderer plugin from the link specified in ./PluginDemo/Plugins/download.txt.
+
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
 
-Re-generate project files and rebuild your solution.
+For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.5 Engine directory (e.g., Epic Games\UE_5.5\Engine\Plugins\Marketplace).
 
 Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 
@@ -86,18 +103,22 @@ The upcoming Professional version will offer significant performance boosts and 
 
 - [ ]Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ static scenes.
 
-## Release Note
+## Release Notes
 [v1.0.0.6-beta]
 
-Initial Public Beta release.
+1.Standard PLY Support (Static): Supports importing standard .ply format static Gaussian Splatting scenes with high-efficiency rendering.
 
-Added support for 4DGS .ply sequence playback.
+2.Volumetric Video (4DGS): Supports importing standard .ply sequence frames for volumetric video (4DGS) with high-efficiency rendering.
 
-Integrated Sequencer keyframe support for volumetric video.
+3.Quick Focus: Press the F key to quickly focus on and frame the Gaussian Actor in the viewport.
 
-Optimized static 3DGS rendering performance for 7M+ points.
+4.Sequencer Integration: Volumetric Video Actors support keyframe animation and timeline control within the Unreal Engine Sequencer.
 
-Encapsulated core rendering logic into high-performance DLL.
+5.DirectX 12: Full support for DX12 (DirectX 12) for modern rendering performance.
+
+6.Shipping Support: Supports application packaging and distribution for Shipping builds.
 
 ##Contributors
-MaLanShan Audio & Video Laboratory
+<a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=mlslabs/MLSLabsGaussianSplattingRenderer-UE" />
+</a>
