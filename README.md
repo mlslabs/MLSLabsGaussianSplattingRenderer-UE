@@ -75,11 +75,11 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 cd MLSLabsGaussianSplattingRenderer-UE
 ```
 ### 2. Requirements
-Unreal Engine: 5.5
-
-Platform: Windows (Win64)
-
-API: DirectX 12
+- **Operating System**: Windows 10 or 11 (64-bit)
+- **Unreal Engine**: 5.5.x
+- **Graphics API**: DirectX 12
+- **GPU Requirements**: NVIDIA GPU supporting **Shader Model 7.5** or higher (Turing architecture and above).
+- **Recommended Hardware**: NVIDIA GeForce **RTX 2060** or better.
 
 ### 3. Installation
 Download the MLSLabsRenderer plugin from the link specified in ./PluginDemo/Plugins/download.txt.

@@ -70,9 +70,11 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ```
 
 ### 2. 环境要求
-* **Unreal Engine:** 5.5
-* **平台:** Windows (Win64)
-* **图形 API:** DirectX 12
+- **操作系统**: Windows 10 或 11 (64位)
+- **虚幻引擎版本**: 5.5.x
+- **图形 API**: DirectX 12
+- **显卡要求**: 必须使用支持 **SM 7.5 (Shader Model 7.5)** 指令集及以上的英伟达 (NVIDIA) 显卡。
+- **推荐硬件**: 英伟达 GeForce **RTX 2060** 或更高规格的显卡。
 
 ### 3. 安装步骤
 1. 从 `./PluginDemo/Plugins/download.txt` 中指定的链接下载 `MLSLabsRenderer` 插件。
