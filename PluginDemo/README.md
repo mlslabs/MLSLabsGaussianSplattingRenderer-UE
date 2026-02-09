@@ -6,7 +6,7 @@
 English | [中文](./README_CN.md)
 
 [
-<img src="PluginDemo/Media/image/mlslabs.jpg" width="583" title="马栏山音视频实验室" />
+<img src="Media/image/mlslabs.jpg" width="583" title="MaLanShan Audio & Video Laboratory" />
 ](https://github.com/mlslabs)
 
 
@@ -117,7 +117,7 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 1.Click the 'Import multiple 3D Gaussian Splatting files' button on the navigation bar.
 <img src="Media/image/import_multiple_plys.jpg" width="500" />
 
-2.Select the .ply files. (You do not need to select all files; selecting one will load the entire sequence in that directory).
+2.Select the .ply files. (You do not need to select all files; selecting two or more files will load the entire sequence in that directory).
 
 <img src="Media/image/select_multiple_plys.jpg" width="500" />
 
