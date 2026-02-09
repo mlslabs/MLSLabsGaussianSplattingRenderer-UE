@@ -81,7 +81,7 @@ Platform: Windows (Win64)
 
 API: DirectX 12
 
-###3. Installation
+### 3. Installation
 Download the MLSLabsRenderer plugin from the link specified in ./PluginDemo/Plugins/download.txt.
 
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
@@ -90,7 +90,7 @@ For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer 
 
 Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 
-###Roadmap (Pro Version)
+### Roadmap (Pro Version)
 The upcoming Professional version will offer significant performance boosts and enterprise-level features:
 
 - [ ]VR & Binocular Rendering: Native support for high-fidelity VR content.
@@ -101,7 +101,7 @@ The upcoming Professional version will offer significant performance boosts and 
 
 - [ ]Advanced Lighting: Support for Point/Directional lights with self-shadowing.
 
-- [ ]Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ static scenes.
+- [ ]Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
 
 ## Release Notes
 [v1.0.0.6-beta]
@@ -118,7 +118,7 @@ The upcoming Professional version will offer significant performance boosts and 
 
 6.Shipping Support: Supports application packaging and distribution for Shipping builds.
 
-##Contributors
+## Contributors
 <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=mlslabs/MLSLabsGaussianSplattingRenderer-UE" />
 </a>
