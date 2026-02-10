@@ -72,15 +72,7 @@ B站（中文）：
 
  ## 示例数据下载链接：
 
-我们提供了静态场景ply数据供下载：
- - [百度网盘下载链接](分享文件为：scene.ply
-链接: https://pan.baidu.com/s/1Z4lXqJ1Mq3DXB63AvwVbDQ?pwd=rx93
-提取码: rx93) 
-
- - [Google Drive 下载链接](https://drive.google.com/file/d/1sg03OH5-Uy-l2fRvJnNTyyeocahAhu47/view?usp=drive_link)
-
-
-`scene.ply`可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
+建议到[SuperSplat](https://superspl.at/) 下载ply文件，可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
 
 
 ## 打开演示项目

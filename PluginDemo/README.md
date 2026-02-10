@@ -72,16 +72,7 @@ B站（中文）：
 
  ## Demo Data Download Links:
 
-We have provided static scene ply data available for download at:
- - [Baidu Pan Download Link](分享文件为：scene.ply
-链接: https://pan.baidu.com/s/1Z4lXqJ1Mq3DXB63AvwVbDQ?pwd=rx93
-提取码: rx93) 
-
- - [Google Drive Download Link](https://drive.google.com/file/d/1sg03OH5-Uy-l2fRvJnNTyyeocahAhu47/view?usp=drive_link)
-
-
-`scene.ply`  can be imported into Unreal Engine (UE) using this plugin for real-time rendering.
-
+It is recommended to download .ply files from [SuperSplat](https://superspl.at/), which can then be imported into Unreal Engine (UE) via this plugin for real-time rendering.
 
 ## Open demo project
 This repo contains a demo project with an example scene and level
