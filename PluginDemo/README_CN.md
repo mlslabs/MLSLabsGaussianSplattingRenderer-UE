@@ -3,7 +3,7 @@
 <a href="./LICENSE">
         <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
 
-English | [中文](./README_CN.md)
+[English](./README.md) | 中文
 
 [
 <img src="Media/image/mlslabs.png" width="583" title="马栏山音视频实验室" />

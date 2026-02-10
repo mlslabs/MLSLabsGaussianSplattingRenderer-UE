@@ -94,15 +94,15 @@ Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 ### Roadmap (Pro Version)
 The upcoming Professional version will offer significant performance boosts and enterprise-level features:
 
-- [ ]VR & Binocular Rendering: Native support for high-fidelity VR content.
+- [ ] VR & Binocular Rendering: Native support for high-fidelity VR content.
 
-- [ ]Compressed 4DGS: Support for specialized compressed formats to reduce memory usage.
+- [ ] Compressed 4DGS: Support for specialized compressed formats to reduce memory usage.
 
-- [ ]Large-Scale Environments: Support for the .sog format for city-scale static 3DGS.
+- [ ] Large-Scale Environments: Support for the .sog format for city-scale static 3DGS.
 
-- [ ]Advanced Lighting: Support for Point/Directional lights with self-shadowing.
+- [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
 
-- [ ]Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
+- [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
 
 ## Release Notes
 [v1.0.0.6-beta]
