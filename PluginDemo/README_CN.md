@@ -6,19 +6,19 @@
 English | [中文](./README_CN.md)
 
 [
-<img src="Media/image/mlslabs.jpg" width="583" title="马栏山音视频实验室" />
+<img src="Media/image/mlslabs.png" width="583" title="马栏山音视频实验室" />
 ](https://github.com/mlslabs)
 
 
 # Introduction
 
-**MLSLabsRenderer-Lite** 是由**马栏山音视频实验室**.开发的一款高性能虚幻引擎 5 (UE5) 插件。它专为 3D 高斯泼溅 (3DGS) 和动态体感视频 (4DGS) 的实时可视化、管理及可扩展混合渲染而设计。
+**MLSLabsRenderer-Lite** 是由**马栏山音视频实验室**.开发的一款高性能虚幻引擎 5 (UE5) 插件。它专为 3D 高斯泼溅 (3DGS) 和动态体积视频 (4DGS) 的实时可视化、管理及可扩展混合渲染而设计。
 
 与传统的基于 Niagara 的方案不同，本插件采用了自定义底层渲染管线。这使得它在处理数百万个高斯点时仍能保持极高的帧率，有效绕过了常见的性能瓶颈。
 
 目前项目处于早期访问（Early Access）阶段，现已实现的功能概括如下：
-- **高性能静态 3DGS**:支持 700 万+ 高斯点，并保持 50+ FPS。
-- **动态4DGS播放**: 实时体积视频序列播放，支持 10 万+ 高斯点，帧率可达 100+ FPS。
+- **高性能静态 3DGS**:支持 700 万+ 高斯点，并保持 50+ FPS（在NVIDIA RTX 4070Ti上测试）。
+- **动态4DGS播放**: 实时体积视频序列播放，支持 10 万+ 高斯点，帧率可达 100+ FPS（在NVIDIA RTX 4070Ti上测试）。
 - **Sequencer 集成**: 完全支持 UE Sequencer，允许通过关键帧控制体积视频播放。
 - **原生自定义引擎**: 从零构建（非 Niagara），以实现最大吞吐量和低延迟。
 - **生产级工作流**:与UE原生资产无缝集成，支持快速资源导入。
@@ -40,7 +40,8 @@ B站（中文）：
 - **虚幻引擎**: 5.5.x
 - **图形 API**: DirectX 12
 - **GPU 要求**: 支持 Shader Model 7.5 或更高版本的 NVIDIA GPU（Turing 架构及以上）。
-- **推荐硬件**: NVIDIA GeForce RTX 2060 或更高。
+- **最低硬件**: NVIDIA GeForce RTX 2060 或更高。
+- **推荐硬件**: NVIDIA GeForce RTX 4070 Ti或更高。
 
 
 ## 插件下载
@@ -49,7 +50,7 @@ B站（中文）：
 
   <img src="Media/image/github_release.jpg" width="500" />
 
-  2. 选择 v1.0.0.5_beta 版本。
+  2. 下载最新版本（当前版本v1.0.0.5_beta 版本）。
   <img src="Media/image/github_release_v1.0.0.5_beta.jpg" width="500" />
   
   3. 下载 zip 压缩包。
@@ -57,7 +58,7 @@ B站（中文）：
   <img src="Media/image/download_link.jpg" width="500" />
 
   4. 安装方法：
-  如果你需要打包项目，请将 'MLSLabsRenderer_V1.0.0.5_beta_ue5.5.zip'解压到引擎安装目录下的 'Plugins\Marketplace' 文件夹中。
+  如果你需要打包项目，请将 'MLSLabsRenderer-Lite_V1.0.0.5_beta_ue5.5.zip'解压到引擎安装目录下的 'Plugins\Marketplace' 文件夹中。
 
   <img src="Media/image/unzip.jpg" width="500" />
   
@@ -71,7 +72,7 @@ B站（中文）：
 
  ## 示例数据下载链接：
 
-我们提供了两组测试数据供下载：
+我们提供了静态场景ply数据供下载：
  - [百度网盘下载链接](分享文件为：scene.ply
 链接: https://pan.baidu.com/s/1Z4lXqJ1Mq3DXB63AvwVbDQ?pwd=rx93
 提取码: rx93) 
@@ -96,6 +97,7 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 ## 导入静态高斯泼溅模型
 
 1.点击导航栏上的“Import single 3D Gaussian Splatting file” 按钮。
+
 <img src="Media/image/enable_plugin.jpg" width="500" />
 
 2.选择你的 .ply 文件。
@@ -114,6 +116,7 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 ## 导入动画高斯泼溅（4DGS/体积视频）模型
 
 1.点击导航栏上的 “Import multiple 3D Gaussian Splatting files” 按钮。
+
 <img src="Media/image/import_multiple_plys.jpg" width="500" />
 
 2.选择多个 .ply 文件（无需选择所有文件；只需选择其中两个以上的文件，插件会自动加载该目录下的整个序列）。
@@ -149,6 +152,7 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 ## 通过 UE Sequencer 控制关键帧
 
 1.创建一个新的 Level Sequence（层级序列）。
+
 <img src="Media/image/new_sequence.jpg" width="500" />
 
 2.将选中的动画高斯泼溅 Actor 添加到 Sequencer 中。

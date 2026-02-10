@@ -6,7 +6,7 @@
 English | [中文](./README_CN.md)
 
 [
-<img src="Media/image/mlslabs.jpg" width="583" title="MaLanShan Audio & Video Laboratory" />
+<img src="Media/image/mlslabs.png" width="583" title="MaLanShan Audio & Video Laboratory" />
 ](https://github.com/mlslabs)
 
 
@@ -17,8 +17,8 @@ English | [中文](./README_CN.md)
 Unlike traditional Niagara-based solutions, this plugin utilizes a **custom low-level rendering pipeline**. This allows it to maintain exceptionally high frame rates even when processing millions of Gaussians, effectively bypassing common performance bottlenecks.
 
 Since we are at early access, current accessible features are summarized below:
-- **High-Performance Static 3DGS**: Supports 7M+ Gaussians while maintaining 50+ FPS.
-- **Dynamic 4DGS Playback**: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100+ FPS.
+- **High-Performance Static 3DGS**: Supports 7M+ Gaussians while maintaining 50+ FPS(tested on NVIDIA RTX 4070 Ti).
+- **Dynamic 4DGS Playback**: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100+ FPS(tested on NVIDIA RTX 4070 Ti).
 - **Sequencer Integration**: Full support for UE Sequencer, allowing keyframe control over volumetric playback.
 - **Native Custom Engine**: Built from the ground up (Non-Niagara) for maximum throughput and low latency.
 - **Production Workflow**: Seamless integration with native UE assets and rapid resource importing.
@@ -40,7 +40,8 @@ B站（中文）：
 - **Unreal Engine**: 5.5.x
 - **Graphics API**: DirectX 12
 - **GPU Requirements**: NVIDIA GPU supporting **Shader Model 7.5** or higher (Turing architecture and above).
-- **Recommended Hardware**: NVIDIA GeForce **RTX 2060** or better.
+- **Minimum Hardware**: NVIDIA GeForce **RTX 2060** or better.
+- **Recommended Hardware**: NVIDIA GeForce **RTX 4070Ti** or better.
 
 
 ## Plugin download
@@ -49,7 +50,7 @@ B站（中文）：
 
   <img src="Media/image/github_release.jpg" width="500" />
 
-  2. Choose v1.0.0.5_beta
+  2. Choose the latest version (currently v1.0.0.5_beta).
   <img src="Media/image/github_release_v1.0.0.5_beta.jpg" width="500" />
   
   3. Download the zip file.
@@ -57,7 +58,7 @@ B站（中文）：
   <img src="Media/image/download_link.jpg" width="500" />
 
   4. Installation:
-  To package your project, unzip MLSLabsRenderer_V1.0.0.5_beta_ue5.5.zip to your Engine Installation Path `Plugins\Marketplace`.
+  To package your project, unzip MLSLabsRenderer-Lite_V1.0.0.5_beta_ue5.5.zip to your Engine Installation Path `Plugins\Marketplace`.
 
   <img src="Media/image/unzip.jpg" width="500" />
   
@@ -71,7 +72,7 @@ B站（中文）：
 
  ## Demo Data Download Links:
 
-We have provided two sets of test data available for download at:
+We have provided static scene ply data available for download at:
  - [Baidu Pan Download Link](分享文件为：scene.ply
 链接: https://pan.baidu.com/s/1Z4lXqJ1Mq3DXB63AvwVbDQ?pwd=rx93
 提取码: rx93) 
@@ -153,6 +154,7 @@ the Volume video(4DGS) will be played.
 ## Keyframe Control via UE Sequencer
 
 1.Create Level Sequence.
+
 <img src="Media/image/new_sequence.jpg" width="500" />
 
 2.Add the selected Animation Gaussian Splatting Actor to the Sequencer.

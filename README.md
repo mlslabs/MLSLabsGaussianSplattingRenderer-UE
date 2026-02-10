@@ -6,7 +6,7 @@
 English | [中文](./README_CN.md)
 
 [
-  <img src="PluginDemo/Media/image/mlslabs.jpg" width="583" title="MaLanShan Audio & Video Laboratory" />
+  <img src="PluginDemo/Media/image/mlslabs.png" width="583" title="MaLanShan Audio & Video Laboratory" />
 ](https://github.com/mlslabs)
 
 ---
@@ -58,9 +58,9 @@ The `PluginDemo` folder contains all UE5 plugin assets, source code, and documen
 - [插件指南 (中文)](./PluginDemo/README_CN.md)
 
 ### Features
-- **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 7M+ Gaussians at 50 FPS+.**
+- **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 7M+ Gaussians at 50 FPS+(tested on NVIDIA RTX 4070 Ti).**
 
-- **Dynamic 4DGS Playback: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100 FPS+.**
+- **Dynamic 4DGS Playback: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100 FPS+.(tested on NVIDIA RTX 4070 Ti)**
 
 - **Sequencer Integration: Full support for UE Sequencer, allowing users to keyframe volumetric playback and control timelines.**
 
@@ -79,7 +79,8 @@ cd MLSLabsGaussianSplattingRenderer-UE
 - **Unreal Engine**: 5.5.x
 - **Graphics API**: DirectX 12
 - **GPU Requirements**: NVIDIA GPU supporting **Shader Model 7.5** or higher (Turing architecture and above).
-- **Recommended Hardware**: NVIDIA GeForce **RTX 2060** or better.
+- **Minimum Hardware**: NVIDIA GeForce **RTX 2060** or better.
+- **Recommended Hardware**: NVIDIA GeForce **RTX 4070Ti** or better.
 
 ### 3. Installation
 Download the MLSLabsRenderer plugin from the link specified in ./PluginDemo/Plugins/download.txt.

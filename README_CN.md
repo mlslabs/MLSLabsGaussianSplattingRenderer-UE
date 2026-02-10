@@ -4,7 +4,7 @@
 [English](./README.md) | 中文
 
 [
-<img src="PluginDemo/Media/image/mlslabs.jpg" width="583" title="马栏山音视频实验室" />
+<img src="PluginDemo/Media/image/mlslabs.png" width="583" title="马栏山音视频实验室" />
 ](https://github.com/mlslabs)
 
 ---
@@ -52,8 +52,8 @@
 - [插件指南 (中文)](./PluginDemo/README_CN.md)
 
 ### 核心特性
-- **高性能静态 3DGS： 支持标准 `.ply` 模型的高质量渲染，在 7M+ 高斯点数下仍可保持 50 FPS+ 的帧率。**
-- **动态 4DGS 播放： 支持实时体积视频序列播放，在 100K+ 高斯点数下支持 100 FPS+。**
+- **高性能静态 3DGS： 支持标准 `.ply` 模型的高质量渲染，在 7M+ 高斯点数下仍可保持 50 FPS+ 的帧率（在NVIDIA RTX 4070Ti上测试）。**
+- **动态 4DGS 播放： 支持实时体积视频序列播放，在 100K+ 高斯点数下支持 100 FPS+（在NVIDIA RTX 4070Ti上测试）。**
 - **Sequencer 集成：全面支持 UE 定时器（Sequencer），允许用户通过关键帧控制体积视频播放及其时间轴。** 
 - **自定义渲染引擎：纯原生开发（非 Niagara），旨在实现最大吞吐量和极低延迟。** 
 - **生产级工作流：与 UE 原生资源无缝集成，支持资源的快速导入。** 
@@ -74,7 +74,8 @@ cd MLSLabsGaussianSplattingRenderer-UE
 - **虚幻引擎版本**: 5.5.x
 - **图形 API**: DirectX 12
 - **显卡要求**: 必须使用支持 **SM 7.5 (Shader Model 7.5)** 指令集及以上的英伟达 (NVIDIA) 显卡。
-- **推荐硬件**: 英伟达 GeForce **RTX 2060** 或更高规格的显卡。
+- **最低硬件**: NVIDIA GeForce RTX 2060 或更高。
+- **推荐硬件**: NVIDIA GeForce RTX 4070 Ti或更高。
 
 ### 3. 安装步骤
 1. 从 `./PluginDemo/Plugins/download.txt` 中指定的链接下载 `MLSLabsRenderer` 插件。
