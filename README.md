@@ -13,7 +13,7 @@ English | [中文](./README_CN.md)
 
 - [4DGS Redefines VR Filmmaking](https://youtu.be/wN7Sm6GbV7U)
 
-https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/PluginDemo/Media/video/4dgs_VRMovie.mp4
+<img src="PluginDemo/Media/image/4dgs.jpg" width="720" title="4DGS Redefines VR Filmmaking" />
 
 ---
 
