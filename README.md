@@ -105,7 +105,7 @@ The upcoming Professional version will offer significant performance boosts and 
 - [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
 
 ## Release Notes
-[v1.0.0.6-beta]
+[v1.0.0.5-beta]
 
 1.Standard PLY Support (Static): Supports importing standard .ply format static Gaussian Splatting scenes with high-efficiency rendering.
 
