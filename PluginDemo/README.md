@@ -92,6 +92,8 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 
 2.Select your 'ply' file.
 
+Special thanks to saemranian for providing the test data:[Ahmad_Apt_Mix_01](https://superspl.at/view?id=f32cc087) .
+
 <img src="Media/image/select_single_ply.jpg" width="500" />
 
 3.After importing, drag the Blueprint (BP) asset into the viewport.
