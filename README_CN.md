@@ -7,6 +7,12 @@
 <img src="PluginDemo/Media/image/mlslabs.png" width="583" title="马栏山音视频实验室" />
 ](https://github.com/mlslabs)
 
+## 3DGS & 4DGS 应用案例
+
+- [4DGS重新定义VR电影拍摄](https://youtu.be/wN7Sm6GbV7U)
+
+---
+
 ---
 ## 目录
 - [简介](#简介)

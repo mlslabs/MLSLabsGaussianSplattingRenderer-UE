@@ -9,6 +9,10 @@ English | [中文](./README_CN.md)
   <img src="PluginDemo/Media/image/mlslabs.png" width="583" title="MaLanShan Audio & Video Laboratory" />
 ](https://github.com/mlslabs)
 
+## 3DGS & 4DGS Application Cases
+
+- [4DGS Redefines VR Filmmaking](https://youtu.be/wN7Sm6GbV7U)
+
 ---
 
 ## Table of Contents
