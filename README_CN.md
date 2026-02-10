@@ -9,7 +9,9 @@
 
 ## 3DGS & 4DGS 应用案例
 
-- [4DGS重新定义VR电影拍摄](https://youtu.be/wN7Sm6GbV7U)
+- [4DGS重新定义VR电影拍摄](https://www.bilibili.com/video/BV13hFmzqE3h/?vd_source=2c7de8ebd046c0fc280b916fd7f72364)
+
+https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/PluginDemo/Media/video/4dgs_VRMovie.mp4
 
 ---
 
