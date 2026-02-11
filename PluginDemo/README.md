@@ -12,7 +12,7 @@ English | [中文](./README_CN.md)
 
 # Introduction
 
-**MLSLabsRenderer-Lite** is a high-performance Unreal Engine 5 (UE5) plugin developed by **MaLanShan Audio & Video Laboratory**. It is designed for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
+**MLSLabsRenderer-Lite** is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is designed for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
 
 Unlike traditional Niagara-based solutions, this plugin utilizes a **custom low-level rendering pipeline**. This allows it to maintain exceptionally high frame rates even when processing millions of Gaussians, effectively bypassing common performance bottlenecks.
 
