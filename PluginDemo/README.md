@@ -169,6 +169,7 @@ the Volume video(4DGS) will be played.
 ## Packaging for Windows
 
 The plugin is currently provided as a Shipping package, so you must set your Build Configuration to Shipping.
+Packaging environment requirements: Visual Studio 2022, MSVC v143 x64.
 
 <img src="Media/image/package.jpg" width="500" />
 

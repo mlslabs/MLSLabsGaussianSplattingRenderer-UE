@@ -168,6 +168,7 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 ## Windows 平台打包
 
 该插件目前以 Shipping 包形式提供，因此你必须将项目的“构建配置”（Build Configuration）设置为 Shipping。
+打包环境要求：Visual Studio 2022, MSVC v143 x64。
 
 <img src="Media/image/package.jpg" width="500" />
 
