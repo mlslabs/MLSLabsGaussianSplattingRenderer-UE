@@ -29,10 +29,10 @@ Since we are at early access, current accessible features are summarized below:
 ## Video Tutorial
 
 Youtube（English）：  
-
+[How to Use MLSLabsRenderer (Gaussian Splatting) Plugin in UE5](https://youtu.be/htrDPpAaraU)
 
 B站（中文）：  
-
+[MLSLabsRenderer（高斯泼溅）插件操作教程](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364)
 
 ## System Requirements
 
