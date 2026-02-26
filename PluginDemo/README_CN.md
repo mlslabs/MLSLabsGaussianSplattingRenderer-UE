@@ -111,7 +111,7 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 
 1.点击导航栏上的“Import single 3D Gaussian Splatting file” 按钮。
 
-<img src="Media/image/enable_plugin.jpg" width="500" />
+<img src="Media/image/import_single_ply.jpg" width="500" />
 
 2.选择你的 .ply 文件。
 
