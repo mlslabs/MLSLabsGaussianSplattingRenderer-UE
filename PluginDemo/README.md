@@ -94,7 +94,7 @@ B站（中文）：
    <img src="Media/image/download_faile.jpg" width="500" />
 
    
-   You can try downloading the [libtorch] library directly from this link: (https://download.pytorch.org/libtorch/cu128/libtorch-win-shared-with-deps-2.7.0%2Bcu128.zip), and then extract it to the following directory:
+   You can try downloading the libtorch library directly from this link: (https://download.pytorch.org/libtorch/cu128/libtorch-win-shared-with-deps-2.7.0%2Bcu128.zip), and then extract it to the following directory:
 
    
    <img src="Media/image/unzip_libtorch.jpg" width="500" />

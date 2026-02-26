@@ -90,7 +90,7 @@ B站（中文）：
    <img src="Media/image/download_faile.jpg" width="500" />
    
    
-   可以尝试直接下载 [libtorch]库 (https://download.pytorch.org/libtorch/cu128/libtorch-win-shared-with-deps-2.7.0%2Bcu128.zip) ，然后解压到以下目录：
+   可以尝试直接下载libtorch库 (https://download.pytorch.org/libtorch/cu128/libtorch-win-shared-with-deps-2.7.0%2Bcu128.zip) ，然后解压到以下目录：
    
    
    <img src="Media/image/unzip_libtorch.jpg" width="500" />
