@@ -50,15 +50,15 @@ B站（中文）：
 
   <img src="Media/image/github_release.jpg" width="500" />
 
-  2. Choose the latest version (currently v1.0.0.5_beta).
-  <img src="Media/image/github_release_v1.0.0.5_beta.jpg" width="500" />
+  2. Choose the latest version.
+  <img src="Media/image/github_release_latest.jpg" width="500" />
   
   3. Download the zip file.
 
   <img src="Media/image/download_link.jpg" width="500" />
 
   4. Installation:
-  To package your project, unzip MLSLabsRenderer-Lite_V1.0.0.5_beta_ue5.5.zip to your Engine Installation Path `Plugins\Marketplace`.
+  To package your project, unzip downloaded zip to your Engine Installation Path `Plugins\Marketplace`.
 
   <img src="Media/image/unzip.jpg" width="500" />
   
@@ -66,9 +66,29 @@ B站（中文）：
   
   <img src="Media/image/after_unzip.jpg" width="500" />
   
-  5.Open Unreal Editor，enable the MLSLabsRenderer Plugin, and restart editor.
+  5. Open Unreal Editor，enable the MLSLabsRenderer Plugin, and restart editor.
 
   <img src="Media/image/enable_plugin.jpg" width="500" />
+  
+  6. After launching the Unreal Editor, open the environment setup prompt or click the "Setup Environment" button in the navigation bar.
+  
+  <img src="Media/image/setup_env_tip.jpg" width="500" />
+  
+  7. In the Setup Environment window, click "Install Dependencies".
+  
+  <img src="Media/image/install_dep.jpg" width="500" />
+  
+  8. The system will begin downloading and installing the LibTorch package. Please wait for the process to complete.
+  
+  <img src="Media/image/install_dep_progress.jpg" width="500" />
+  
+  9. Once installation is finished, click to restart the Editor automatically.
+  
+  <img src="Media/image/install_dep_complete.jpg" width="500" />
+  
+  10. If the automatic restart fails, you must manually restart the Editor. This step is crucial; otherwise, the plugin will not load correctly.
+  
+  <img src="Media/image/install_dep_manual_restart.jpg" width="500" />
 
  ## Demo Data Download Links:
 

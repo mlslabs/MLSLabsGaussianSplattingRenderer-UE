@@ -51,15 +51,15 @@ B站（中文）：
 
   <img src="Media/image/github_release.jpg" width="500" />
 
-  2. 下载最新版本（当前版本v1.0.0.5_beta 版本）。
-  <img src="Media/image/github_release_v1.0.0.5_beta.jpg" width="500" />
+  2. 下载最新版本。
+  <img src="Media/image/github_release_latest.jpg" width="500" />
   
   3. 下载 zip 压缩包。
 
   <img src="Media/image/download_link.jpg" width="500" />
 
   4. 安装方法：
-  如果你需要打包项目，请将 'MLSLabsRenderer-Lite_V1.0.0.5_beta_ue5.5.zip'解压到引擎安装目录下的 'Plugins\Marketplace' 文件夹中。
+  如果你需要打包项目，请将下载的插件包解压到引擎安装目录下的 'Plugins\Marketplace' 文件夹中。
 
   <img src="Media/image/unzip.jpg" width="500" />
   
@@ -67,9 +67,29 @@ B站（中文）：
   
   <img src="Media/image/after_unzip.jpg" width="500" />
   
-  5.打开虚幻编辑器，启用MLSLabsRenderer 插件，并重启编辑器。
+  5. 打开虚幻编辑器，启用MLSLabsRenderer 插件，并重启编辑器。
 
   <img src="Media/image/enable_plugin.jpg" width="500" />
+  
+  6. 启动虚幻编辑器后，打开安装环境提示，或者在导航栏点击安装环境按钮。
+  
+  <img src="Media/image/setup_env_tip.jpg" width="500" />
+  
+  7. 安装环境界面如下，点击"Install Dependencies"。
+  
+  <img src="Media/image/install_dep.jpg" width="500" />
+  
+  8. 等待下载安装libtorch包，请耐心等待一下。
+  
+  <img src="Media/image/install_dep_progress.jpg" width="500" />
+  
+  9. 安装完成，点击自动重启编辑器。
+  
+  <img src="Media/image/install_dep_complete.jpg" width="500" />
+  
+  10. 自动重启编辑器失败，需要手动重启编辑器，这一步非常重要，否则插件无法正确加载。
+  
+  <img src="Media/image/install_dep_manual_restart.jpg" width="500" />
 
  ## 示例数据下载链接：
 
