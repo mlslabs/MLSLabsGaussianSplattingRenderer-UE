@@ -42,6 +42,11 @@
 
 ---
 
+## Key Topics
+`3D Gaussian Splatting` | `4D Volumetric Video` | `Unreal Engine 5 Rendering` | `Real-time Visualization` | `Computer Vision` | `Computer Graphics` | `虚幻引擎` | `插件` | `高斯泼溅`
+
+---
+
 ## 项目结构
 
 ```text
@@ -70,6 +75,9 @@
 
 ### 核心特性
 - **高性能静态 3DGS： 支持标准 `.ply` 模型的高质量渲染，在 7M+ 高斯点数下仍可保持 50 FPS+ 的帧率（在NVIDIA RTX 4070Ti上测试）。**
+
+<img src="PluginDemo/Media/image/7M_50+fps.jpg" width="500" />
+
 - **动态 4DGS 播放： 支持实时体积视频序列播放，在 100K+ 高斯点数下支持 100 FPS+（在NVIDIA RTX 4070Ti上测试）。**
 - **Sequencer 集成：全面支持 UE 定时器（Sequencer），允许用户通过关键帧控制体积视频播放及其时间轴。** 
 - **自定义渲染引擎：纯原生开发（非 Niagara），旨在实现最大吞吐量和极低延迟。** 
