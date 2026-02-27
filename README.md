@@ -44,6 +44,12 @@ By utilizing a custom rendering pipeline rather than traditional particle system
 
 ---
 
+
+## Key Topics
+`3D Gaussian Splatting` | `4D Volumetric Video` | `Unreal Engine 5 Rendering` | `Real-time Visualization` | `Computer Vision` | `Computer Graphics`
+
+---
+
 ## Project Structure
 
 ```text
@@ -72,6 +78,8 @@ The `PluginDemo` folder contains all UE5 plugin assets, source code, and documen
 
 ### Features
 - **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 7M+ Gaussians at 50 FPS+(tested on NVIDIA RTX 4070 Ti).**
+
+<img src="PluginDemo/Media/image/7M_50+fps.jpg" width="500" />
 
 - **Dynamic 4DGS Playback: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100 FPS+.(tested on NVIDIA RTX 4070 Ti)**
 
