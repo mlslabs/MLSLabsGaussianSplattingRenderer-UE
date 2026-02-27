@@ -1,4 +1,4 @@
-# MLSLabsRenderer-Lite
+# MLSLabsRenderer-Lite(3D Gaussian Splatting UE5 Plugin)
 
 <p align="left">
   <a href="./LICENSE">
