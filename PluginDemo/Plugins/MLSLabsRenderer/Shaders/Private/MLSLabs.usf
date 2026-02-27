@@ -1,0 +1,39 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+#include "/Engine/Private/Common.ush"
+
+Texture2D img_rgba;
+Texture2D img_depth;
+
+Texture2D SceneColorTexture;
+Texture2D SceneDepthTexture;
+float2 ViewSize;
+float2 ValidSceneDepthDimensions;
+
+void MainPS(
+    in float4 SvPosition : SV_Position,
+    out float4 OutColor : SV_Target0
+)
+{   
+    int2 remappedCoord = int2((SvPosition.xy / ViewSize) * ValidSceneDepthDimensions);
+    float currentSceneDepth = SceneDepthTexture.Load(int3(remappedCoord, 0)).r;
+    
+    int3 pixelCoord = int3(SvPosition.xy, 0);
+    float4 currentSceneColor = SceneColorTexture.Load(pixelCoord);
+   
+    float externalDepth = img_depth.Load(pixelCoord).r;
+    float4 externalColor = img_rgba.Load(pixelCoord);
+    
+    float sourceAlpha = externalColor.w;
+
+    bool bDrawExternal = externalDepth > currentSceneDepth;
+    
+    if (bDrawExternal)
+    {        
+        float3 BlendedColor = externalColor.rgb * sourceAlpha + currentSceneColor.rgb * (1.0f - sourceAlpha);
+        
+        OutColor = float4(BlendedColor, sourceAlpha);
+    }
+    else
+        OutColor = currentSceneColor;
+}

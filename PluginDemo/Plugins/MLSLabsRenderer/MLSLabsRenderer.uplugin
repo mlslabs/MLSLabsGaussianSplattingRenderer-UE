@@ -1,0 +1,51 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0.0",
+	"FriendlyName": "MLSLabsRenderer",
+	"Description": "MLSLabs Renderer for Radiance Fields in UE5",
+	"Category": "Rendering",
+	"CreatedBy": "MALANSHAN AUDIO&VIDEO LABORATORY",
+	"CreatedByURL": "https://mlslabs.com.cn/",
+	"DocsURL": "https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md",
+	"MarketplaceURL": "",
+	"SupportURL": "https://mlslabs.com.cn/",
+	"EngineVersion": "5.5.0",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "MLSLabsRenderer",
+			"Type": "Runtime",
+			"LoadingPhase": "PostConfigInit",
+			"PlatformAllowList": [
+				"Win64"
+			],
+			"PlatformDenyList": [
+				"Linux",
+				"Mac",
+				"Android",
+				"IOS"
+			]
+		},
+		{
+			"Name": "MLSLabsRendererImporter",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"PlatformAllowList": [
+				"Win64"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		}
+	]
+}

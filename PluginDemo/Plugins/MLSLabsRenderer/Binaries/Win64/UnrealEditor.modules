@@ -1,0 +1,8 @@
+{
+	"BuildId": "37670630",
+	"Modules": 
+	{
+		"MLSLabsRenderer": "UnrealEditor-MLSLabsRenderer.dll",
+		"MLSLabsRendererImporter": "UnrealEditor-MLSLabsRendererImporter.dll"
+	}
+}
