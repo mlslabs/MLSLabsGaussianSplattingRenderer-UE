@@ -9,24 +9,25 @@ Texture2D SceneColorTexture;
 Texture2D SceneDepthTexture;
 float2 ViewSize;
 float2 ValidSceneDepthDimensions;
+float DepthCompareBias;
 
 void MainPS(
     in float4 SvPosition : SV_Position,
     out float4 OutColor : SV_Target0
 )
-{   
+{
     int2 remappedCoord = int2((SvPosition.xy / ViewSize) * ValidSceneDepthDimensions);
+    remappedCoord = clamp(remappedCoord, int2(0, 0), int2(ValidSceneDepthDimensions - 1));
     float currentSceneDepth = SceneDepthTexture.Load(int3(remappedCoord, 0)).r;
-    
+
     int3 pixelCoord = int3(SvPosition.xy, 0);
     float4 currentSceneColor = SceneColorTexture.Load(pixelCoord);
-   
     float externalDepth = img_depth.Load(pixelCoord).r;
     float4 externalColor = img_rgba.Load(pixelCoord);
     
     float sourceAlpha = externalColor.w;
 
-    bool bDrawExternal = externalDepth > currentSceneDepth;
+    bool bDrawExternal = (externalDepth + DepthCompareBias) > currentSceneDepth;
     
     if (bDrawExternal)
     {        
