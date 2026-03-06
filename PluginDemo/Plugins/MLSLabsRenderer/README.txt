@@ -1,3 +1,7 @@
+V1.0.0.8_beta
+1.Support PLY files with sh_degree=0.
+2.Fix significant frame rate drop and memory exhaustion when entering preview mode for newly added cameras.
+
 V1.0.0.7_beta
 1，Decouple the LibTorch library and prompt users to download it manually upon the first time using the plugin.
 2,support ue 5.5,5.6,5.7.
