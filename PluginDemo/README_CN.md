@@ -52,6 +52,7 @@ B站（中文）：
   <img src="Media/image/github_release.jpg" width="500" />
 
   2. 下载最新版本。
+  
   <img src="Media/image/github_release_latest.jpg" width="500" />
   
   3. 下载 zip 压缩包。
