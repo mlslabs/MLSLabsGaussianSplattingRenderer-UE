@@ -1,3 +1,7 @@
+V1.0.0.9_beta
+1.Fixed blending artifacts caused by depth buffer resolution mismatch between Editor and Play modes.
+2.Supports outputting logs to the Unreal Engine log file.
+
 V1.0.0.8_beta
 1.Support PLY files with sh_degree=0.
 2.Fix significant frame rate drop and memory exhaustion when entering preview mode for newly added cameras.

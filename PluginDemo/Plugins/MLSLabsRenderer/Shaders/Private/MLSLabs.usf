@@ -8,7 +8,9 @@ Texture2D img_depth;
 Texture2D SceneColorTexture;
 Texture2D SceneDepthTexture;
 float2 ViewSize;
-float2 ValidSceneDepthDimensions;
+float2 SceneDepthBufferSize;
+float2 SceneDepthViewRectMin;
+float2 SceneDepthViewRectSize;
 float DepthCompareBias;
 
 void MainPS(
@@ -16,9 +18,12 @@ void MainPS(
     out float4 OutColor : SV_Target0
 )
 {
-    int2 remappedCoord = int2((SvPosition.xy / ViewSize) * ValidSceneDepthDimensions);
-    remappedCoord = clamp(remappedCoord, int2(0, 0), int2(ValidSceneDepthDimensions - 1));
-    float currentSceneDepth = SceneDepthTexture.Load(int3(remappedCoord, 0)).r;
+    float2 norm = SvPosition.xy / ViewSize;
+    float2 depthPixelF = SceneDepthViewRectMin + norm * SceneDepthViewRectSize;
+    int2 depthPixel = int2(round(depthPixelF));
+    int2 bufMax = int2(SceneDepthBufferSize - 1);
+    depthPixel = clamp(depthPixel, int2(0, 0), bufMax);
+    float currentSceneDepth = SceneDepthTexture.Load(int3(depthPixel, 0)).r;
 
     int3 pixelCoord = int3(SvPosition.xy, 0);
     float4 currentSceneColor = SceneColorTexture.Load(pixelCoord);
