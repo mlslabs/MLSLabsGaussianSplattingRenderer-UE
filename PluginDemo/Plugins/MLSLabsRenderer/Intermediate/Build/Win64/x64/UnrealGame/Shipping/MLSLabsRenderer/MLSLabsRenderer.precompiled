@@ -3,6 +3,7 @@
 		"Module.MLSLabsRenderer.cpp.obj",
 		"AnimatableGaussianSplattingActor.cpp.obj",
 		"AnimatableGaussianSplattingComponent.cpp.obj",
+		"EmbeddedLogo.cpp.obj",
 		"GaussianSplatingRendererLibrary.cpp.obj",
 		"GaussianSplattingActor.cpp.obj",
 		"GaussianSplattingComponent.cpp.obj",
@@ -10,6 +11,8 @@
 		"MLSLabsRenderer.cpp.obj",
 		"MLSLabsRendererModule.cpp.obj",
 		"MLSLabsRendererSubsystem.cpp.obj",
-		"NoPhysicsPrimitiveComponent.cpp.obj"
+		"MLSLabsWatermark.cpp.obj",
+		"NoPhysicsPrimitiveComponent.cpp.obj",
+		"WatermarkShaderEmbedded.cpp.obj"
 	]
 }

@@ -10,7 +10,7 @@
 	"DocsURL": "https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md",
 	"MarketplaceURL": "https://fab.com/s/a98e11b2a0a6",
 	"SupportURL": "https://mlslabs.com.cn/",
-	"EngineVersion": "5.5.0",
+	"EngineVersion": "5.7.0",
 	"CanContainContent": true,
 	"IsBetaVersion": true,
 	"Installed": true,
