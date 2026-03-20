@@ -37,7 +37,7 @@ B站（中文）：
 ## System Requirements
 
 - **Operating System**: Windows 10 or 11 (64-bit)
-- **Unreal Engine**: 5.5.x
+- **Unreal Engine**: 5.7.x
 - **Graphics API**: DirectX 12
 - **GPU Requirements**: NVIDIA GPU supporting **Shader Model 7.5** or higher (Turing architecture and above).
 - **Minimum Hardware**: NVIDIA GeForce **RTX 2060** or better.
