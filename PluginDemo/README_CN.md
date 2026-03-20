@@ -38,7 +38,7 @@ B站（中文）：
 ## 系统要求
 
 - **操作系统**: Windows 10 or 11 (64-bit)
-- **虚幻引擎**: 5.5.x
+- **虚幻引擎**: 5.6.x
 - **图形 API**: DirectX 12
 - **GPU 要求**: 支持 Shader Model 7.5 或更高版本的 NVIDIA GPU（Turing 架构及以上）。
 - **最低硬件**: NVIDIA GeForce RTX 2060 或更高。
