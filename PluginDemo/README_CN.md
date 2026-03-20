@@ -1,4 +1,4 @@
-# MLSLabsRenderer-Lite
+# MLSLabsRenderer-Pro
 
 <a href="./LICENSE">
         <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
@@ -12,7 +12,7 @@
 
 # Introduction
 
-**MLSLabsRenderer-Lite** 是由[**马栏山音视频实验室**](https://www.mlslabs.com.cn/).开发的一款高性能虚幻引擎 5 (UE5) 插件。它专为 3D 高斯泼溅 (3DGS) 和动态体积视频 (4DGS) 的实时可视化、管理及可扩展混合渲染而设计。
+**MLSLabsRenderer-Pro** 是由[**马栏山音视频实验室**](https://www.mlslabs.com.cn/).开发的一款高性能虚幻引擎 5 (UE5) 插件。它专为 3D 高斯泼溅 (3DGS) 和动态体积视频 (4DGS) 的实时可视化、管理及可扩展混合渲染而设计。
 
 与传统的基于 Niagara 的方案不同，本插件采用了自定义底层渲染管线。这使得它在处理数百万个高斯点时仍能保持极高的帧率，有效绕过了常见的性能瓶颈。
 

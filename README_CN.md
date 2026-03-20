@@ -1,4 +1,4 @@
-# MLSLabsRenderer-Lite(3D Gaussian Splatting UE5 Plugin)
+# MLSLabsRenderer-Pro(3D Gaussian Splatting UE5 Plugin)
 
 <p align="left">
   <a href="./LICENSE">
@@ -36,7 +36,7 @@
 ---
 ## 简介
 
-**MLSLabsRenderer-Lite** 是由 [**马栏山音视频实验室**](https://www.mlslabs.com.cn/) 开发的一款高性能虚幻引擎 5 (UE5) 插件。该插件专为 3D 高斯泼溅 (3DGS) 和动态体积视频 (4DGS) 的实时可视化、管理以及可扩展混合渲染而设计。
+**MLSLabsRenderer-Pro** 是由 [**马栏山音视频实验室**](https://www.mlslabs.com.cn/) 开发的一款高性能虚幻引擎 5 (UE5) 插件。该插件专为 3D 高斯泼溅 (3DGS) 和动态体积视频 (4DGS) 的实时可视化、管理以及可扩展混合渲染而设计。
 
 通过采用自定义渲染管线而非传统的粒子系统，该插件确保了在处理数百万个高斯点时仍能保持高帧率，有效地解决了 Niagara 系统中常见的性能瓶颈。
 
@@ -82,6 +82,8 @@
 - **Sequencer 集成：全面支持 UE 定时器（Sequencer），允许用户通过关键帧控制体积视频播放及其时间轴。** 
 - **自定义渲染引擎：纯原生开发（非 Niagara），旨在实现最大吞吐量和极低延迟。** 
 - **生产级工作流：与 UE 原生资源无缝集成，支持资源的快速导入。** 
+- **VR 与双目渲染： 原生支持高保真 VR 内容。** 
+- **性能飞跃： 4DGS 达到 120 FPS+，7M+高斯点 静态场景达到 60 FPS+。** 
 
 ---
 
@@ -113,16 +115,14 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ## 路线图 (专业版)
 即将推出的专业版将提供显著的性能提升和企业级功能：
 
-- [ ] **VR 与双目渲染：** 原生支持高保真 VR 内容。
 - [ ] **压缩版 4DGS：** 支持专用的压缩格式以大幅降低显存占用。
 - [ ] **大规模场景：** 支持用于城市级静态 3DGS 的 `.sog` 格式。
 - [ ] **高级光照：** 支持点光源/方向光，并具备自阴影效果。
-- [ ] **性能飞跃：** 4DGS 达到 120 FPS+，7M+高斯点 静态场景达到 60 FPS+。
 
 ---
 
 ## 版本记录
-**[v1.0.0.5-beta]**
+**[v1.0.1.10-beta]**
 
 1. **标准 PLY 支持 (静态)：** 支持导入标准 `.ply` 格式的静态高斯泼溅场景，渲染效率极高。
 2. **体积视频 (4DGS)：** 支持导入标准 `.ply` 序列帧，实现高效的体积视频播放。
@@ -130,7 +130,8 @@ cd MLSLabsGaussianSplattingRenderer-UE
 4. **Sequencer 集成：** 体积视频 Actor 支持在虚幻引擎 Sequencer 中进行关键帧动画制作和时间轴控制。
 5. **DirectX 12：** 全面支持 DX12，发挥现代显卡的渲染性能。
 6. **打包支持 (Shipping)：** 支持 Shipping 模式下的应用打包与发布。
-
+7. **VR 与双目渲染： 原生支持高保真 VR 内容。
+8. **性能飞跃： 4DGS 达到 120 FPS+，7M+高斯点 静态场景达到 60 FPS+。
 ---
 
 ## 贡献者
