@@ -1,4 +1,4 @@
-# MLSLabsRenderer-Lite (3D Gaussian Splatting UE5 Plugin)
+# MLSLabsRenderer-Pro (3D Gaussian Splatting UE5 Plugin)
 
 <p align="left">
   <a href="./LICENSE">
@@ -38,7 +38,7 @@ English | [中文](./README_CN.md)
 
 ## Introduction
 
-**MLSLabsRenderer-Lite** is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is engineered for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
+**MLSLabsRenderer-Pro** is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is engineered for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
 
 By utilizing a custom rendering pipeline rather than traditional particle systems, the plugin ensures high frame rates even with millions of Gaussians, effectively bypassing the performance bottlenecks typical of Niagara.
 
@@ -88,6 +88,10 @@ The `PluginDemo` folder contains all UE5 plugin assets, source code, and documen
 - **Custom Rendering Engine: Built from the ground up (Non-Niagara) for maximum throughput and low latency.**
 
 - **Production Workflow: Seamless integration with native UE assets and fast resource importing.**
+
+- **VR & Binocular Rendering: Native support for high-fidelity VR content.**
+
+- **Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.**
 ---
 ## Getting Started
 ### 1. Clone the Repository
@@ -114,19 +118,14 @@ Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 
 ### Roadmap (Pro Version)
 The upcoming Professional version will offer significant performance boosts and enterprise-level features:
-
-- [ ] VR & Binocular Rendering: Native support for high-fidelity VR content.
-
 - [ ] Compressed 4DGS: Support for specialized compressed formats to reduce memory usage.
 
 - [ ] Large-Scale Environments: Support for the .sog format for city-scale static 3DGS.
 
 - [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
 
-- [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
-
 ## Release Notes
-[v1.0.0.5-beta]
+[v1.0.1.10-beta]
 
 1.Standard PLY Support (Static): Supports importing standard .ply format static Gaussian Splatting scenes with high-efficiency rendering.
 
@@ -139,6 +138,10 @@ The upcoming Professional version will offer significant performance boosts and 
 5.DirectX 12: Full support for DX12 (DirectX 12) for modern rendering performance.
 
 6.Shipping Support: Supports application packaging and distribution for Shipping builds.
+
+7.Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
+
+8.VR & Binocular Rendering: Native support for high-fidelity VR content.
 
 ## Contributors
 <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/graphs/contributors">
