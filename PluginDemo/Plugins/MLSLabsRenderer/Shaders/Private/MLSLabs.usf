@@ -8,6 +8,7 @@ Texture2D img_depth;
 Texture2D SceneColorTexture;
 Texture2D SceneDepthTexture;
 float2 ViewSize;
+float2 ViewRectMin;
 float2 SceneDepthBufferSize;
 float2 SceneDepthViewRectMin;
 float2 SceneDepthViewRectSize;
@@ -18,28 +19,31 @@ void MainPS(
     out float4 OutColor : SV_Target0
 )
 {
-    float2 norm = SvPosition.xy / ViewSize;
+    float2 localPos = SvPosition.xy - ViewRectMin;
+    float2 norm = localPos / ViewSize;
     float2 depthPixelF = SceneDepthViewRectMin + norm * SceneDepthViewRectSize;
     int2 depthPixel = int2(round(depthPixelF));
-    int2 bufMax = int2(SceneDepthBufferSize - 1);
+    int2 bufMax = max(int2(SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
     depthPixel = clamp(depthPixel, int2(0, 0), bufMax);
     float currentSceneDepth = SceneDepthTexture.Load(int3(depthPixel, 0)).r;
 
-    int3 pixelCoord = int3(SvPosition.xy, 0);
-    float4 currentSceneColor = SceneColorTexture.Load(pixelCoord);
-    float externalDepth = img_depth.Load(pixelCoord).r;
-    float4 externalColor = img_rgba.Load(pixelCoord);
-    
+    int3 pixelCoordRT = int3(SvPosition.xy, 0);
+    int3 pixelCoordGSR = int3(localPos.x, localPos.y, 0);
+    float4 currentSceneColor = SceneColorTexture.Load(pixelCoordRT);
+    float externalDepth = img_depth.Load(pixelCoordGSR).r;
+    float4 externalColor = img_rgba.Load(pixelCoordGSR);
+
     float sourceAlpha = externalColor.w;
 
     bool bDrawExternal = (externalDepth + DepthCompareBias) > currentSceneDepth;
-    
+
     if (bDrawExternal)
-    {        
+    {
         float3 BlendedColor = externalColor.rgb * sourceAlpha + currentSceneColor.rgb * (1.0f - sourceAlpha);
-        
         OutColor = float4(BlendedColor, sourceAlpha);
     }
     else
+    {
         OutColor = currentSceneColor;
+    }
 }

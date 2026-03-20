@@ -3,6 +3,7 @@
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\Module.MLSLabsRenderer.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\AnimatableGaussianSplattingActor.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\AnimatableGaussianSplattingComponent.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\EmbeddedLogo.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\GaussianSplatingRendererLibrary.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\GaussianSplattingActor.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\GaussianSplattingComponent.cpp.obj",
@@ -10,6 +11,8 @@
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsRenderer.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsRendererModule.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsRendererSubsystem.cpp.obj",
-		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\NoPhysicsPrimitiveComponent.cpp.obj"
+		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsWatermark.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\NoPhysicsPrimitiveComponent.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\WatermarkShaderEmbedded.cpp.obj"
 	]
 }
