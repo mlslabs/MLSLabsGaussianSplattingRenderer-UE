@@ -1,7 +1,7 @@
 English | [中文](./README_CN.md)
 
 <div align="center"><picture>
-  <img src="PluginDemo/Media/image/mlslabs_half.png" alt="MLSLabsRenderer-Lite" height="60">
+  <img src="PluginDemo/Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="60">
 </picture></div>
 
 <div align="center">
