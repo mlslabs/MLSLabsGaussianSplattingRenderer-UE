@@ -2,18 +2,24 @@
 
 <div align="center">
 
-<h2>
-  <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="38" alt="马栏山音视频实验室" title="马栏山音视频实验室"/></a>
-  MLSLabsRenderer-<strong>Lite</strong>
-</h2>
+<table align="center">
+  <tr>
+    <td valign="middle" style="padding-right:12px;">
+      <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="56" alt="马栏山音视频实验室" title="马栏山音视频实验室"/></a>
+    </td>
+    <td valign="middle">
+      <p align="left" style="margin:0; font-size:1.9em; line-height:1.15;">MLSLabsRenderer-<strong>Lite</strong></p>
+    </td>
+  </tr>
+</table>
 
-<p><em>3D Gaussian Splatting UE5 Plugin</em></p>
+<p align="center" style="margin-top:0.15em; margin-bottom:0;"><em>3D Gaussian Splatting UE5 Plugin</em></p>
 
-**面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件方案**
+<p align="center">面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件方案</p>
 
-实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
+<p align="center">实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。</p>
 
-<p align="left">
+<p align="center">
   <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
@@ -22,10 +28,6 @@
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
 </p>
-
-## 3DGS & 4DGS 应用案例
-
-- [4DGS重新定义VR电影拍摄](https://www.bilibili.com/video/BV13hFmzqE3h/?vd_source=2c7de8ebd046c0fc280b916fd7f72364)
 
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**入门指南**](#入门指南) •
@@ -36,6 +38,7 @@
 
 <img src="PluginDemo/Media/image/4dgs.jpg" width="720" title="4DGS重新定义VR电影拍摄" />
 
+[**应用案例**](#application-cases) •
 [**简介**](#简介) •
 [**功能特性**](#核心特性) •
 [**项目结构**](#项目结构) •
@@ -44,6 +47,14 @@
 [**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
 
 </div>
+
+---
+
+<a id="application-cases"></a>
+
+## 3DGS & 4DGS 应用案例
+
+- [4DGS重新定义VR电影拍摄](https://www.bilibili.com/video/BV13hFmzqE3h/?vd_source=2c7de8ebd046c0fc280b916fd7f72364)
 
 ---
 

@@ -2,18 +2,24 @@ English | [中文](./README_CN.md)
 
 <div align="center">
 
-<h2>
-  <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="38" alt="MaLanShan Audio &amp; Video Laboratory" title="MaLanShan Audio & Video Laboratory"/></a>
-  MLSLabsRenderer-<strong>Lite</strong>
-</h2>
+<table align="center">
+  <tr>
+    <td valign="middle" style="padding-right:12px;">
+      <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="56" alt="MaLanShan Audio &amp; Video Laboratory" title="MaLanShan Audio & Video Laboratory"/></a>
+    </td>
+    <td valign="middle">
+      <p align="left" style="margin:0; font-size:1.9em; line-height:1.15;">MLSLabsRenderer-<strong>Lite</strong></p>
+    </td>
+  </tr>
+</table>
 
-<p><em>3D Gaussian Splatting UE5 Plugin</em></p>
+<p align="center" style="margin-top:0.15em; margin-bottom:0;"><em>3D Gaussian Splatting UE5 Plugin</em></p>
 
-**High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5**
+<p align="center">High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5</p>
 
-Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
+<p align="center">Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.</p>
 
-<p align="left">
+<p align="center">
   <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
@@ -22,10 +28,6 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
 </p>
-
-## 3DGS & 4DGS Application Cases
-
-- [4DGS Redefines VR Filmmaking](https://youtu.be/wN7Sm6GbV7U)
 
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Getting Started**](#getting-started) •
@@ -36,6 +38,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 
 <img src="PluginDemo/Media/image/4dgs.jpg" width="720" title="4DGS Redefines VR Filmmaking" />
 
+[**Application Cases**](#application-cases) •
 [**Introduction**](#introduction) •
 [**Features**](#features) •
 [**Project Structure**](#project-structure) •
@@ -44,6 +47,14 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
 
 </div>
+
+---
+
+<a id="application-cases"></a>
+
+## 3DGS & 4DGS Application Cases
+
+- [4DGS Redefines VR Filmmaking](https://youtu.be/wN7Sm6GbV7U)
 
 ---
 
