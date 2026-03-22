@@ -1,8 +1,10 @@
 English | [中文](./README_CN.md)
 
+[
 <div align="center"><picture>
-  <img src="PluginDemo/Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="60">
+  <img src="PluginDemo/Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="100">
 </picture></div>
+](https://mlslabs.com.cn/)
 
 <div align="center">
 
