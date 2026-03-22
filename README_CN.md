@@ -10,7 +10,7 @@
 
 <div align="center">
 
-**3D Gaussian Splatting UE5 Plugin**
+**MLSLabsRenderer-Lite (3D Gaussian Splatting UE5 Plugin)**
 
 面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件。
 
