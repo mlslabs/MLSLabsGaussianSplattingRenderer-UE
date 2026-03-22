@@ -1,20 +1,26 @@
 [English](./README.md) | 中文
 
-[
-<div align="center"><picture>
-  <img src="PluginDemo/Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="100">
-</picture></div>
-](https://mlslabs.com.cn/)
+<br/>
 
-<div align="center">
+<table border="0" cellspacing="0" cellpadding="0" frame="void" rules="none" style="border:none;border-collapse:collapse;border-spacing:0;border-width:0;">
+  <tr style="border:0;">
+    <td valign="middle" style="padding:0 16px 0 0;border:0;border-style:none;border-width:0;outline:none;">
+      <a href="https://mlslabs.com.cn/"><img src="PluginDemo/Media/image/mlslabs_half.png" height="52" alt="马栏山音视频实验室" title="马栏山音视频实验室"/></a>
+    </td>
+    <td valign="middle" style="border:0;border-style:none;border-width:0;outline:none;">
+      <p style="margin:0; font-size:2em; line-height:1.1; font-weight:700; color:#111;">MLSLabsRenderer-Lite</p>
+    </td>
+  </tr>
+</table>
 
-**3D Gaussian Splatting UE5 Plugin**
+<p style="margin:0.85em 0 0 0; font-size:0.92em; font-weight:400; letter-spacing:0.22em; text-transform:lowercase; color:#111;">3d gaussian splatting ue5 plugin</p>
 
-面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件。
+<div style="margin-top:2.25em; margin-bottom:0;">
+  <p style="margin:0 0 1em 0; line-height:1.5; font-weight:400; color:#111;">面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件方案</p>
+  <p style="margin:0; line-height:1.5; font-weight:400; color:#111;">实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。</p>
+</div>
 
-实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
-
-<p align="center">
+<p style="margin-top:2.75em; margin-bottom:0;">
   <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
@@ -24,15 +30,20 @@
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
 </p>
 
+<p style="margin-top:2em; margin-bottom:0; line-height:1.6;">
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**入门指南**](#入门指南) •
 [**安装**](#installation) •
 [**文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**贡献者**](#贡献者)
+</p>
 
+<p style="margin-top:1.25em; margin-bottom:0;">
 <img src="PluginDemo/Media/image/4dgs.jpg" width="720" title="4DGS重新定义VR电影拍摄" />
+</p>
 
+<p style="margin-top:1.25em; margin-bottom:0; line-height:1.6;">
 [**应用案例**](#application-cases) •
 [**简介**](#简介) •
 [**功能特性**](#核心特性) •
@@ -40,8 +51,7 @@
 [**路线图**](#路线图-专业版) •
 [**版本记录**](#版本记录) •
 [**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
-
-</div>
+</p>
 
 ---
 
