@@ -1,10 +1,12 @@
 [English](./README.md) | 中文
 
-[
-<div align="center"><picture>
-  <img src="PluginDemo/Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="100">
-</picture></div>
-](https://mlslabs.com.cn/)
+<div align="center">
+  <a href="https://mlslabs.com.cn/">
+    <picture>
+      <img src="PluginDemo/Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="100">
+    </picture>
+  </a>
+</div>
 
 <div align="center">
 
