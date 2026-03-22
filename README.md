@@ -1,23 +1,16 @@
 English | [中文](./README_CN.md)
 
+<div align="center"><picture>
+  <img src="PluginDemo/Media/image/mlslabs_half.png" alt="MLSLabsRenderer-Lite" height="60">
+</picture></div>
+
 <div align="center">
 
-<table align="center">
-  <tr>
-    <td valign="middle" style="padding-right:12px;">
-      <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="56" alt="MaLanShan Audio &amp; Video Laboratory" title="MaLanShan Audio & Video Laboratory"/></a>
-    </td>
-    <td valign="middle">
-      <p align="left" style="margin:0; font-size:1.9em; line-height:1.15;">MLSLabsRenderer-<strong>Lite</strong></p>
-    </td>
-  </tr>
-</table>
+**3D Gaussian Splatting UE5 Plugin**
 
-<p align="center" style="margin-top:0.15em; margin-bottom:0;"><em>3D Gaussian Splatting UE5 Plugin</em></p>
+High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5.
 
-<p align="center">High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5</p>
-
-<p align="center">Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.</p>
+Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
 
 <p align="center">
   <a href="./LICENSE">

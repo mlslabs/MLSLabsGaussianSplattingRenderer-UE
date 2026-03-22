@@ -1,23 +1,16 @@
 [English](./README.md) | 中文
 
+<div align="center"><picture>
+  <img src="PluginDemo/Media/image/mlslabs_half.png" alt="MLSLabsRenderer-Lite" height="60">
+</picture></div>
+
 <div align="center">
 
-<table align="center">
-  <tr>
-    <td valign="middle" style="padding-right:12px;">
-      <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="56" alt="马栏山音视频实验室" title="马栏山音视频实验室"/></a>
-    </td>
-    <td valign="middle">
-      <p align="left" style="margin:0; font-size:1.9em; line-height:1.15;">MLSLabsRenderer-<strong>Lite</strong></p>
-    </td>
-  </tr>
-</table>
+**3D Gaussian Splatting UE5 Plugin**
 
-<p align="center" style="margin-top:0.15em; margin-bottom:0;"><em>3D Gaussian Splatting UE5 Plugin</em></p>
+面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件。
 
-<p align="center">面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件方案</p>
-
-<p align="center">实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。</p>
+实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
 
 <p align="center">
   <a href="./LICENSE">
