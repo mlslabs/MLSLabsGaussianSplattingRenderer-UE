@@ -1,25 +1,26 @@
 English | [中文](./README_CN.md)
 
-<div align="center">
+<br/>
 
-<table align="center">
+<table border="0" cellspacing="0" cellpadding="0">
   <tr>
-    <td valign="middle" style="padding-right:12px;">
-      <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="56" alt="MaLanShan Audio &amp; Video Laboratory" title="MaLanShan Audio & Video Laboratory"/></a>
+    <td valign="middle" style="padding:0 16px 0 0; border:0;">
+      <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="52" alt="MaLanShan Audio &amp; Video Laboratory" title="MaLanShan Audio & Video Laboratory"/></a>
     </td>
-    <td valign="middle">
-      <p align="left" style="margin:0; font-size:1.9em; line-height:1.15;">MLSLabsRenderer-<strong>Lite</strong></p>
+    <td valign="middle" style="border:0;">
+      <p style="margin:0; font-size:2em; line-height:1.1; font-weight:700; color:#111;">MLSLabsRenderer-Lite</p>
     </td>
   </tr>
 </table>
 
-<p align="center" style="margin-top:0.15em; margin-bottom:0;"><em>3D Gaussian Splatting UE5 Plugin</em></p>
+<p style="margin:0.85em 0 0 0; font-size:0.92em; font-weight:400; letter-spacing:0.22em; text-transform:lowercase; color:#111;">3d gaussian splatting ue5 plugin</p>
 
-<p align="center">High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5</p>
+<div style="margin-top:2.25em; margin-bottom:0;">
+  <p style="margin:0 0 1em 0; line-height:1.5; font-weight:400; color:#111;">High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5</p>
+  <p style="margin:0; line-height:1.5; font-weight:400; color:#111;">Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.</p>
+</div>
 
-<p align="center">Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.</p>
-
-<p align="center">
+<p style="margin-top:2.75em; margin-bottom:0;">
   <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
@@ -29,15 +30,20 @@ English | [中文](./README_CN.md)
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
 </p>
 
+<p style="margin-top:2em; margin-bottom:0; line-height:1.6;">
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
 [**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**Contributors**](#contributors)
+</p>
 
+<p style="margin-top:1.25em; margin-bottom:0;">
 <img src="PluginDemo/Media/image/4dgs.jpg" width="720" title="4DGS Redefines VR Filmmaking" />
+</p>
 
+<p style="margin-top:1.25em; margin-bottom:0; line-height:1.6;">
 [**Application Cases**](#application-cases) •
 [**Introduction**](#introduction) •
 [**Features**](#features) •
@@ -45,8 +51,7 @@ English | [中文](./README_CN.md)
 [**Roadmap**](#roadmap-pro-version) •
 [**Release Notes**](#release-notes) •
 [**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
-
-</div>
+</p>
 
 ---
 
