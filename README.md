@@ -1,4 +1,17 @@
-# MLSLabsRenderer-Lite (3D Gaussian Splatting UE5 Plugin)
+English | [中文](./README_CN.md)
+
+<div align="center">
+
+<h2>
+  <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="38" alt="MaLanShan Audio &amp; Video Laboratory" title="MaLanShan Audio & Video Laboratory"/></a>
+  MLSLabsRenderer-<strong>Lite</strong>
+</h2>
+
+<p><em>3D Gaussian Splatting UE5 Plugin</em></p>
+
+**High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5**
+
+Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
 
 <p align="left">
   <a href="./LICENSE">
@@ -9,18 +22,6 @@
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
 </p>
-
-English | [中文](./README_CN.md)
-
-<div align="center">
-
-[
-  <img src="PluginDemo/Media/image/mlslabs_half.png" width="583" title="MaLanShan Audio & Video Laboratory" />
-](https://github.com/mlslabs)
-
-**High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5**
-
-Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
 
 ## 3DGS & 4DGS Application Cases
 

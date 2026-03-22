@@ -1,4 +1,17 @@
-# MLSLabsRenderer-Lite(3D Gaussian Splatting UE5 Plugin)
+[English](./README.md) | 中文
+
+<div align="center">
+
+<h2>
+  <a href="https://github.com/mlslabs"><img src="PluginDemo/Media/image/mlslabs_half.png" height="38" alt="马栏山音视频实验室" title="马栏山音视频实验室"/></a>
+  MLSLabsRenderer-<strong>Lite</strong>
+</h2>
+
+<p><em>3D Gaussian Splatting UE5 Plugin</em></p>
+
+**面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件方案**
+
+实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
 
 <p align="left">
   <a href="./LICENSE">
@@ -9,18 +22,6 @@
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
 </p>
-
-[English](./README.md) | 中文
-
-<div align="center">
-
-[
-<img src="PluginDemo/Media/image/mlslabs_half.png" width="583" title="马栏山音视频实验室" />
-](https://github.com/mlslabs)
-
-**面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件方案**
-
-实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
 
 ## 3DGS & 4DGS 应用案例
 
