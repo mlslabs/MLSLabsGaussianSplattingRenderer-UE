@@ -120,7 +120,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ### 2. 环境要求
 
 - **操作系统**: Windows 10 或 11 (64位)
-- **虚幻引擎版本**: 5.5.x
+- **虚幻引擎版本**: 5.7.x
 - **图形 API**: DirectX 12
 - **显卡要求**: 必须使用支持 **SM 7.5 (Shader Model 7.5)** 指令集及以上的英伟达 (NVIDIA) 显卡。
 - **最低硬件**: NVIDIA GeForce RTX 2060 或更高。
