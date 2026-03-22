@@ -12,27 +12,37 @@
 
 English | [中文](./README_CN.md)
 
+<div align="center">
+
 [
-  <img src="PluginDemo/Media/image/mlslabs.png" width="583" title="MaLanShan Audio & Video Laboratory" />
+  <img src="PluginDemo/Media/image/mlslabs_half.png" width="583" title="MaLanShan Audio & Video Laboratory" />
 ](https://github.com/mlslabs)
+
+**High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5**
+
+Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
 
 ## 3DGS & 4DGS Application Cases
 
 - [4DGS Redefines VR Filmmaking](https://youtu.be/wN7Sm6GbV7U)
 
+[**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
+[**Getting Started**](#getting-started) •
+[**Installation**](#installation) •
+[**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md) •
+[**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
+[**Contributors**](#contributors)
+
 <img src="PluginDemo/Media/image/4dgs.jpg" width="720" title="4DGS Redefines VR Filmmaking" />
 
----
+[**Introduction**](#introduction) •
+[**Features**](#features) •
+[**Project Structure**](#project-structure) •
+[**Roadmap**](#roadmap-pro-version) •
+[**Release Notes**](#release-notes) •
+[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
 
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Project Structure](#project-structure)
-- [Features](#features)
-- [Getting Started](#getting-started)
-- [Roadmap (Pro Version)](#roadmap-pro-version)
-- [Release Notes](#release-notes)
-- [Contributors](#contributors)
+</div>
 
 ---
 
@@ -41,12 +51,6 @@ English | [中文](./README_CN.md)
 **MLSLabsRenderer-Lite** is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is engineered for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
 
 By utilizing a custom rendering pipeline rather than traditional particle systems, the plugin ensures high frame rates even with millions of Gaussians, effectively bypassing the performance bottlenecks typical of Niagara.
-
----
-
-
-## Key Topics
-`3D Gaussian Splatting` | `4D Volumetric Video` | `Unreal Engine 5 Rendering` | `Real-time Visualization` | `Computer Vision` | `Computer Graphics`
 
 ---
 
@@ -77,6 +81,7 @@ The `PluginDemo` folder contains all UE5 plugin assets, source code, and documen
 - [插件指南 (中文)](./PluginDemo/README_CN.md)
 
 ### Features
+
 - **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 7M+ Gaussians at 50 FPS+(tested on NVIDIA RTX 4070 Ti).**
 
 <img src="PluginDemo/Media/image/7M_50+fps.jpg" width="500" />
@@ -88,14 +93,20 @@ The `PluginDemo` folder contains all UE5 plugin assets, source code, and documen
 - **Custom Rendering Engine: Built from the ground up (Non-Niagara) for maximum throughput and low latency.**
 
 - **Production Workflow: Seamless integration with native UE assets and fast resource importing.**
+
 ---
+
 ## Getting Started
+
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 cd MLSLabsGaussianSplattingRenderer-UE
 ```
+
 ### 2. Requirements
+
 - **Operating System**: Windows 10 or 11 (64-bit)
 - **Unreal Engine**: 5.5.x
 - **Graphics API**: DirectX 12
@@ -103,7 +114,10 @@ cd MLSLabsGaussianSplattingRenderer-UE
 - **Minimum Hardware**: NVIDIA GeForce **RTX 2060** or better.
 - **Recommended Hardware**: NVIDIA GeForce **RTX 4070Ti** or better.
 
+<a id="installation"></a>
+
 ### 3. Installation
+
 Download the MLSLabsRenderer plugin from the link specified in ./PluginDemo/Plugins/download.txt.
 
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
@@ -113,6 +127,7 @@ For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer 
 Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 
 ### Roadmap (Pro Version)
+
 The upcoming Professional version will offer significant performance boosts and enterprise-level features:
 
 - [ ] VR & Binocular Rendering: Native support for high-fidelity VR content.
@@ -126,6 +141,7 @@ The upcoming Professional version will offer significant performance boosts and 
 - [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
 
 ## Release Notes
+
 [v1.0.0.5-beta]
 
 1.Standard PLY Support (Static): Supports importing standard .ply format static Gaussian Splatting scenes with high-efficiency rendering.
@@ -141,6 +157,7 @@ The upcoming Professional version will offer significant performance boosts and 
 6.Shipping Support: Supports application packaging and distribution for Shipping builds.
 
 ## Contributors
+
 <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=mlslabs/MLSLabsGaussianSplattingRenderer-UE" />
 </a>
