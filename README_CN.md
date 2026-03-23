@@ -121,10 +121,9 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 ### 3. 安装步骤
 
-1. 从 `./Plugins/download.txt` 中指定的链接下载 `MLSLabsRenderer` 插件。
-2. 将 `Plugins/MLSLabsRenderer` 文件夹复制到你项目的 `Plugins/` 目录下。
-3. **关于项目打包：** 为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹复制到 UE5.5 引擎安装目录中（例如：`Epic Games\UE_5.5\Engine\Plugins\Marketplace`）。
-4. 在虚幻引擎编辑器的“插件浏览器”中启用 **MLSLabsRenderer**。
+1. 将 `Plugins/MLSLabsRenderer` 文件夹复制到你项目的 `Plugins/` 目录下。
+2. **关于项目打包：** 为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹复制到 UE5.5 引擎安装目录中（例如：`Epic Games\UE_5.5\Engine\Plugins\Marketplace`）。
+3. 在虚幻引擎编辑器的“插件浏览器”中启用 **MLSLabsRenderer**。
 
 ---
 

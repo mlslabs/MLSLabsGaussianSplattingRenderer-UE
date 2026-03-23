@@ -50,7 +50,7 @@ B站（中文）：
 
   <img src="../Media/image/github_release.jpg" width="500" />
 
-  2. Choose the latest version.
+  2. Select the appropriate plugin version according to the engine version..
   <img src="../Media/image/github_release_latest.jpg" width="500" />
   
   3. Download the zip file.
@@ -62,9 +62,17 @@ B站（中文）：
 
   <img src="../Media/image/unzip.jpg" width="500" />
   
-  Alternatively, unzip it directly into your project's `Plugins\` folder.
+  If there is no Marketplace directory, please create a new one.
+  
+  <img src="../Media/image/marketplace.jpg" width="500" />
+  
+  Alternatively, unzip it directly into your project's `Plugins\` folder. 
+  
+  <font color="red">Attention, To ensure successful project packaging, unzip the MLSLabsRenderer folder to your UE5.5 Engine directory </font>
   
   <img src="../Media/image/after_unzip.jpg" width="500" />
+  
+  <font color="red">This plugin conflicts with the Jawset Postshot UE5 plugin. Please back up the Jawset Postshot plugin to a directory outside the Plugins folder or to the Plugins\Marketplace directory.</font>
   
   5. Open Unreal Editor，enable the MLSLabsRenderer Plugin, and restart editor.
 

@@ -51,7 +51,7 @@ B站（中文）：
 
   <img src="../Media/image/github_release.jpg" width="500" />
 
-  2. 下载最新版本。
+  2. 根据引擎版本选择合适的插件版本。
   
   <img src="../Media/image/github_release_latest.jpg" width="500" />
   
@@ -64,9 +64,17 @@ B站（中文）：
 
   <img src="../Media/image/unzip.jpg" width="500" />
   
+  如果没有Marketplace目录，请新建一个。
+  
+  <img src="../Media/image/marketplace.jpg" width="500" />
+  
   或者，直接解压到你项目根目录的`Plugins\`文件夹中。
   
+  <font color="red">为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹解压到 UE5.5 引擎安装目录中</font>
+  
   <img src="../Media/image/after_unzip.jpg" width="500" />
+  
+  <font color="red">本插件与Jawset Postshot UE5插件冲突，请将Jawset Postshot插件备份到非Plugins或者Plugins\Marketplace目录。</font>
   
   5. 打开虚幻编辑器，启用MLSLabsRenderer 插件，并重启编辑器。
 

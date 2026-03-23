@@ -122,8 +122,6 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 ### 3. Installation
 
-Download the MLSLabsRenderer plugin from the link specified in ./Plugins/download.txt.
-
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
 
 For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.5 Engine directory (e.g., Epic Games\UE_5.5\Engine\Plugins\Marketplace).
