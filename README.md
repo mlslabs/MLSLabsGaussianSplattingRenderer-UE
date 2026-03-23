@@ -33,7 +33,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**Contributors**](#contributors)
 
-<img src="Media/image/4dgs.jpg" width="720" title="4DGS Redefines VR Filmmaking" />
+<img src="Media/image/dance.gif" width="720" title="4DGS Redefines VR Filmmaking" />
 
 [**Application Cases**](#application-cases) •
 [**Introduction**](#introduction) •

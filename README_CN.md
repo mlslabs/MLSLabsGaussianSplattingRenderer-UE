@@ -33,7 +33,7 @@
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**贡献者**](#贡献者)
 
-<img src="Media/image/4dgs.jpg" width="720" title="4DGS重新定义VR电影拍摄" />
+<img src="Media/image/dance.gif" width="720" title="4DGS重新定义VR电影拍摄" />
 
 [**应用案例**](#application-cases) •
 [**简介**](#简介) •
