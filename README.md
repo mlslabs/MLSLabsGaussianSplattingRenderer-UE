@@ -40,8 +40,8 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Features**](#features) •
 [**Project Structure**](#project-structure) •
 [**Roadmap**](#roadmap-pro-version) •
-[**Release Notes**](#release-notes) •
-[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
+[**Pro version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.5-plugin-pro) •
+[**Release Notes**](#release-notes)
 
 </div>
 

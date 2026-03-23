@@ -40,8 +40,8 @@
 [**功能特性**](#核心特性) •
 [**项目结构**](#项目结构) •
 [**路线图**](#路线图-专业版) •
-[**版本记录**](#版本记录) •
-[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
+[**专业版**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.5-plugin-pro) •
+[**版本记录**](#版本记录)
 
 </div>
 
