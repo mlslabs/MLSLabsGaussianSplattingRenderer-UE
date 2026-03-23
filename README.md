@@ -29,7 +29,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
-[**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/docs/README.md) •
+[**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.6-plugin-pro/docs/README.md) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**Contributors**](#contributors)
 
@@ -42,7 +42,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Roadmap**](#roadmap-pro-version) •
 [**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.6-plugin-lite) •
 [**Release Notes**](#release-notes) •
-[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
+[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.6-plugin-pro/LICENSE)
 
 </div>
 
@@ -144,8 +144,6 @@ The upcoming Professional version will offer significant performance boosts and 
 - [ ] Large-Scale Environments: Support for the .sog format for city-scale static 3DGS.
 
 - [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
-
-- [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 5M+ Gaussians static scenes.
 
 ## Release Notes
 
