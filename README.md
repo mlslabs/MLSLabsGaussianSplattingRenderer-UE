@@ -3,7 +3,7 @@ English | [中文](./README_CN.md)
 <div align="center">
   <a href="https://mlslabs.com.cn/">
     <picture>
-      <img src="PluginDemo/Media/image/mlslabs.png" alt="MLSLabsRenderer-Pro" height="100">
+      <img src="Media/image/mlslabs.png" alt="MLSLabsRenderer-Pro" height="100">
     </picture>
   </a>
 </div>
@@ -20,7 +20,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
   <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
-  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.5-white?logo=unrealengine&logoColor=white&color=0E1128">
+  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.6-white?logo=unrealengine&logoColor=white&color=0E1128">
   <img alt="Topic 3DGS" src="https://img.shields.io/badge/Topic-3DGS-orange">
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
@@ -29,17 +29,18 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
-[**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md) •
+[**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/docs/README.md) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**Contributors**](#contributors)
 
-<img src="PluginDemo/Media/image/4dgs.jpg" width="720" title="4DGS Redefines VR Filmmaking" />
+<img src="Media/image/dance.gif" width="720" title="4DGS Redefines VR Filmmaking" />
 
 [**Application Cases**](#application-cases) •
 [**Introduction**](#introduction) •
 [**Features**](#features) •
 [**Project Structure**](#project-structure) •
 [**Roadmap**](#roadmap-pro-version) •
+[**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.6-plugin-lite) •
 [**Release Notes**](#release-notes) •
 [**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
 
@@ -67,33 +68,30 @@ By utilizing a custom rendering pipeline rather than traditional particle system
 
 ```text
 📦 MLSLabsGaussianSplattingRenderer-UE
-├─ 📁 PluginDemo
-│  ├─ Config/                # Plugin configuration presets
-│  ├─ Content/               # Example assets
-│  │  └─ Maps/               # Map assets
-│  ├─ Media/                 # Documentation images and videos
-│  ├─ Plugin/                # Plugin source code
-│  ├─ README.md              # English plugin guide
-│  └─ README_CN.md           # 中文插件指南
+├─ 📁 docs/                  # Plugin guides (EN / CN)
+├─ 📁 Media/                 # Documentation images and videos
+├─ 📁 Plugins/               # MLSLabsRenderer plugin source
+├─ 📁 TestData/              #Test Data
+    ├─ 📁 ply/               #ply Data
+	    ├─ data_download_link.md               # Test data download link
 ├─ LICENSE
 ├─ README.md                 # Main overview file
 └─ README_CN.md              # 中文概述
 ```
+## Repository layout
 
-## PluginDemo
-
-The `PluginDemo` folder contains all UE5 plugin assets, source code, and documentation.
+The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs` folder contains detailed plugin guides.
 
 **Quick Links:**
 
-- [Plugin Guide (EN)](./PluginDemo/README.md)
-- [插件指南 (中文)](./PluginDemo/README_CN.md)
+- [Plugin Guide (EN)](./docs/README.md)
+- [插件指南 (中文)](./docs/README_CN.md)
 
 ### Features
 
-- **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 7M+ Gaussians at 50 FPS+(tested on NVIDIA RTX 4070 Ti).**
+- **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 5M+ Gaussians at 50 FPS+(tested on NVIDIA RTX 4070 Ti).**
 
-<img src="PluginDemo/Media/image/7M_50+fps.jpg" width="1000" />
+<img src="Media/image/7M_50+fps.jpg" width="1000" />
 
 - **Dynamic 4DGS Playback: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100 FPS+.(tested on NVIDIA RTX 4070 Ti)**
 
@@ -131,11 +129,9 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 ### 3. Installation
 
-Download the MLSLabsRenderer plugin from the link specified in ./PluginDemo/Plugins/download.txt.
-
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
 
-For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.5 Engine directory (e.g., Epic Games\UE_5.5\Engine\Plugins\Marketplace).
+For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.6 Engine directory (e.g., Epic Games\UE_5.6\Engine\Plugins\Marketplace).
 
 Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 
@@ -149,21 +145,41 @@ The upcoming Professional version will offer significant performance boosts and 
 
 - [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
 
+- [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 5M+ Gaussians static scenes.
+
 ## Release Notes
 
-[v1.0.0.5-beta]
+**Pro_V1.0.1.10_beta**
+1. Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 5M+ Gaussians static scenes.
+2. VR & Binocular Rendering: Native support for high-fidelity VR content.
+3. Fixed an issue where colors appeared abnormal on Scaled Gaussian Splatting nodes.
+4. Resolved the "access denied" error when deleting libraries (e.g., cublas64_12.dll) during the packaging process.
+5. Added logo watermarking; note that paid removal of watermarks is not yet supported.
+6. Fixed incorrect rotation of Gaussian characters when Pitch, Yaw, and Roll operations occur simultaneously.
+7. Added support for rendering on non-primary GPUs (ID > 0) for multi-card systems.
 
-1.Standard PLY Support (Static): Supports importing standard .ply format static Gaussian Splatting scenes with high-efficiency rendering.
+**Lite_V1.0.0.9_beta**
+1. Fixed blending artifacts caused by depth buffer resolution mismatch between Editor and Play modes.
+2. Supports outputting logs to the Unreal Engine log file.
 
-2.Volumetric Video (4DGS): Supports importing standard .ply sequence frames for volumetric video (4DGS) with high-efficiency rendering.
+**Lite_V1.0.0.8_beta**
+1. Support PLY files with sh_degree=0.
+2. Fix significant frame rate drop and memory exhaustion when entering preview mode for newly added cameras.
 
-3.Quick Focus: Press the F key to quickly focus on and frame the Gaussian Actor in the viewport.
+**Lite_V1.0.0.7_beta**
+1. Decouple the LibTorch library and prompt users to download it manually upon the first time using the plugin.
+2. support ue 5.5,5.6,5.7.
 
-4.Sequencer Integration: Volumetric Video Actors support keyframe animation and timeline control within the Unreal Engine Sequencer.
+**Lite_V1.0.0.6_beta**
+1. fixed Repeatedly dragging to update the Gaussian Actor's transform causes the engine to crash. 
 
-5.DirectX 12: Full support for DX12 (DirectX 12) for modern rendering performance.
-
-6.Shipping Support: Supports application packaging and distribution for Shipping builds.
+**Lite_V1.0.0.5_beta**
+1. Standard PLY Support (Static): Supports importing standard .ply format static Gaussian Splatting scenes with high-efficiency rendering.
+2. Volumetric Video (4DGS): Supports importing standard .ply sequence frames for volumetric video (4DGS) with high-efficiency rendering.
+3. Quick Focus: Press the F key to quickly focus on and frame the Gaussian Actor in the viewport.
+4. Sequencer Integration: Volumetric Video Actors support keyframe animation and timeline control within the Unreal Engine Sequencer.
+5. DirectX 12: Full support for DX12 (DirectX 12) for modern rendering performance.
+6. Shipping Support: Supports application packaging and distribution for Shipping builds.
 
 ## Contributors
 
