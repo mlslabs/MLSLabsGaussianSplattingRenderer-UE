@@ -68,7 +68,7 @@ B站（中文）：
   
   Alternatively, unzip it directly into your project's `Plugins\` folder. 
   
-  <font color="red">Attention, To ensure successful project packaging, unzip the MLSLabsRenderer folder to your UE5.5 Engine directory </font>
+  <font color="red">Attention, To ensure successful project packaging, unzip the MLSLabsRenderer folder to your UE5.6 Engine directory </font>
   
   <img src="../Media/image/after_unzip.jpg" width="500" />
   
