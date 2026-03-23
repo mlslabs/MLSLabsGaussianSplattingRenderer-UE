@@ -6,7 +6,7 @@
 [English](./README.md) | 中文
 
 [
-<img src="Media/image/mlslabs.png" width="583" title="马栏山音视频实验室" />
+<img src="../Media/image/mlslabs.png" width="583" title="马栏山音视频实验室" />
 ](https://github.com/mlslabs)
 
 
@@ -49,162 +49,167 @@ B站（中文）：
 
   1. 打开 GitHub Releases 页面。
 
-  <img src="Media/image/github_release.jpg" width="500" />
+  <img src="../Media/image/github_release.jpg" width="500" />
 
-  2. 下载最新版本。
+  2. 根据引擎版本选择合适的插件版本。
   
-  <img src="Media/image/github_release_latest.jpg" width="500" />
+  <img src="../Media/image/github_release_latest.jpg" width="500" />
   
   3. 下载 zip 压缩包。
 
-  <img src="Media/image/download_link.jpg" width="500" />
+  <img src="../Media/image/download_link.jpg" width="500" />
 
   4. 安装方法：
   如果你需要打包项目，请将下载的插件包解压到引擎安装目录下的 'Plugins\Marketplace' 文件夹中。
 
-  <img src="Media/image/unzip.jpg" width="500" />
+  <img src="../Media/image/unzip.jpg" width="500" />
+  
+  如果没有Marketplace目录，请新建一个。
+  
+  <img src="../Media/image/marketplace.jpg" width="500" />
   
   或者，直接解压到你项目根目录的`Plugins\`文件夹中。
   
-  <img src="Media/image/after_unzip.jpg" width="500" />
+  <font color="red">为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹解压到 UE5.7 引擎安装目录中</font>
+  
+  <img src="../Media/image/after_unzip.jpg" width="500" />
+  
+  <font color="red">本插件与Jawset Postshot UE5插件冲突，请将Jawset Postshot插件备份到非Plugins或者Plugins\Marketplace目录。</font>
   
   5. 打开虚幻编辑器，启用MLSLabsRenderer 插件，并重启编辑器。
 
-  <img src="Media/image/enable_plugin.jpg" width="500" />
+  <img src="../Media/image/enable_plugin.jpg" width="500" />
   
   6. 启动虚幻编辑器后，打开安装环境提示，或者在导航栏点击安装环境按钮。
   
-  <img src="Media/image/setup_env_tip.jpg" width="500" />
+  <img src="../Media/image/setup_env_tip.jpg" width="500" />
   
   7. 安装环境界面如下，点击"Install Dependencies"。
   
-  <img src="Media/image/install_dep.jpg" width="500" />
+  <img src="../Media/image/install_dep.jpg" width="500" />
   
   8. 等待下载安装libtorch包，请耐心等待一下。
   
-  <img src="Media/image/install_dep_progress.jpg" width="500" />
+  <img src="../Media/image/install_dep_progress.jpg" width="500" />
   
   
    如果下载失败，出现如下错误：
    
    
-   <img src="Media/image/download_faile.jpg" width="500" />
+   <img src="../Media/image/download_faile.jpg" width="500" />
    
    
    可以尝试直接下载libtorch库 (https://download.pytorch.org/libtorch/cu128/libtorch-win-shared-with-deps-2.7.0%2Bcu128.zip) ，然后解压到以下目录：
    
    
-   <img src="Media/image/unzip_libtorch.jpg" width="500" />
+   <img src="../Media/image/unzip_libtorch.jpg" width="500" />
    
    
   9. 安装完成，点击自动重启编辑器。
   
-  <img src="Media/image/install_dep_complete.jpg" width="500" />
+  <img src="../Media/image/install_dep_complete.jpg" width="500" />
   
   10. 自动重启编辑器失败，需要手动重启编辑器，这一步非常重要，否则插件无法正确加载。
   
-  <img src="Media/image/install_dep_manual_restart.jpg" width="500" />
+  <img src="../Media/image/install_dep_manual_restart.jpg" width="500" />
 
  ## 示例数据下载链接：
 
 建议到[SuperSplat](https://superspl.at/) 下载ply文件，可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
 
 
-## 打开演示项目
-本仓库包含一个带有示例场景和关卡的演示项目。
+## 在虚幻项目中使用
 
-0. 使用 git clone 下载：
-```
-git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
-```
+0. 克隆本仓库（或下载发行包），获得 `Plugins/MLSLabsRenderer` 文件夹。
 
-1. 打开 PluginDemo.uproject 启动 UE。
-2. 打开 Maps/Test 关卡。
+1. 创建或打开虚幻引擎 5.7 工程，将 `Plugins/MLSLabsRenderer` 复制到工程的 `Plugins` 目录。
+
+2. 在 **编辑 → 插件** 中启用 **MLSLabsRenderer**，然后重启编辑器。
 
 ## 导入静态高斯泼溅模型
 
 1.点击导航栏上的“Import single 3D Gaussian Splatting file” 按钮。
 
-<img src="Media/image/import_single_ply.jpg" width="500" />
+<img src="../Media/image/import_single_ply.jpg" width="500" />
 
 2.选择你的 .ply 文件。
 
 感谢作者saemranian提供的测试数据[Ahmad_Apt_Mix_01](https://superspl.at/view?id=f32cc087)。
 
-<img src="Media/image/select_single_ply.jpg" width="500" />
+<img src="../Media/image/select_single_ply.jpg" width="500" />
 
 3.导入完成后，将生成的蓝图 (BP) 资产拖入视口。
 
-<img src="Media/image/single_ply_drag_to_level.jpg" width="500" />
+<img src="../Media/image/single_ply_drag_to_level.jpg" width="500" />
 
 4.场景将开始渲染。你可以使用移动、旋转和缩放工具来调整其位置。 注意：“Splat Data Path”（泼溅数据路径）使用的是绝对路径。如果你移动了项目或将其克隆到新机器上，请务必更新该路径以指向你本地的 .ply 文件。
 
-<img src="Media/image/render_single_ply.jpg" width="500" />
+<img src="../Media/image/render_single_ply.jpg" width="500" />
 
 
 ## 导入动画高斯泼溅（4DGS/体积视频）模型
 
 1.点击导航栏上的 “Import multiple 3D Gaussian Splatting files” 按钮。
 
-<img src="Media/image/import_multiple_plys.jpg" width="500" />
+<img src="../Media/image/import_multiple_plys.jpg" width="500" />
 
 2.选择多个 .ply 文件（无需选择所有文件；只需选择其中两个以上的文件，插件会自动加载该目录下的整个序列）。
 
-<img src="Media/image/select_multiple_plys.jpg" width="500" />
+<img src="../Media/image/select_multiple_plys.jpg" width="500" />
 
 3.将生成的动画蓝图 (BP) 资产拖入视口。
 
-<img src="Media/image/multiple_ply_drag_to_level.jpg" width="500" />
+<img src="../Media/image/multiple_ply_drag_to_level.jpg" width="500" />
 
 4.动画的第一帧将显示。“Frame Count”（帧数）表示加载的总帧数。
 
 你可以使用移动、旋转和缩放工具调整其位置。 注意：“Splat Data Path” 使用的是绝对路径。如果你移动了项目，请确保将路径更新为你本地 .ply 序列所在的目录。
 
-<img src="Media/image/render_multiple_ply.jpg" width="500" />
+<img src="../Media/image/render_multiple_ply.jpg" width="500" />
 
 5.选中高斯泼溅 Actor 后，可以按 “F” 键快速聚焦。
 
-<img src="Media/image/focus.jpg" width="500" />
+<img src="../Media/image/focus.jpg" width="500" />
 
 6.启用播放： 在“细节”（Details）面板中点击 “Add”（添加）按钮。 搜索并添加 “Volume Actor” 组件。
 
-<img src="Media/image/add_volume_actor_comp.jpg" width="500" />
+<img src="../Media/image/add_volume_actor_comp.jpg" width="500" />
 
 点击顶部导航栏的 “Play”（运行）按钮。
 
-<img src="Media/image/enter_run_mode.jpg" width="500" />
+<img src="../Media/image/enter_run_mode.jpg" width="500" />
 
 体积视频 (4DGS) 将开始播放。
 
-<img src="Media/image/play_volume_video.jpg" width="500" />
+<img src="../Media/image/play_volume_video.jpg" width="500" />
 
 ## 通过 UE Sequencer 控制关键帧
 
 1.创建一个新的 Level Sequence（层级序列）。
 
-<img src="Media/image/new_sequence.jpg" width="500" />
+<img src="../Media/image/new_sequence.jpg" width="500" />
 
 2.将选中的动画高斯泼溅 Actor 添加到 Sequencer 中。
 
-<img src="Media/image/add_animation_actor_to_seq.jpg" width="500" />
+<img src="../Media/image/add_animation_actor_to_seq.jpg" width="500" />
 
 3.为轨道添加 AnimSplattingComponent。
 
-<img src="Media/image/add_AnimSplattingComponent.jpg" width="500" />
+<img src="../Media/image/add_AnimSplattingComponent.jpg" width="500" />
 
 4.在轨道中添加 Frame Index（帧索引）。
 
-<img src="Media/image/add_FrameIndex.jpg" width="500" />
+<img src="../Media/image/add_FrameIndex.jpg" width="500" />
 
 5.根据需要，在 “Frame Index” 轨道上添加关键帧以控制播放进度。
 
-<img src="Media/image/add_key_frame.jpg" width="500" />
+<img src="../Media/image/add_key_frame.jpg" width="500" />
 
 ## Windows 平台打包
 
 该插件目前以 Shipping 包形式提供，因此你必须将项目的“构建配置”（Build Configuration）设置为 Shipping。
 打包环境要求：Visual Studio 2022, MSVC v143 x64。
 
-<img src="Media/image/package.jpg" width="500" />
+<img src="../Media/image/package.jpg" width="500" />
 
 重要提示：打包后，请确保 .ply 文件存放在目标机器上相同的绝对路径下，以保证应用程序能够正确运行。
