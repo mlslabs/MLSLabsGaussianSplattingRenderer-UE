@@ -17,7 +17,7 @@
 实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
 
 <p align="center">
-  <a href="./LICENSE">
+  <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-lite/LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
   <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.5-white?logo=unrealengine&logoColor=white&color=0E1128">
@@ -29,7 +29,7 @@
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**入门指南**](#入门指南) •
 [**安装**](#installation) •
-[**文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/docs/README.md) •
+[**文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-lite/docs/README.md) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**贡献者**](#贡献者)
 
