@@ -63,12 +63,6 @@ By utilizing a custom rendering pipeline rather than traditional particle system
 
 ---
 
-
-## Key Topics
-`3D Gaussian Splatting` | `4D Volumetric Video` | `Unreal Engine 5 Rendering` | `Real-time Visualization` | `Computer Vision` | `Computer Graphics`
-
----
-
 ## Project Structure
 
 ```text
