@@ -63,11 +63,6 @@
 
 ---
 
-## Key Topics
-`3D Gaussian Splatting` | `4D Volumetric Video` | `Unreal Engine 5 Rendering` | `Real-time Visualization` | `Computer Vision` | `Computer Graphics` | `虚幻引擎` | `插件` | `高斯泼溅`
-
----
-
 ## 项目结构
 
 ```text
