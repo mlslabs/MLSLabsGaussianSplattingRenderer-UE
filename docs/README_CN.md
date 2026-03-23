@@ -70,7 +70,7 @@ B站（中文）：
   
   或者，直接解压到你项目根目录的`Plugins\`文件夹中。
   
-  <font color="red">为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹解压到 UE5.5 引擎安装目录中</font>
+  <font color="red">为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹解压到 UE5.6 引擎安装目录中</font>
   
   <img src="../Media/image/after_unzip.jpg" width="500" />
   
