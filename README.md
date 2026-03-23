@@ -86,7 +86,7 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 ### Features
 
-- **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 7M+ Gaussians at 50 FPS+(tested on NVIDIA RTX 4070 Ti).**
+- **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 5M+ Gaussians at 50 FPS+(tested on NVIDIA RTX 4070 Ti).**
 
 <img src="Media/image/7M_50+fps.jpg" width="1000" />
 
@@ -140,12 +140,12 @@ The upcoming Professional version will offer significant performance boosts and 
 
 - [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
 
-- [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
+- [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 5M+ Gaussians static scenes.
 
 ## Release Notes
 
 **Pro_V1.0.1.10_beta**
-1. Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
+1. Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 5M+ Gaussians static scenes.
 2. VR & Binocular Rendering: Native support for high-fidelity VR content.
 3. Fixed an issue where colors appeared abnormal on Scaled Gaussian Splatting nodes.
 4. Resolved the "access denied" error when deleting libraries (e.g., cublas64_12.dll) during the packaging process.
