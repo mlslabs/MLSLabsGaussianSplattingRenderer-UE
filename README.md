@@ -3,7 +3,7 @@ English | [中文](./README_CN.md)
 <div align="center">
   <a href="https://mlslabs.com.cn/">
     <picture>
-      <img src="PluginDemo/Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="100">
+      <img src="Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="100">
     </picture>
   </a>
 </div>
@@ -29,11 +29,11 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
-[**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md) •
+[**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/docs/README.md) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**Contributors**](#contributors)
 
-<img src="PluginDemo/Media/image/4dgs.jpg" width="720" title="4DGS Redefines VR Filmmaking" />
+<img src="Media/image/4dgs.jpg" width="720" title="4DGS Redefines VR Filmmaking" />
 
 [**Application Cases**](#application-cases) •
 [**Introduction**](#introduction) •
@@ -67,33 +67,28 @@ By utilizing a custom rendering pipeline rather than traditional particle system
 
 ```text
 📦 MLSLabsGaussianSplattingRenderer-UE
-├─ 📁 PluginDemo
-│  ├─ Config/                # Plugin configuration presets
-│  ├─ Content/               # Example assets
-│  │  └─ Maps/               # Map assets
-│  ├─ Media/                 # Documentation images and videos
-│  ├─ Plugin/                # Plugin source code
-│  ├─ README.md              # English plugin guide
-│  └─ README_CN.md           # 中文插件指南
+├─ 📁 docs/                  # Plugin guides (EN / CN)
+├─ 📁 Media/                 # Documentation images and videos
+├─ 📁 Plugins/               # MLSLabsRenderer plugin source
 ├─ LICENSE
 ├─ README.md                 # Main overview file
 └─ README_CN.md              # 中文概述
 ```
 
-## PluginDemo
+## Repository layout
 
-The `PluginDemo` folder contains all UE5 plugin assets, source code, and documentation.
+The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs` folder contains detailed plugin guides.
 
 **Quick Links:**
 
-- [Plugin Guide (EN)](./PluginDemo/README.md)
-- [插件指南 (中文)](./PluginDemo/README_CN.md)
+- [Plugin Guide (EN)](./docs/README.md)
+- [插件指南 (中文)](./docs/README_CN.md)
 
 ### Features
 
 - **High-Performance Static 3DGS: High-quality rendering of standard .ply models supporting up to 7M+ Gaussians at 50 FPS+(tested on NVIDIA RTX 4070 Ti).**
 
-<img src="PluginDemo/Media/image/7M_50+fps.jpg" width="1000" />
+<img src="Media/image/7M_50+fps.jpg" width="1000" />
 
 - **Dynamic 4DGS Playback: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100 FPS+.(tested on NVIDIA RTX 4070 Ti)**
 
@@ -127,7 +122,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 ### 3. Installation
 
-Download the MLSLabsRenderer plugin from the link specified in ./PluginDemo/Plugins/download.txt.
+Download the MLSLabsRenderer plugin from the link specified in ./Plugins/download.txt.
 
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
 
