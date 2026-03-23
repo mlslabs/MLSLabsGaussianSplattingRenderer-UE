@@ -29,7 +29,7 @@
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**入门指南**](#入门指南) •
 [**安装**](#installation) •
-[**文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/docs/README.md) •
+[**文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.6-plugin-pro/docs/README.md) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**贡献者**](#贡献者)
 
@@ -42,7 +42,7 @@
 [**路线图**](#路线图-专业版) •
 [**入门版（Lite）**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.6-plugin-lite) •
 [**版本记录**](#版本记录) •
-[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/LICENSE)
+[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.6-plugin-pro/LICENSE)
 
 </div>
 
@@ -140,7 +140,6 @@ cd MLSLabsGaussianSplattingRenderer-UE
 - [ ] **压缩版 4DGS：** 支持专用的压缩格式以大幅降低显存占用。
 - [ ] **大规模场景：** 支持用于城市级静态 3DGS 的 `.sog` 格式。
 - [ ] **高级光照：** 支持点光源/方向光，并具备自阴影效果。
-- [ ] **性能飞跃：** 4DGS 达到 120 FPS+，5M+高斯点 静态场景达到 60 FPS+。
 
 ---
 
