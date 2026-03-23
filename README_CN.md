@@ -72,7 +72,7 @@
 ├─ 📁 Plugins/               # MLSLabsRenderer 插件源码
 ├─ 📁 TestData/              #Test Data
     ├─ 📁 ply/               #ply Data
-	    ├─ data_download_link.txt               #数据下载链接, 特别感谢[ XR_1605 ](https://space.bilibili.com/366552518) 提供的测试数据.
+	    ├─ data_download_link.txt               # 测试数据下载链接
 ├─ LICENSE
 ├─ README.md                 # 主概述文件（英文）
 └─ README_CN.md              # 主概述文件（中文）

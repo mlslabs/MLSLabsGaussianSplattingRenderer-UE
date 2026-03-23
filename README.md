@@ -72,12 +72,11 @@ By utilizing a custom rendering pipeline rather than traditional particle system
 ├─ 📁 Plugins/               # MLSLabsRenderer plugin source
 ├─ 📁 TestData/              #Test Data
     ├─ 📁 ply/               #ply Data
-	    ├─ data_download_link.txt               #data download link, Special thanks to [ XR_1605 ](https://space.bilibili.com/366552518) for providing the test data.
+	    ├─ data_download_link.txt               # Test data download link
 ├─ LICENSE
 ├─ README.md                 # Main overview file
 └─ README_CN.md              # 中文概述
 ```
-
 ## Repository layout
 
 The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs` folder contains detailed plugin guides.
