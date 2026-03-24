@@ -28,9 +28,9 @@
 
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**教学视频**](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364) •
+[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-lite/docs/README_CN.md) •
 [**入门指南**](#入门指南) •
 [**安装**](#installation) •
-[**文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-lite/docs/README.md) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**贡献者**](#贡献者)
 

@@ -28,9 +28,9 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Tutorial Video**](https://youtu.be/4ArswzhQ0VU) •
+[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-lite/docs/README.md) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
-[**Docs**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-lite/docs/README.md) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**Contributors**](#contributors)
 
