@@ -115,21 +115,12 @@ B站（中文）：
 
  ## 示例数据下载链接：
 
-建议到[SuperSplat](https://superspl.at/) 下载ply文件，可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
+建议到 [TestData Dir](../TestData/ply/data_download_link.md) 下载ply文件，可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
 
-
-## 打开演示项目
-本仓库包含一个带有示例场景和关卡的演示项目。
-
-0. 使用 git clone 下载：
-```
-git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
-```
-
-1. 打开 PluginDemo.uproject 启动 UE。
-2. 打开 Maps/Test 关卡。
 
 ## 导入静态高斯泼溅模型
+
+打开Unreal Editor，新建Demo工程，并新建一个Level。
 
 1.点击导航栏上的“Import single 3D Gaussian Splatting file” 按钮。
 

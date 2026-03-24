@@ -122,20 +122,11 @@ B站（中文）：
 
  ## Demo Data Download Links:
 
-It is recommended to download .ply files from [SuperSplat](https://superspl.at/), which can then be imported into Unreal Engine (UE) via this plugin for real-time rendering.
-
-## Open demo project
-This repo contains a demo project with an example scene and level
-
-0. download using git clone
-```
-git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
-```
-
-1. Open `PluginDemo.uproject` to start UE
-2. Open `Maps/Test` level
+It is recommended to download .ply files from [TestData Dir](../TestData/ply/data_download_link.md), which can then be imported into Unreal Engine (UE) via this plugin for real-time rendering.
 
 ## Import Static Gaussian Splatting Models
+
+Open Unreal Editor, create a new Demo project, and create a new Level.
 
 1.Click on the 'Import single 3D Gaussian Splatting file' button on the navigation bar.
 <img src="../Media/image/import_single_ply.jpg" width="500" />
