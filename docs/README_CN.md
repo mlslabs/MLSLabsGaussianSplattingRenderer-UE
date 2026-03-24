@@ -137,8 +137,6 @@ git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
 
 2.选择你的 .ply 文件。
 
-感谢作者saemranian提供的测试数据[Ahmad_Apt_Mix_01](https://superspl.at/view?id=f32cc087)。
-
 <img src="../Media/image/select_single_ply.jpg" width="500" />
 
 3.导入完成后，将生成的蓝图 (BP) 资产拖入视口。
