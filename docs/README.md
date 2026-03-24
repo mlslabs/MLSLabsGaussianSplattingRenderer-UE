@@ -29,7 +29,7 @@ Since we are at early access, current accessible features are summarized below:
 ## Video Tutorial
 
 Youtube（English）：  
-[How to Use MLSLabsRenderer (Gaussian Splatting) Plugin in UE5](https://youtu.be/htrDPpAaraU)
+[How to Use MLSLabsRenderer (Gaussian Splatting) Plugin in UE5(Updated)](https://youtu.be/4ArswzhQ0VU)
 
 B站（中文）：  
 [MLSLabsRenderer（高斯泼溅）插件操作教程](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364)
@@ -122,27 +122,16 @@ B站（中文）：
 
  ## Demo Data Download Links:
 
-It is recommended to download .ply files from [SuperSplat](https://superspl.at/), which can then be imported into Unreal Engine (UE) via this plugin for real-time rendering.
-
-## Open demo project
-This repo contains a demo project with an example scene and level
-
-0. download using git clone
-```
-git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
-```
-
-1. Open `PluginDemo.uproject` to start UE
-2. Open `Maps/Test` level
+It is recommended to download .ply files from [TestData Dir](../TestData/ply/data_download_link.md), which can then be imported into Unreal Engine (UE) via this plugin for real-time rendering.
 
 ## Import Static Gaussian Splatting Models
+
+Open Unreal Editor, create a new Demo project, and create a new Level.
 
 1.Click on the 'Import single 3D Gaussian Splatting file' button on the navigation bar.
 <img src="../Media/image/import_single_ply.jpg" width="500" />
 
 2.Select your 'ply' file.
-
-Special thanks to saemranian for providing the test data:[Ahmad_Apt_Mix_01](https://superspl.at/view?id=f32cc087) .
 
 <img src="../Media/image/select_single_ply.jpg" width="500" />
 
