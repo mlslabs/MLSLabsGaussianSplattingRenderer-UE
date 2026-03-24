@@ -29,7 +29,7 @@
 ## 视频教程
 
 Youtube（英文）：  
-[How to Use MLSLabsRenderer (Gaussian Splatting) Plugin in UE5](https://youtu.be/htrDPpAaraU)
+[How to Use MLSLabsRenderer (Gaussian Splatting) Plugin in UE5(Updated)](https://youtu.be/4ArswzhQ0VU)
 
 B站（中文）：  
 [MLSLabsRenderer（高斯泼溅）插件操作教程](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364)
@@ -115,7 +115,7 @@ B站（中文）：
 
  ## 示例数据下载链接：
 
-建议到[SuperSplat](https://superspl.at/) 下载ply文件，可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
+建议到 [TestData Dir](../TestData/ply/data_download_link.md) 下载ply文件，可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
 
 
 ## 在虚幻项目中使用
@@ -128,13 +128,13 @@ B站（中文）：
 
 ## 导入静态高斯泼溅模型
 
+打开Unreal Editor，新建Demo工程，并新建一个Level。
+
 1.点击导航栏上的“Import single 3D Gaussian Splatting file” 按钮。
 
 <img src="../Media/image/import_single_ply.jpg" width="500" />
 
 2.选择你的 .ply 文件。
-
-感谢作者saemranian提供的测试数据[Ahmad_Apt_Mix_01](https://superspl.at/view?id=f32cc087)。
 
 <img src="../Media/image/select_single_ply.jpg" width="500" />
 
