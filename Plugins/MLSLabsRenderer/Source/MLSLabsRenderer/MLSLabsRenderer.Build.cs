@@ -68,18 +68,16 @@ public class MLSLabsRenderer : ModuleRules
 
         string RendererDllPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64", "GaussianSplatingRenderer.dll");
 
-        // 1. 确保渲染 DLL 被拷贝到输出目录
         RuntimeDependencies.Add(RendererDllPath);
 
-        string LibTorchPath = Path.GetFullPath(Path.Combine(ModuleDirectory, "../ThirdParty/libTorch"));
-        string LibDir = Path.Combine(LibTorchPath, "lib");
+        string LibTorchLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libTorch", "lib");
         string[] CoreDlls = { "asmjit.dll", "c10.dll", "c10_cuda.dll", "cublas64_12.dll", "cublasLt64_12.dll", "cudart64_12.dll", "cudnn64_9.dll", "cufft64_11.dll", "cupti64_2025.1.0.dll", "cusolver64_11.dll", "cusparse64_12.dll", "fbgemm.dll", "libiomp5md.dll", "nvJitLink_120_0.dll", "torch_cpu.dll", "torch_cuda.dll", "uv.dll" };
         foreach (string DllName in CoreDlls)
         {
-            string SourcePath = Path.Combine(LibDir, DllName);
-            if (File.Exists(SourcePath))
+            string DllPath = Path.Combine(LibTorchLibDir, DllName);
+            if (File.Exists(DllPath))
             {
-                RuntimeDependencies.Add(Path.Combine("$(BinaryOutputDir)", DllName), SourcePath);
+                RuntimeDependencies.Add(DllPath);
             }
         }
     }
