@@ -80,5 +80,15 @@ public class MLSLabsRenderer : ModuleRules
                 RuntimeDependencies.Add(DllPath);
             }
         }
+
+        // Loose PLY under project Content (not UAssets). DirectoriesToAlwaysStageAsNonUFS is unreliable; RuntimeDependencies + SystemNonUFS stages real files for native DLL I/O.
+        if (!Target.bBuildEditor && Target.ProjectFile != null)
+        {
+            string PlyStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "ply");
+            if (Directory.Exists(PlyStagingRoot))
+            {
+                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/ply/...", StagedFileType.SystemNonUFS);
+            }
+        }
     }
 }
