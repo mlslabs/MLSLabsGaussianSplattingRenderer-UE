@@ -3,6 +3,8 @@ Lite_V1.0.0.10_beta
 2. Resolved the "access denied" error when deleting libraries (e.g., cublas64_12.dll) during the packaging process.
 3. Fixed incorrect rotation of Gaussian characters when Pitch, Yaw, and Roll operations occur simultaneously.
 4. Added support for rendering on non-primary GPUs (ID > 0) for multi-card systems.
+5. Copy imported PLY data and use relative paths for references to ensure seamless packaging and distribution.
+6. Update and calculate the bounding box after loading Gaussian data to ensure the coordinate gizmo displays correctly in the Editor.
 
 Pro_V1.0.1.10_beta
 1. Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
