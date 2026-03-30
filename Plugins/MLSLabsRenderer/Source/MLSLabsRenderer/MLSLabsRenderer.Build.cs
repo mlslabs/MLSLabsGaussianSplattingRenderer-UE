@@ -122,7 +122,7 @@ public class MLSLabsRenderer : ModuleRules
             }
 
             string SogStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "sog");
-            if (Directory.Exists(PlyStagingRoot))
+            if (Directory.Exists(SogStagingRoot))
             {
                 RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/sog/...", StagedFileType.SystemNonUFS);
             }
