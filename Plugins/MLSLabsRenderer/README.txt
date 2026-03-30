@@ -1,3 +1,16 @@
+Pro_V1.0.2.10_beta
+1. Supports .sog format Gaussian Splatting files.
+2. Copy imported PLY data and use relative paths for references to ensure seamless packaging and distribution.
+3. Update and calculate the bounding box after loading Gaussian data to ensure the coordinate gizmo displays correctly in the Editor.
+
+Lite_V1.0.0.10_beta
+1. Fixed an issue where colors appeared abnormal on Scaled Gaussian Splatting nodes.
+2. Resolved the "access denied" error when deleting libraries (e.g., cublas64_12.dll) during the packaging process.
+3. Fixed incorrect rotation of Gaussian characters when Pitch, Yaw, and Roll operations occur simultaneously.
+4. Added support for rendering on non-primary GPUs (ID > 0) for multi-card systems.
+5. Copy imported PLY data and use relative paths for references to ensure seamless packaging and distribution.
+6. Update and calculate the bounding box after loading Gaussian data to ensure the coordinate gizmo displays correctly in the Editor.
+
 Pro_V1.0.1.10_beta
 1. Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.
 2. VR & Binocular Rendering: Native support for high-fidelity VR content.
@@ -6,6 +19,8 @@ Pro_V1.0.1.10_beta
 5. Added logo watermarking; note that paid removal of watermarks is not yet supported.
 6. Fixed incorrect rotation of Gaussian characters when Pitch, Yaw, and Roll operations occur simultaneously.
 7. Added support for rendering on non-primary GPUs (ID > 0) for multi-card systems.
+
+
 Lite_V1.0.0.9_beta
 1.Fixed blending artifacts caused by depth buffer resolution mismatch between Editor and Play modes.
 2.Supports outputting logs to the Unreal Engine log file.
