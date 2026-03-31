@@ -106,6 +106,8 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 - **Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.**
 
+- **High-Compression Static 3DGS: Added support for the .sog format, designed for high-compression ratio 3DGS.**
+
 ---
 
 ## Getting Started
@@ -142,11 +144,22 @@ The upcoming Professional version will offer significant performance boosts and 
 
 - [ ] Compressed 4DGS: Support for specialized compressed formats to reduce memory usage.
 
-- [ ] Large-Scale Environments: Support for the .sog format for city-scale static 3DGS.
-
 - [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
 
 ## Release Notes
+**Pro_V1.0.2.10_beta**
+1. Supports .sog format Gaussian Splatting files..
+2. Copy imported PLY data and use relative paths for references to ensure seamless packaging and distribution.
+3. Update and calculate the bounding box after loading Gaussian data to ensure the coordinate gizmo displays correctly in the Editor.
+4. ensure package, copy ply and sog files successfully for ue5.6.
+
+**Lite_V1.0.0.10_beta**
+1. Fixed an issue where colors appeared abnormal on Scaled Gaussian Splatting nodes.
+2. Resolved the "access denied" error when deleting libraries (e.g., cublas64_12.dll) during the packaging process.
+3. Fixed incorrect rotation of Gaussian characters when Pitch, Yaw, and Roll operations occur simultaneously.
+4. Added support for rendering on non-primary GPUs (ID > 0) for multi-card systems.
+5. Copy imported PLY data and use relative paths for references to ensure seamless packaging and distribution.
+6. Update and calculate the bounding box after loading Gaussian data to ensure the coordinate gizmo displays correctly in the Editor.
 
 **Pro_V1.0.1.10_beta**
 1. Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 5M+ Gaussians static scenes.
