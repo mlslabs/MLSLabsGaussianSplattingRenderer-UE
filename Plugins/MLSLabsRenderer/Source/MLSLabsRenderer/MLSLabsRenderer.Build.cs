@@ -66,7 +66,11 @@ public class MLSLabsRenderer : ModuleRules
             );
         }
 
-        string RendererDllPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64", "GaussianSplatingRenderer.dll");
+        string RendererDllDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64");
+        string RendererDllPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.dll");
+        RuntimeDependencies.Add(RendererDllPath);
+        string Tbb12DllPath = Path.Combine(RendererDllDir, "tbb12.dll");
+        RuntimeDependencies.Add(Tbb12DllPath);
 
         RuntimeDependencies.Add(RendererDllPath);
 
