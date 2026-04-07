@@ -66,9 +66,11 @@ public class MLSLabsRenderer : ModuleRules
             );
         }
 
-        string RendererDllPath = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64", "GaussianSplatingRenderer.dll");
-
+        string RendererDllDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64");
+        string RendererDllPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.dll");
         RuntimeDependencies.Add(RendererDllPath);
+        string Tbb12DllPath = Path.Combine(RendererDllDir, "tbb12.dll");
+        RuntimeDependencies.Add(Tbb12DllPath);
 
         string LibTorchLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libTorch", "lib");
         string[] CoreDlls = { "asmjit.dll", "c10.dll", "c10_cuda.dll", "cublas64_12.dll", "cublasLt64_12.dll", "cudart64_12.dll", "cudnn64_9.dll", "cufft64_11.dll", "cupti64_2025.1.0.dll", "cusolver64_11.dll", "cusparse64_12.dll", "fbgemm.dll", "libiomp5md.dll", "nvJitLink_120_0.dll", "torch_cpu.dll", "torch_cuda.dll", "uv.dll" };
