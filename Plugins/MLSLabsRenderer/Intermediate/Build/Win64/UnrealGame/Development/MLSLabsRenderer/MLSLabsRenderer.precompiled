@@ -1,0 +1,23 @@
+{
+	"OutputFiles": [
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\Module.MLSLabsRenderer.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\AnimatableGaussianSplattingActor.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\AnimatableGaussianSplattingComponent.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\EmbeddedLogo.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\GaussianSplatingRendererLibrary.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\GaussianSplattingActor.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\GaussianSplattingComponent.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\GaussianSplattingSceneProxy.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MiscHelperLibrary.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MLSLabsAuthStorage.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MLSLabsLoginWindow.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MLSLabsRenderer.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MLSLabsRendererAuth.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MLSLabsRendererModule.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MLSLabsRendererSlateStyle.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MLSLabsRendererSubsystem.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\MLSLabsWatermark.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\NoPhysicsPrimitiveComponent.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\MLSLabsRenderer\\WatermarkShaderEmbedded.cpp.obj"
+	]
+}

@@ -1,3 +1,11 @@
+Pro_V1.0.3.12
+1. Supports login authentication, watermark removal for members, and subscription renewal reminders.
+2. Supports nDisplay.
+
+Pro_V1.0.3.10
+1. Support login authentication.
+2. Support ndisplay.
+
 Pro_V1.0.2.10_beta
 1. Supports .sog format Gaussian Splatting files.
 2. Copy imported PLY data and use relative paths for references to ensure seamless packaging and distribution.
