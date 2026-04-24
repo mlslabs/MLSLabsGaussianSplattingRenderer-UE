@@ -12,7 +12,7 @@ English | [中文](./README_CN.md)
 
 **MLSLabsRenderer-Pro (3D Gaussian Splatting UE5 Plugin)**
 
-[**mls4dlive**](https://mls4dlive.cn/)
+[**Official Website: mls4dlive**](https://mls4dlive.cn/)
 
 High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5.
 
