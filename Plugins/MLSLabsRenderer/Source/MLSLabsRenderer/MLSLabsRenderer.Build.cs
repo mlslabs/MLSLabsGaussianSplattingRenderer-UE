@@ -40,6 +40,8 @@ public class MLSLabsRenderer : ModuleRules
             {
                 "Core",
                 "D3D12RHI",
+                "HTTP",
+                "SSL",
                 "InputCore",
                 "ImageCore",
                 "ImageWrapper",
@@ -106,6 +108,12 @@ public class MLSLabsRenderer : ModuleRules
             {
                 RuntimeDependencies.Add(DllPath);
             }
+        }
+
+        string PasswordVisibilitySvg = Path.Combine(PluginDirectory, "Resources", "password_visibility.svg");
+        if (File.Exists(PasswordVisibilitySvg))
+        {
+            RuntimeDependencies.Add(PasswordVisibilitySvg);
         }
 
         string RendererDllDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64");
