@@ -12,6 +12,8 @@
 
 **MLSLabsRenderer-Lite (3D Gaussian Splatting UE5 Plugin)**
 
+[**mls4dlive官网入口**](https://mls4dlive.cn/)
+
 面向虚幻引擎 5 的高性能 3D 高斯泼溅与 4D 体积视频插件。
 
 实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
