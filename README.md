@@ -12,6 +12,8 @@ English | [中文](./README_CN.md)
 
 **MLSLabsRenderer-Lite (3D Gaussian Splatting UE5 Plugin)**
 
+[**Official Website: mls4dlive**](https://mls4dlive.cn/)
+
 High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal Engine 5.
 
 Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
