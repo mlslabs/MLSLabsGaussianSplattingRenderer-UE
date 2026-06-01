@@ -1,0 +1,232 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Shared helpers for fusion depth + composite weight (edge detection / smoothstep).
+
+#ifndef MLSLABS_FUSION_COMMON_USH
+#define MLSLABS_FUSION_COMMON_USH
+
+// Relative linear-depth gradient (device Z input from SceneDepth).
+float MLSLabsDepthEdgeFactorDeviceZ(Texture2D deviceDepthTex, int2 px, int2 bufMax, float edgeThreshold)
+{
+    float zC = ConvertFromDeviceZ(deviceDepthTex.Load(int3(px, 0)).r);
+    float maxGrad = 0.0f;
+    [unroll]
+    for (int i = 0; i < 4; ++i)
+    {
+        int2 d = (i == 0) ? int2(1, 0) : (i == 1) ? int2(-1, 0) : (i == 2) ? int2(0, 1) : int2(0, -1);
+        int2 q = clamp(px + d, int2(0, 0), bufMax);
+        float zN = ConvertFromDeviceZ(deviceDepthTex.Load(int3(q, 0)).r);
+        maxGrad = max(maxGrad, abs(zN - zC));
+    }
+    float refZ = max(abs(zC), 1.0f);
+    float relGrad = maxGrad / refZ;
+    float thresh = max(edgeThreshold, 1e-5f);
+    return saturate(relGrad / thresh);
+}
+
+// 8-neighbor variant: catches diagonal depth jumps (stronger silhouette detection).
+float MLSLabsDepthEdgeFactorDeviceZ8(Texture2D deviceDepthTex, int2 px, int2 bufMax, float edgeThreshold)
+{
+    float edge4 = MLSLabsDepthEdgeFactorDeviceZ(deviceDepthTex, px, bufMax, edgeThreshold);
+    float zC = ConvertFromDeviceZ(deviceDepthTex.Load(int3(px, 0)).r);
+    float maxGrad = 0.0f;
+    [unroll]
+    for (int i = 0; i < 4; ++i)
+    {
+        int2 d = (i == 0) ? int2(1, 1) : (i == 1) ? int2(-1, 1) : (i == 2) ? int2(1, -1) : int2(-1, -1);
+        int2 q = clamp(px + d, int2(0, 0), bufMax);
+        float zN = ConvertFromDeviceZ(deviceDepthTex.Load(int3(q, 0)).r);
+        maxGrad = max(maxGrad, abs(zN - zC));
+    }
+    float refZ = max(abs(zC), 1.0f);
+    float edgeDiag = saturate((maxGrad / refZ) / max(edgeThreshold, 1e-5f));
+    return saturate(max(edge4, edgeDiag));
+}
+
+// At mesh silhouettes, take the nearest linear depth in an 8-neighborhood (device Z input).
+// Matches edge-aware min sampling in scene depth upscale; keeps mesh in front of GS background.
+float MLSLabsMinNeighborLinearDepthDeviceZ8(Texture2D deviceDepthTex, int2 px, int2 bufMax)
+{
+    float zMin = ConvertFromDeviceZ(deviceDepthTex.Load(int3(px, 0)).r);
+    [unroll]
+    for (int i = 0; i < 8; ++i)
+    {
+        int2 d = (i == 0) ? int2(1, 0) : (i == 1) ? int2(-1, 0) : (i == 2) ? int2(0, 1) : (i == 3) ? int2(0, -1)
+            : (i == 4) ? int2(1, 1) : (i == 5) ? int2(-1, 1) : (i == 6) ? int2(1, -1) : int2(-1, -1);
+        int2 q = clamp(px + d, int2(0, 0), bufMax);
+        float zN = ConvertFromDeviceZ(deviceDepthTex.Load(int3(q, 0)).r);
+        zMin = min(zMin, zN);
+    }
+    return zMin;
+}
+
+float MLSLabsSmootherstep(float edge0, float edge1, float x)
+{
+    float t = saturate((x - edge0) / max(edge1 - edge0, 1e-6f));
+    return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f);
+}
+
+// Edge-aware fusion weight for mesh vs splat depth compare (shared by TSR composite).
+float MLSLabsEdgeAwareFusionWeight(
+    float linearSceneDepth,
+    float linearSplatDepth,
+    float depthEdge,
+    float depthCompareBias,
+    float depthSoftBandWorld,
+    float depthSoftBandRelative,
+    float fusionMeshGuardStrength)
+{
+    float linRefPre = max(max(linearSceneDepth, linearSplatDepth), 1e-3f);
+    float bandAbsPre = max(depthSoftBandWorld, 0.0f);
+    float bandRelPre = max(depthSoftBandRelative, 0.0f) * linRefPre;
+    float bandPre = max(bandAbsPre, bandRelPre);
+    // GSR splats along the same ray read closer than mesh at silhouettes; bias mesh depth outward.
+    float meshEdgeDepthBias = depthEdge * bandPre * 0.85f;
+
+    float margin = (linearSceneDepth + depthCompareBias + meshEdgeDepthBias) - linearSplatDepth;
+
+    float linRef = max(max(linearSceneDepth, linearSplatDepth), 1e-3f);
+    float bandAbs = max(depthSoftBandWorld, 0.0f);
+    float bandRel = max(depthSoftBandRelative, 0.0f) * linRef;
+    float band = max(bandAbs, bandRel);
+
+    // Mesh clearly in front: skip soft blend to avoid GS background halo on silhouettes.
+    if (margin < -band * 0.25f && depthEdge > 1e-3f)
+    {
+        return 0.0f;
+    }
+
+    if (band <= 1e-6f)
+    {
+        return margin > 0.0f ? 1.0f : 0.0f;
+    }
+
+    float w = MLSLabsSmootherstep(-band, band, margin);
+
+    if (margin < 0.0f && depthEdge > 1e-3f)
+    {
+        float guard = max(fusionMeshGuardStrength, 0.0f);
+        w *= saturate(1.0f + margin / max(band * 0.35f, 1e-3f)) * (1.0f - depthEdge * guard);
+    }
+
+    return saturate(w);
+}
+
+// Gaussian bilateral filter on device-Z scene depth (same kernel as FusionDepth.usf).
+float MLSLabsBilateralFilterLinearDepthDeviceZ(
+    Texture2D deviceDepthTex,
+    int2 px,
+    int2 bufMax,
+    float sigmaWorld,
+    float spatialSigma,
+    int radius)
+{
+    float deviceZCenter = deviceDepthTex.Load(int3(px, 0)).r;
+    float zC = ConvertFromDeviceZ(deviceZCenter);
+
+    int r = clamp(radius, 0, 5);
+    if (r == 0)
+    {
+        return zC;
+    }
+
+    float sigmaR = max(sigmaWorld, 1e-4f);
+    float sigmaS = max(spatialSigma, 0.25f);
+    float sigmaSSq = sigmaS * sigmaS;
+
+    float sumW = 1.0f;
+    float sumZ = zC;
+
+    for (int dy = -r; dy <= r; ++dy)
+    {
+        for (int dx = -r; dx <= r; ++dx)
+        {
+            if (dx == 0 && dy == 0)
+            {
+                continue;
+            }
+            int2 q = clamp(px + int2(dx, dy), int2(0, 0), bufMax);
+            float deviceZN = deviceDepthTex.Load(int3(q, 0)).r;
+            float zN = ConvertFromDeviceZ(deviceZN);
+            float dz = zN - zC;
+            float spatial2 = float(dx * dx + dy * dy);
+            float wS = exp(-spatial2 / (2.0f * sigmaSSq));
+            float wR = exp(-(dz * dz) / (2.0f * sigmaR * sigmaR));
+            float w = wS * wR;
+            sumW += w;
+            sumZ += w * zN;
+        }
+    }
+    return sumZ / max(sumW, 1e-6f);
+}
+
+// Gaussian bilateral filter generalized for either device-Z or already-linear depth input.
+// Useful when the bilateral runs at the upscaled (pass viewport) resolution where the
+// upscale has already produced linear depth -- we want to smooth that without re-converting.
+float MLSLabsBilateralFilterLinearDepth(
+    Texture2D depthTex,
+    int2 px,
+    int2 bufMax,
+    int bInputIsLinear,
+    float sigmaWorld,
+    float spatialSigma,
+    int radius)
+{
+    float rawCenter = depthTex.Load(int3(px, 0)).r;
+    float zC = (bInputIsLinear != 0) ? rawCenter : ConvertFromDeviceZ(rawCenter);
+
+    int r = clamp(radius, 0, 5);
+    if (r == 0)
+    {
+        return zC;
+    }
+
+    float sigmaR = max(sigmaWorld, 1e-4f);
+    float sigmaS = max(spatialSigma, 0.25f);
+    float sigmaSSq = sigmaS * sigmaS;
+
+    float sumW = 1.0f;
+    float sumZ = zC;
+
+    for (int dy = -r; dy <= r; ++dy)
+    {
+        for (int dx = -r; dx <= r; ++dx)
+        {
+            if (dx == 0 && dy == 0)
+            {
+                continue;
+            }
+            int2 q = clamp(px + int2(dx, dy), int2(0, 0), bufMax);
+            float rawN = depthTex.Load(int3(q, 0)).r;
+            float zN = (bInputIsLinear != 0) ? rawN : ConvertFromDeviceZ(rawN);
+            float dz = zN - zC;
+            float spatial2 = float(dx * dx + dy * dy);
+            float wS = exp(-spatial2 / (2.0f * sigmaSSq));
+            float wR = exp(-(dz * dz) / (2.0f * sigmaR * sigmaR));
+            float w = wS * wR;
+            sumW += w;
+            sumZ += w * zN;
+        }
+    }
+    return sumZ / max(sumW, 1e-6f);
+}
+
+// Same metric for an already-linear depth buffer (e.g. GaussianFusionDepth).
+float MLSLabsDepthEdgeFactorLinear(Texture2D linearDepthTex, int2 px, int2 bufMax, float edgeThreshold)
+{
+    float zC = linearDepthTex.Load(int3(px, 0)).r;
+    float maxGrad = 0.0f;
+    [unroll]
+    for (int i = 0; i < 4; ++i)
+    {
+        int2 d = (i == 0) ? int2(1, 0) : (i == 1) ? int2(-1, 0) : (i == 2) ? int2(0, 1) : int2(0, -1);
+        int2 q = clamp(px + d, int2(0, 0), bufMax);
+        float zN = linearDepthTex.Load(int3(q, 0)).r;
+        maxGrad = max(maxGrad, abs(zN - zC));
+    }
+    float refZ = max(abs(zC), 1.0f);
+    float relGrad = maxGrad / refZ;
+    float thresh = max(edgeThreshold, 1e-5f);
+    return saturate(relGrad / thresh);
+}
+
+#endif // MLSLABS_FUSION_COMMON_USH

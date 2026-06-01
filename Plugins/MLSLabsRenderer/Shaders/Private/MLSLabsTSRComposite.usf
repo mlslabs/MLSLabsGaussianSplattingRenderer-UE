@@ -1,0 +1,395 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Post-TSR composite: blend scene color with Gaussian splats using precomputed fusion weight
+// (FusionWeight + FusionWeightTemporal), matching MLSLabs.usf strategy.
+
+#include "/Engine/Private/Common.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsScreenMapping.ush"
+
+Texture2D img_rgba;
+Texture2D SceneColorTexture;
+Texture2D FusionWeightTexture;
+float2 ViewSize;
+float2 ViewRectMin;
+float2 GSRTextureSize;
+float2 GSRViewRectMin;
+float2 GSRViewRectSize;
+float FusionWeightMeshSnap;
+float Saturation;
+float Contrast;
+float FusionMeshSideSmoothingGuard;
+float FusionChromaFringeThreshold;
+float FusionChromaFringeStrength;
+
+// GS color erosion (legacy, sampling deeper into splat body). Kept for compatibility but
+// disabled by default — mesh-color extension below replaces it when both target the same
+// silhouette ring.
+int FusionGSColorErosionRadius;
+float FusionGSColorErosionStrength;
+float FusionGSColorErosionChromaThreshold;
+float FusionGSColorErosionMeshNeighborW;
+
+// Mesh-color extension: within Radius pixels of a mesh silhouette, replace the local
+// background colour with SceneColor sampled from the nearest mesh-interior pixel (lowest
+// fusion weight in a disk). Covers both splat-side GS halos (w high) and mesh-side white
+// fringes (w low, SceneColor = sky AA). Radius is in screen pixels (CVar, up to 16).
+int FusionMeshColorExtensionRadius;
+float FusionMeshColorExtensionStrength;
+float FusionMeshColorExtensionChromaThreshold;
+float FusionMeshColorExtensionMeshNeighborW;
+float FusionMeshColorExtensionSplatCenterW;
+
+float3 ApplySaturation(float3 color, float saturation)
+{
+    float grey = dot(color, float3(0.299, 0.587, 0.114));
+    return lerp(float3(grey, grey, grey), color, saturation);
+}
+
+float3 ApplyContrast(float3 color, float contrast)
+{
+    return (color - 0.5f) * contrast + 0.5f;
+}
+
+float MLSLabsChromaDistance(float3 colorA, float3 colorB)
+{
+    const float3 LumaCoeffs = float3(0.299f, 0.587f, 0.114f);
+    float lumaA = dot(colorA, LumaCoeffs);
+    float lumaB = dot(colorB, LumaCoeffs);
+    float3 chromaA = colorA - lumaA;
+    float3 chromaB = colorB - lumaB;
+    return length(chromaA - chromaB);
+}
+
+int2 MLSLabsGSRPixFromPassLocal(float2 localPos)
+{
+    float2 passNorm = MLSLabsPassNormFromLocal(localPos, ViewSize);
+    return MLSLabsBufferPixelFromPassNormInt(passNorm, GSRViewRectMin, GSRViewRectSize, GSRTextureSize);
+}
+
+float4 MLSLabsLoadGSRAtPassLocal(float2 localPos)
+{
+    int2 pix = MLSLabsGSRPixFromPassLocal(localPos);
+    return img_rgba.Load(int3(pix, 0));
+}
+
+// Fusion-weight gradient points toward higher w (deeper into splat / away from mesh).
+float2 MLSLabsFusionWeightGradientToSplat(int2 wPx, float wC)
+{
+    float wE  = FusionWeightTexture.Load(int3(wPx + int2( 1,  0), 0)).r;
+    float wW  = FusionWeightTexture.Load(int3(wPx + int2(-1,  0), 0)).r;
+    float wN  = FusionWeightTexture.Load(int3(wPx + int2( 0, -1), 0)).r;
+    float wS  = FusionWeightTexture.Load(int3(wPx + int2( 0,  1), 0)).r;
+    float wNE = FusionWeightTexture.Load(int3(wPx + int2( 1, -1), 0)).r;
+    float wNW = FusionWeightTexture.Load(int3(wPx + int2(-1, -1), 0)).r;
+    float wSE = FusionWeightTexture.Load(int3(wPx + int2( 1,  1), 0)).r;
+    float wSW = FusionWeightTexture.Load(int3(wPx + int2(-1,  1), 0)).r;
+
+    float2 grad = float2(0.0f, 0.0f);
+    grad += float2( 1.0f,  0.0f) * (wE  - wC);
+    grad += float2(-1.0f,  0.0f) * (wW  - wC);
+    grad += float2( 0.0f, -1.0f) * (wN  - wC);
+    grad += float2( 0.0f,  1.0f) * (wS  - wC);
+    grad += float2( 1.0f, -1.0f) * (wNE - wC);
+    grad += float2(-1.0f, -1.0f) * (wNW - wC);
+    grad += float2( 1.0f,  1.0f) * (wSE - wC);
+    grad += float2(-1.0f,  1.0f) * (wSW - wC);
+    return grad;
+}
+
+// Pick the interior GS sample along +grad (and 2x distance). Prefer the sample whose straight
+// RGB is closest in chroma to the mesh-adjacent reference (reduces cyan/teal boundary spikes).
+float4 MLSLabsErodedGSColorAtSplatEdge(
+    float2 localPos,
+    int2 wPx,
+    float wC,
+    float3 meshRefRgb,
+    float erosionStrength,
+    int erosionRadius,
+    float chromaThreshold)
+{
+    float2 grad = MLSLabsFusionWeightGradientToSplat(wPx, wC);
+    float gradLen = length(grad);
+    if (gradLen < 1e-4f)
+    {
+        return float4(0.0f, 0.0f, 0.0f, 0.0f);
+    }
+
+    float2 dir = grad / gradLen;
+    int r = clamp(erosionRadius, 1, 6);
+
+    float4 center = MLSLabsLoadGSRAtPassLocal(localPos);
+    if (center.w <= 1e-5f)
+    {
+        return center;
+    }
+
+    float3 centerStraight = center.rgb / center.w;
+    float bestScore = 1e6f;
+    float4 bestSample = center;
+
+    [loop]
+    for (int step = 1; step <= r; ++step)
+    {
+        float2 offset = dir * float(step);
+        float4 sampleColor = MLSLabsLoadGSRAtPassLocal(localPos + offset);
+        if (sampleColor.w <= 1e-5f)
+        {
+            continue;
+        }
+
+        float3 sampleStraight = sampleColor.rgb / sampleColor.w;
+        float distToMesh = MLSLabsChromaDistance(sampleStraight, meshRefRgb);
+        float distFromCenter = MLSLabsChromaDistance(sampleStraight, centerStraight);
+        float score = distToMesh + max(0.0f, chromaThreshold - distFromCenter) * 2.0f;
+
+        if (score < bestScore)
+        {
+            bestScore = score;
+            bestSample = sampleColor;
+        }
+    }
+
+    float3 bestStraight = bestSample.rgb / max(bestSample.w, 1e-4f);
+    float chromaFix = saturate((MLSLabsChromaDistance(centerStraight, bestStraight) - chromaThreshold) / max(chromaThreshold, 1e-3f));
+    return lerp(center, bestSample, chromaFix * erosionStrength);
+}
+
+// Minimum fusion weight in a circular disk (used to detect mesh within Radius px, not just 3x3).
+float MLSLabsMinFusionWeightInDisk(int2 centerPx, int radius)
+{
+    float wDiskMin = FusionWeightTexture.Load(int3(centerPx, 0)).r;
+    int r = clamp(radius, 0, 16);
+    if (r == 0)
+    {
+        return wDiskMin;
+    }
+    [loop]
+    for (int dy = -r; dy <= r; ++dy)
+    {
+        [loop]
+        for (int dx = -r; dx <= r; ++dx)
+        {
+            if (dx * dx + dy * dy > r * r)
+            {
+                continue;
+            }
+            float wN = FusionWeightTexture.Load(int3(centerPx + int2(dx, dy), 0)).r;
+            wDiskMin = min(wDiskMin, wN);
+        }
+    }
+    return wDiskMin;
+}
+
+// Offset to the mesh-interior pixel with the lowest w inside the disk. Prefer clearly mesh
+// pixels (w < MeshNeighborW); ties broken by larger distance from centre (deeper interior).
+bool MLSLabsFindMeshInteriorOffset(int2 wPx, int searchRadius, float meshNeighborW, out int2 outOffsetPx, out float outMeshW)
+{
+    outOffsetPx = int2(0, 0);
+    outMeshW = 1.0f;
+    int r = clamp(searchRadius, 1, 16);
+    float bestScore = 1e6f;
+    bool found = false;
+    [loop]
+    for (int dy = -r; dy <= r; ++dy)
+    {
+        [loop]
+        for (int dx = -r; dx <= r; ++dx)
+        {
+            if (dx == 0 && dy == 0)
+            {
+                continue;
+            }
+            if (dx * dx + dy * dy > r * r)
+            {
+                continue;
+            }
+            float wN = FusionWeightTexture.Load(int3(wPx + int2(dx, dy), 0)).r;
+            if (wN >= meshNeighborW)
+            {
+                continue;
+            }
+            float dist = length(float2(dx, dy));
+            float score = wN * 100.0f - dist * 0.01f;
+            if (score < bestScore)
+            {
+                bestScore = score;
+                outOffsetPx = int2(dx, dy);
+                outMeshW = wN;
+                found = true;
+            }
+        }
+    }
+    return found;
+}
+
+// Fringe metric: chroma distance plus luma gap (catches cyan GS vs cyan mesh with wrong brightness,
+// and white sky fringe vs coloured mesh body).
+float MLSLabsFringeMetric(float3 colorA, float3 colorB)
+{
+    const float3 LumaCoeffs = float3(0.299f, 0.587f, 0.114f);
+    float lumaA = dot(colorA, LumaCoeffs);
+    float lumaB = dot(colorB, LumaCoeffs);
+    float chromaDist = MLSLabsChromaDistance(colorA, colorB);
+    float lumaGap = abs(lumaA - lumaB);
+    return max(chromaDist, lumaGap * 0.65f);
+}
+
+void MainPS(
+    in float4 SvPosition : SV_Position,
+    out float4 OutColor : SV_Target0
+)
+{
+    float2 localPos = SvPosition.xy - ViewRectMin;
+    int3 pixelCoordRT = int3(SvPosition.xy, 0);
+
+    float4 currentSceneColor = SceneColorTexture.Load(pixelCoordRT);
+    float4 externalColor = MLSLabsLoadGSRAtPassLocal(localPos);
+
+    int2 wPx = int2(localPos);
+    float wC  = FusionWeightTexture.Load(int3(wPx + int2( 0,  0), 0)).r;
+    float wNW = FusionWeightTexture.Load(int3(wPx + int2(-1, -1), 0)).r;
+    float wN  = FusionWeightTexture.Load(int3(wPx + int2( 0, -1), 0)).r;
+    float wNE = FusionWeightTexture.Load(int3(wPx + int2( 1, -1), 0)).r;
+    float wW  = FusionWeightTexture.Load(int3(wPx + int2(-1,  0), 0)).r;
+    float wE  = FusionWeightTexture.Load(int3(wPx + int2( 1,  0), 0)).r;
+    float wSW = FusionWeightTexture.Load(int3(wPx + int2(-1,  1), 0)).r;
+    float wS  = FusionWeightTexture.Load(int3(wPx + int2( 0,  1), 0)).r;
+    float wSE = FusionWeightTexture.Load(int3(wPx + int2( 1,  1), 0)).r;
+
+    float wGauss = (wNW + wNE + wSW + wSE) * (1.0f / 16.0f)
+                 + (wN  + wW  + wE  + wS ) * (2.0f / 16.0f)
+                 + wC * (4.0f / 16.0f);
+
+    float wMin = min(min(min(wNW, wN), min(wNE, wW)), min(min(wE, wSW), min(wS, wSE)));
+    wMin = min(wMin, wC);
+    float wMax = max(max(max(wNW, wN), max(wNE, wW)), max(max(wE, wSW), max(wS, wSE)));
+    wMax = max(wMax, wC);
+
+    float transitionAmount = saturate((wMax - wMin) * 4.0f);
+    float wSmoothed = lerp(wC, wGauss, transitionAmount);
+
+    float wMeshSide  = min(wC, wSmoothed);
+    float meshSideBlend = 1.0f - saturate((wC - 0.35f) * 5.0f);
+    float guard = saturate(FusionMeshSideSmoothingGuard);
+    float wMeshClamped = lerp(wSmoothed, wMeshSide, guard);
+    float w = lerp(wSmoothed, wMeshClamped, meshSideBlend);
+
+    float chromaFringeStrength = saturate(FusionChromaFringeStrength);
+    if (chromaFringeStrength > 1e-4f && transitionAmount > 0.05f && externalColor.w > 1e-4f && meshSideBlend > 0.25f)
+    {
+        float3 splatStraight = externalColor.rgb / max(externalColor.w, 1e-4f);
+        float chromaDist = MLSLabsChromaDistance(currentSceneColor.rgb, splatStraight);
+        float threshold = max(FusionChromaFringeThreshold, 1e-3f);
+        float chromaExcess = saturate((chromaDist - threshold) / threshold);
+        float meshLeanFactor = 1.0f - saturate((w - 0.5f) / 0.35f);
+        float suppression = chromaFringeStrength * chromaExcess * meshLeanFactor * transitionAmount;
+        w *= (1.0f - suppression);
+    }
+
+    if (w <= FusionWeightMeshSnap)
+    {
+        w = 0.0f;
+    }
+
+    // Legacy GS color erosion (samples deeper into splat body). Disabled by default — the
+    // mesh-color extension below targets the same silhouette ring with a stronger fix.
+    float gsErosionStrength = saturate(FusionGSColorErosionStrength);
+    int gsErosionRadius = clamp(FusionGSColorErosionRadius, 0, 6);
+    float gsMeshNeighborW = FusionGSColorErosionMeshNeighborW;
+    if (gsErosionStrength > 1e-4f && gsErosionRadius > 0 && externalColor.w > 1e-4f
+        && wC > 0.55f && wMin < gsMeshNeighborW)
+    {
+        float3 meshRefRgb = currentSceneColor.rgb;
+        float4 eroded = MLSLabsErodedGSColorAtSplatEdge(
+            localPos, wPx, wC, meshRefRgb,
+            gsErosionStrength, gsErosionRadius,
+            max(FusionGSColorErosionChromaThreshold, 1e-3f));
+        if (eroded.w > 1e-4f)
+        {
+            externalColor = eroded;
+        }
+    }
+
+    // Mesh-color extension: within Radius px of mesh silhouette, paint mesh-interior body
+    // colour (from inward SceneColor sample) and pull w toward 0 on splat-side ring pixels.
+    float meshExtStrength = saturate(FusionMeshColorExtensionStrength);
+    int meshExtRadius = clamp(FusionMeshColorExtensionRadius, 0, 16);
+    float meshExtThreshold = max(FusionMeshColorExtensionChromaThreshold, 1e-3f);
+    float meshExtNeighborW = FusionMeshColorExtensionMeshNeighborW;
+    float meshExtSplatCenterW = FusionMeshColorExtensionSplatCenterW;
+
+    if (meshExtStrength > 1e-4f && meshExtRadius > 0)
+    {
+        float wDiskMin = MLSLabsMinFusionWeightInDisk(wPx, meshExtRadius);
+        bool nearMeshSilhouette = (wDiskMin < meshExtNeighborW);
+
+        int2 meshOffsetPx = int2(0, 0);
+        float meshInteriorW = 1.0f;
+        bool hasMeshInterior = MLSLabsFindMeshInteriorOffset(wPx, meshExtRadius, meshExtNeighborW, meshOffsetPx, meshInteriorW);
+
+        if (nearMeshSilhouette && hasMeshInterior)
+        {
+            int3 meshSceneCoord = int3(pixelCoordRT.xy + meshOffsetPx, 0);
+            float3 meshSceneColor = SceneColorTexture.Load(meshSceneCoord).rgb;
+
+            bool onSplatSideRing = (wC >= meshExtSplatCenterW * 0.5f);
+            bool onMeshSideFringe = !onSplatSideRing && (wC <= meshExtSplatCenterW);
+
+            float fringeMetric = 0.0f;
+            if (externalColor.w > 1e-4f)
+            {
+                float3 splatStraight = externalColor.rgb / max(externalColor.w, 1e-4f);
+                fringeMetric = max(fringeMetric, MLSLabsFringeMetric(splatStraight, meshSceneColor));
+            }
+            fringeMetric = max(fringeMetric, MLSLabsFringeMetric(currentSceneColor.rgb, meshSceneColor));
+
+            float fringeExcess = saturate((fringeMetric - meshExtThreshold) / meshExtThreshold);
+
+            // Splat-side ring: always apply when near mesh (fringeExcess can modulate). Mesh-side
+            // white fringe: require visible mismatch with mesh interior (sky vs body).
+            float applyGate = 1.0f;
+            if (onMeshSideFringe)
+            {
+                applyGate = fringeExcess;
+            }
+            else if (onSplatSideRing)
+            {
+                applyGate = max(fringeExcess, 0.35f);
+            }
+            else
+            {
+                applyGate = fringeExcess;
+            }
+
+            float blend = meshExtStrength * applyGate;
+
+            if (blend > 1e-4f)
+            {
+                currentSceneColor.rgb = lerp(currentSceneColor.rgb, meshSceneColor, blend);
+
+                if (onSplatSideRing)
+                {
+                    w = w * (1.0f - blend);
+                    if (w <= FusionWeightMeshSnap)
+                    {
+                        w = 0.0f;
+                    }
+                }
+            }
+        }
+    }
+
+    float sourceAlpha = externalColor.w;
+    float3 externalPremul = externalColor.rgb;
+    if (sourceAlpha > 1e-5f)
+    {
+        float3 externalStraight = externalPremul / sourceAlpha;
+        externalStraight = ApplySaturation(externalStraight, Saturation);
+        externalStraight = ApplyContrast(externalStraight, Contrast);
+        externalStraight = saturate(externalStraight);
+        externalPremul = externalStraight * sourceAlpha;
+    }
+
+    float3 splatComposite = externalPremul + currentSceneColor.rgb * (1.0f - sourceAlpha);
+    float3 outRgb = lerp(currentSceneColor.rgb, splatComposite, w);
+    OutColor = float4(outRgb, currentSceneColor.a);
+}

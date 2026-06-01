@@ -1,0 +1,69 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+// Upscale engine scene depth (device Z at View.ViewRect) to PassViewport and store linear depth.
+
+
+
+#include "/Engine/Private/Common.ush"
+
+#include "/Engine/Private/ScreenPass.ush"
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsScreenMapping.ush"
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSceneDepthUpscaleCommon.ush"
+
+
+
+Texture2D SceneDepthTexture;
+
+SamplerState SceneDepthSampler;
+
+
+
+FScreenTransform PassSvPositionToViewportUV;
+
+float2 SceneDepthBufferSize;
+
+float2 SceneDepthViewRectMin;
+
+float2 SceneDepthViewRectSize;
+
+int SceneDepthUpscaleFilter;
+int bInputIsLinear;
+float FusionDepthEdgeThreshold;
+
+
+
+void MainPS(
+
+    in float4 SvPosition : SV_Position,
+
+    out float OutLinearDepth : SV_Target0)
+
+{
+
+    float2 PassNorm = ApplyScreenTransform(SvPosition.xy, PassSvPositionToViewportUV);
+
+    PassNorm = saturate(PassNorm);
+
+
+
+    if (SceneDepthUpscaleFilter <= 0)
+    {
+        float2 DepthTexUV = (SceneDepthViewRectMin + PassNorm * SceneDepthViewRectSize) / max(SceneDepthBufferSize, float2(1e-3f, 1e-3f));
+        float DepthRaw = Texture2DSampleLevel(SceneDepthTexture, SceneDepthSampler, DepthTexUV, 0).r;
+        OutLinearDepth = (bInputIsLinear != 0) ? DepthRaw : ConvertFromDeviceZ(DepthRaw);
+        return;
+    }
+
+    OutLinearDepth = MLSLabsUpsampleSceneLinearDepth(
+        SceneDepthTexture,
+        PassNorm,
+        SceneDepthViewRectMin,
+        SceneDepthViewRectSize,
+        SceneDepthBufferSize,
+        SceneDepthUpscaleFilter,
+        bInputIsLinear,
+        FusionDepthEdgeThreshold);
+}
+

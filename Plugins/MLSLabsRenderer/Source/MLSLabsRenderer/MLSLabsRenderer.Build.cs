@@ -1,4 +1,5 @@
 // Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+using System;
 using System.IO;
 using UnrealBuildTool;
 
@@ -29,9 +30,8 @@ public class MLSLabsRenderer : ModuleRules
                 "Engine",
                 "RenderCore",
                 "RHI",
-                "Renderer", 
+                "Renderer",
                 "Projects",
-                "D3D12RHI"
             }
         );
 
@@ -39,7 +39,6 @@ public class MLSLabsRenderer : ModuleRules
             new string[]
             {
                 "Core",
-                "D3D12RHI",
                 "HTTP",
                 "SSL",
                 "InputCore",
@@ -56,6 +55,19 @@ public class MLSLabsRenderer : ModuleRules
                 "SlateCore"
             }
         );
+
+        if (Target.Platform.IsInGroup(UnrealPlatformGroup.Windows))
+        {
+            PublicDependencyModuleNames.Add("D3D12RHI");
+            PrivateDependencyModuleNames.Add("D3D12RHI");
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Linux)
+        {
+            PublicDependencyModuleNames.Add("VulkanRHI");
+            PrivateDependencyModuleNames.Add("VulkanRHI");
+            // IVulkanDynamicRHI.h pulls VulkanThirdParty.h -> <vulkan.h>; paths come from Engine ThirdParty Vulkan (VulkanRHI keeps this private).
+            AddEngineThirdPartyPrivateStaticDependencies(Target, "Vulkan");
+        }
 
         string PrivateDir = Path.Combine(ModuleDirectory, "Private");
         string LogoPath = Path.Combine(PluginDirectory, "Resources", "logo.png");
@@ -99,14 +111,64 @@ public class MLSLabsRenderer : ModuleRules
             );
         }
 
-        string libwebpLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libwebp", "bin");
-        string[] CoreDllsOfLibwebp = { "libwebp.dll", "libsharpyuv.dll"};
-        foreach (string DllName in CoreDllsOfLibwebp)
+        if (Target.Platform.IsInGroup(UnrealPlatformGroup.Windows))
         {
-            string DllPath = Path.Combine(libwebpLibDir, DllName);
-            if (File.Exists(DllPath))
+            string libwebpLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libwebp", "bin");
+            string[] CoreDllsOfLibwebp = { "libwebp.dll", "libsharpyuv.dll" };
+            foreach (string DllName in CoreDllsOfLibwebp)
             {
-                RuntimeDependencies.Add(DllPath);
+                string DllPath = Path.Combine(libwebpLibDir, DllName);
+                if (File.Exists(DllPath))
+                {
+                    RuntimeDependencies.Add(DllPath);
+                }
+            }
+
+            string RendererDllDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64");
+            string RendererDllPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.dll");
+            if (File.Exists(RendererDllPath))
+            {
+                RuntimeDependencies.Add(RendererDllPath);
+            }
+            string Tbb12DllPath = Path.Combine(RendererDllDir, "tbb12.dll");
+            if (File.Exists(Tbb12DllPath))
+            {
+                RuntimeDependencies.Add(Tbb12DllPath);
+            }
+
+            string LibTorchLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libTorch", "lib");
+            string[] CoreDlls = { "asmjit.dll", "c10.dll", "c10_cuda.dll", "cublas64_12.dll", "cublasLt64_12.dll", "cudart64_12.dll", "cudnn64_9.dll", "cufft64_11.dll", "cupti64_2025.1.0.dll", "cusolver64_11.dll", "cusparse64_12.dll", "fbgemm.dll", "libiomp5md.dll", "nvJitLink_120_0.dll", "torch_cpu.dll", "torch_cuda.dll", "uv.dll" };
+            foreach (string DllName in CoreDlls)
+            {
+                string DllPath = Path.Combine(LibTorchLibDir, DllName);
+                if (File.Exists(DllPath))
+                {
+                    RuntimeDependencies.Add(DllPath);
+                }
+            }
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Linux)
+        {
+            string LinuxRendererDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Linux");
+            string SoPath = Path.Combine(LinuxRendererDir, "libGaussianSplatingRenderer.so");
+            if (File.Exists(SoPath))
+            {
+                RuntimeDependencies.Add(SoPath);
+            }
+            string LinuxTorchLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libTorch", "lib");
+            if (Directory.Exists(LinuxTorchLibDir))
+            {
+                foreach (string F in Directory.GetFiles(LinuxTorchLibDir))
+                {
+                    if (F.EndsWith(".a", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+                    if (F.EndsWith(".so", StringComparison.OrdinalIgnoreCase) || F.Contains(".so.", StringComparison.OrdinalIgnoreCase))
+                    {
+                        RuntimeDependencies.Add(F);
+                    }
+                }
             }
         }
 
@@ -114,23 +176,6 @@ public class MLSLabsRenderer : ModuleRules
         if (File.Exists(PasswordVisibilitySvg))
         {
             RuntimeDependencies.Add(PasswordVisibilitySvg);
-        }
-
-        string RendererDllDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64");
-        string RendererDllPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.dll");
-        RuntimeDependencies.Add(RendererDllPath);
-        string Tbb12DllPath = Path.Combine(RendererDllDir, "tbb12.dll");
-        RuntimeDependencies.Add(Tbb12DllPath);
-
-        string LibTorchLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libTorch", "lib");
-        string[] CoreDlls = { "asmjit.dll", "c10.dll", "c10_cuda.dll", "cublas64_12.dll", "cublasLt64_12.dll", "cudart64_12.dll", "cudnn64_9.dll", "cufft64_11.dll", "cupti64_2025.1.0.dll", "cusolver64_11.dll", "cusparse64_12.dll", "fbgemm.dll", "libiomp5md.dll", "nvJitLink_120_0.dll", "torch_cpu.dll", "torch_cuda.dll", "uv.dll" };
-        foreach (string DllName in CoreDlls)
-        {
-            string DllPath = Path.Combine(LibTorchLibDir, DllName);
-            if (File.Exists(DllPath))
-            {
-                RuntimeDependencies.Add(DllPath);
-            }
         }
 
         // Loose PLY and SOG under project Content (not UAssets). DirectoriesToAlwaysStageAsNonUFS is unreliable; RuntimeDependencies + SystemNonUFS stages real files for native DLL I/O.

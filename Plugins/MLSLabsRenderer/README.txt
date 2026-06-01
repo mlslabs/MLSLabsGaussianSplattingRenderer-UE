@@ -1,3 +1,18 @@
+Pro_V1.0.3.13
+1. Resolved flickering issues and enhanced rendering quality.
+2. Added support for Constrained Aspect Ratio.
+3. Fixed an issue where toggling visibility failed in packaged builds.
+4. Implemented linear depth to prevent depth overflow when zooming out, resolving incorrect occlusion of 3D meshes by the Gaussian scene.
+5. Added Contrast adjustment: Use console command r.MLSLabs.Contrast (Default: 1.15).
+Added Saturation adjustment: Use console command r.MLSLabs.Saturation (Default: 1.0).
+6. Ubuntu 22.04 support for Gaussian Splatting rendering (performance/FPS par with Windows), For the plugin package, please make a separate inquiry via mlsmediaservice@mlslabs.com.cn.
+7. Filter thumbnails in 3D preview viewports to avoid crowding all 3D viewports (inc. Asset Editor).
+8. Support anti-aliasing on the edges of 3D meshes after blending Gaussian colors. For high-quality anti-aliasing, switch the anti-aliasing 
+method to TSR. If you want to avoid flickering, change the anti-aliasing method to FXAA.
+9. Support rendering Gaussian scenes in multiple viewports;
+10. Support normal rendering for off-screen components such as SceneCapture.
+
+
 Pro_V1.0.3.12
 1. Supports login authentication, watermark removal for members, and subscription renewal reminders.
 2. Supports nDisplay.
