@@ -1,0 +1,112 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Optional temporal filter on upscaled linear scene depth (velocity reprojection +
+// neighborhood clamp). Reduces shimmer when TSR expands render-resolution depth.
+
+#include "/Engine/Private/Common.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsFusionCommon.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsScreenMapping.ush"
+
+Texture2D LinearDepthCurrent;
+Texture2D LinearDepthHistory;
+Texture2D SceneVelocityTexture;
+Texture2D SceneDepthTexture;
+SamplerState LinearDepthHistorySampler;
+
+float2 ViewSize;
+float2 ViewRectMin;
+float2 SceneDepthViewRectMin;
+float2 SceneDepthViewRectSize;
+float2 SceneDepthBufferSize;
+float SceneDepthTAAAlpha;
+float FusionDepthEdgeThreshold;
+int bHasVelocity;
+int bHasValidHistory;
+
+float2 MLSLabsPassUVFromSv(float4 SvPosition)
+{
+    float2 LocalPos = SvPosition.xy - ViewRectMin;
+    return (LocalPos + 0.5f) / max(ViewSize, float2(1e-3f, 1e-3f));
+}
+
+int2 MLSLabsPassPixelFromSv(float4 SvPosition)
+{
+    float2 LocalPos = SvPosition.xy - ViewRectMin;
+    return int2(LocalPos.x, LocalPos.y);
+}
+
+int2 MLSLabsScenePixelFromPassUV(float2 PassUV)
+{
+    return MLSLabsBufferPixelFromPassNormInt(PassUV, SceneDepthViewRectMin, SceneDepthViewRectSize, SceneDepthBufferSize);
+}
+
+float MLSLabsNeighborhoodClampDepth(float DepthHist, int2 CenterPx)
+{
+    float DepthMin = 1e20f;
+    float DepthMax = 0.0f;
+    [unroll]
+    for (int Dy = -1; Dy <= 1; ++Dy)
+    {
+        [unroll]
+        for (int Dx = -1; Dx <= 1; ++Dx)
+        {
+            int2 Q = CenterPx + int2(Dx, Dy);
+            float DepthN = LinearDepthCurrent.Load(int3(Q, 0)).r;
+            DepthMin = min(DepthMin, DepthN);
+            DepthMax = max(DepthMax, DepthN);
+        }
+    }
+    return clamp(DepthHist, DepthMin, DepthMax);
+}
+
+void SceneDepthTemporalMainPS(
+    in float4 SvPosition : SV_Position,
+    out float OutLinearDepth : SV_Target0)
+{
+    int2 PassPixel = MLSLabsPassPixelFromSv(SvPosition);
+    float DepthCur = LinearDepthCurrent.Load(int3(PassPixel, 0)).r;
+
+    if (bHasValidHistory == 0)
+    {
+        OutLinearDepth = DepthCur;
+        return;
+    }
+
+    int2 BufMax = max(int2(SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+    float2 PassUV = MLSLabsPassUVFromSv(SvPosition);
+    int2 ScenePixel = clamp(MLSLabsScenePixelFromPassUV(PassUV), int2(0, 0), BufMax);
+    float DepthEdge = MLSLabsDepthEdgeFactorDeviceZ8(SceneDepthTexture, ScenePixel, BufMax, FusionDepthEdgeThreshold);
+
+    float2 HistUV = PassUV;
+    if (bHasVelocity != 0 && DepthEdge < 0.25f)
+    {
+        float4 EncodedVelocity = SceneVelocityTexture.Load(int3(ScenePixel, 0));
+        if (EncodedVelocity.x > 0.0f)
+        {
+            float2 Velocity = DecodeVelocityFromTexture(EncodedVelocity).xy;
+            HistUV = PassUV - Velocity;
+        }
+    }
+
+    float DepthHist = DepthCur;
+    if (all(HistUV >= 0.0f) && all(HistUV <= 1.0f))
+    {
+        DepthHist = LinearDepthHistory.SampleLevel(LinearDepthHistorySampler, HistUV, 0).r;
+        DepthHist = MLSLabsNeighborhoodClampDepth(DepthHist, PassPixel);
+    }
+
+    float Alpha = saturate(SceneDepthTAAAlpha);
+
+    // Silhouettes: trust current frame (match FusionWeightTemporal).
+    float EdgeReject = saturate((DepthEdge - 0.1f) / 0.35f);
+    Alpha = lerp(Alpha, 1.0f, EdgeReject);
+
+    float RelDiff = abs(DepthCur - DepthHist) / max(max(DepthCur, DepthHist), 1e-3f);
+    if (RelDiff > 0.05f)
+    {
+        Alpha = 1.0f;
+    }
+
+    float DepthOut = lerp(DepthHist, DepthCur, Alpha);
+
+    OutLinearDepth = DepthOut;
+}

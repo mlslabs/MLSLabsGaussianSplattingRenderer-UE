@@ -1,0 +1,136 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Spatial upsampling helpers for render-resolution scene depth -> post-TSR viewport.
+// Mirrors post-process SceneDepth behavior: correct UV remap + filtered reconstruction.
+
+#ifndef MLSLABS_SCENE_DEPTH_UPSCALE_COMMON_USH
+#define MLSLABS_SCENE_DEPTH_UPSCALE_COMMON_USH
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsFusionCommon.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsScreenMapping.ush"
+
+// 0 = point, 1 = bilinear (linear depth), 2 = bicubic (linear depth)
+
+float2 MLSLabsSceneDepthPixelFromPassNorm(float2 PassNorm, float2 DepthViewRectMin, float2 DepthViewRectSize)
+{
+    return MLSLabsBufferPixelFromPassNorm(PassNorm, DepthViewRectMin, DepthViewRectSize) - float2(0.5f, 0.5f);
+}
+
+float MLSLabsLoadLinearDepthAtPixel(Texture2D DepthTex, int2 Pixel, int2 BufMax, int bInputIsLinear)
+{
+    int2 Clamped = clamp(Pixel, int2(0, 0), BufMax);
+    float Raw = DepthTex.Load(int3(Clamped, 0)).r;
+    return (bInputIsLinear != 0) ? Raw : ConvertFromDeviceZ(Raw);
+}
+
+float MLSLabsSampleLinearDepthPoint(Texture2D DepthTex, float2 PassNorm, float2 DepthViewRectMin, float2 DepthViewRectSize, float2 BufferSize, int bInputIsLinear)
+{
+    int2 BufMax = max(int2(BufferSize) - int2(1, 1), int2(0, 0));
+    float2 PixelPos = MLSLabsSceneDepthPixelFromPassNorm(PassNorm, DepthViewRectMin, DepthViewRectSize);
+    int2 Pixel = clamp(int2(round(PixelPos)), int2(0, 0), BufMax);
+    return MLSLabsLoadLinearDepthAtPixel(DepthTex, Pixel, BufMax, bInputIsLinear);
+}
+
+float MLSLabsSampleLinearDepthBilinear(Texture2D DepthTex, float2 PassNorm, float2 DepthViewRectMin, float2 DepthViewRectSize, float2 BufferSize, int bInputIsLinear, float EdgeThreshold)
+{
+    int2 BufMax = max(int2(BufferSize) - int2(1, 1), int2(0, 0));
+    float2 RectMax = DepthViewRectMin + DepthViewRectSize - float2(1.0f, 1.0f);
+    float2 MaxP = max(RectMax, DepthViewRectMin);
+    float2 PixelPos = clamp(MLSLabsSceneDepthPixelFromPassNorm(PassNorm, DepthViewRectMin, DepthViewRectSize), DepthViewRectMin - float2(0.5f, 0.5f), MaxP);
+
+    int2 I0 = int2(floor(PixelPos));
+    int2 I1 = min(I0 + int2(1, 1), int2(MaxP));
+    float2 F = PixelPos - float2(I0);
+
+    float Z00 = MLSLabsLoadLinearDepthAtPixel(DepthTex, I0, BufMax, bInputIsLinear);
+    float Z10 = MLSLabsLoadLinearDepthAtPixel(DepthTex, int2(I1.x, I0.y), BufMax, bInputIsLinear);
+    float Z01 = MLSLabsLoadLinearDepthAtPixel(DepthTex, int2(I0.x, I1.y), BufMax, bInputIsLinear);
+    float Z11 = MLSLabsLoadLinearDepthAtPixel(DepthTex, I1, BufMax, bInputIsLinear);
+
+    // Edge-aware: at silhouettes prefer the nearest surface to avoid background bleeding.
+    if (bInputIsLinear == 0)
+    {
+        int2 CenterPx = clamp(int2(round(PixelPos)), int2(0, 0), BufMax);
+        float Edge = MLSLabsDepthEdgeFactorDeviceZ8(DepthTex, CenterPx, BufMax, EdgeThreshold);
+        if (Edge > 0.15f)
+        {
+            return min(min(Z00, Z10), min(Z01, Z11));
+        }
+    }
+
+    return lerp(lerp(Z00, Z10, F.x), lerp(Z01, Z11, F.x), F.y);
+}
+
+float MLSLabsCatmullRom1D(float p0, float p1, float p2, float p3, float t)
+{
+    float t2 = t * t;
+    float t3 = t2 * t;
+    return 0.5f * ((2.0f * p1)
+        + (-p0 + p2) * t
+        + (2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2
+        + (-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3);
+}
+
+float MLSLabsSampleLinearDepthBicubic(Texture2D DepthTex, float2 PassNorm, float2 DepthViewRectMin, float2 DepthViewRectSize, float2 BufferSize, int bInputIsLinear, float EdgeThreshold)
+{
+    int2 BufMax = max(int2(BufferSize) - int2(1, 1), int2(0, 0));
+    float2 RectMax = DepthViewRectMin + DepthViewRectSize - float2(1.0f, 1.0f);
+    float2 MaxP = max(RectMax, DepthViewRectMin);
+    float2 PixelPos = clamp(MLSLabsSceneDepthPixelFromPassNorm(PassNorm, DepthViewRectMin, DepthViewRectSize), DepthViewRectMin - float2(0.5f, 0.5f), MaxP);
+
+    int2 Base = int2(floor(PixelPos));
+    float2 F = PixelPos - float2(Base);
+
+    int2 CenterPx = clamp(Base, int2(0, 0), BufMax);
+    if (bInputIsLinear == 0)
+    {
+        float Edge = MLSLabsDepthEdgeFactorDeviceZ8(DepthTex, CenterPx, BufMax, EdgeThreshold);
+        if (Edge > 0.15f)
+        {
+            return MLSLabsSampleLinearDepthBilinear(DepthTex, PassNorm, DepthViewRectMin, DepthViewRectSize, BufferSize, bInputIsLinear, EdgeThreshold);
+        }
+    }
+
+    float Samples[4][4];
+    [unroll]
+    for (int j = 0; j < 4; ++j)
+    {
+        [unroll]
+        for (int i = 0; i < 4; ++i)
+        {
+            int2 Tap = clamp(Base + int2(i - 1, j - 1), int2(0, 0), BufMax);
+            Samples[i][j] = MLSLabsLoadLinearDepthAtPixel(DepthTex, Tap, BufMax, bInputIsLinear);
+        }
+    }
+
+    float Rows[4];
+    [unroll]
+    for (int y = 0; y < 4; ++y)
+    {
+        Rows[y] = MLSLabsCatmullRom1D(Samples[0][y], Samples[1][y], Samples[2][y], Samples[3][y], F.x);
+    }
+
+    return MLSLabsCatmullRom1D(Rows[0], Rows[1], Rows[2], Rows[3], F.y);
+}
+
+float MLSLabsUpsampleSceneLinearDepth(
+    Texture2D DepthTex,
+    float2 PassNorm,
+    float2 DepthViewRectMin,
+    float2 DepthViewRectSize,
+    float2 BufferSize,
+    int FilterMode,
+    int bInputIsLinear,
+    float EdgeThreshold)
+{
+    if (FilterMode <= 0)
+    {
+        return MLSLabsSampleLinearDepthPoint(DepthTex, PassNorm, DepthViewRectMin, DepthViewRectSize, BufferSize, bInputIsLinear);
+    }
+    if (FilterMode == 1)
+    {
+        return MLSLabsSampleLinearDepthBilinear(DepthTex, PassNorm, DepthViewRectMin, DepthViewRectSize, BufferSize, bInputIsLinear, EdgeThreshold);
+    }
+    return MLSLabsSampleLinearDepthBicubic(DepthTex, PassNorm, DepthViewRectMin, DepthViewRectSize, BufferSize, bInputIsLinear, EdgeThreshold);
+}
+
+#endif // MLSLABS_SCENE_DEPTH_UPSCALE_COMMON_USH

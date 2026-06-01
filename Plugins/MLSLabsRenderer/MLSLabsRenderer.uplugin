@@ -1,7 +1,7 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0.3.12",
+	"VersionName": "1.0.3.13",
 	"FriendlyName": "MLSLabsRenderer",
 	"Description": "MLSLabs Renderer for Radiance Fields in UE5",
 	"Category": "Rendering",
@@ -17,15 +17,10 @@
 		{
 			"Name": "MLSLabsRenderer",
 			"Type": "Runtime",
-			"LoadingPhase": "PostConfigInit",
+			"LoadingPhase": "EarliestPossible",
 			"PlatformAllowList": [
-				"Win64"
-			],
-			"PlatformDenyList": [
-				"Linux",
-				"Mac",
-				"Android",
-				"IOS"
+				"Win64",
+				"Linux"
 			]
 		},
 		{
@@ -33,7 +28,8 @@
 			"Type": "Editor",
 			"LoadingPhase": "Default",
 			"PlatformAllowList": [
-				"Win64"
+				"Win64",
+				"Linux"
 			]
 		}
 	],

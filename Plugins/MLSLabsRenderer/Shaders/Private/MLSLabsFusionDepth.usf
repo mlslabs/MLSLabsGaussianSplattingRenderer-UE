@@ -1,0 +1,106 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+#include "/Engine/Private/Common.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsFusionCommon.ush"
+
+Texture2D SceneDepthTexture;
+float2 ViewSize;
+float2 ViewRectMin;
+float2 SceneDepthBufferSize;
+float2 SceneDepthViewRectMin;
+float2 SceneDepthViewRectSize;
+float MLSLabsFusion_SigmaWorld;
+float MLSLabsFusion_SpatialSigma;
+int MLSLabsFusion_Radius;
+int bInputIsLinear;
+// Depth-space mesh erosion: at silhouette pixels (depth discontinuity where the nearest
+// neighbour is much closer than the bilateral output), pull the output linear depth toward
+// the nearest neighbour. This dilates the mesh region outward by ~ErosionRadius pixels in
+// the FusionDepth texture, which then drives the downstream fusion weight to w=0 over the
+// dirty GS-reconstruction pixels at object silhouettes. Without this, the GS at boundaries
+// often has wrong (over-saturated cyan/blue) chroma which is shown directly at w=1 and
+// reads as a halo around mesh silhouettes.
+int FusionDepthMeshErosionRadius;
+float FusionDepthMeshErosionStrength;
+float FusionDepthEdgeThreshold;
+
+int2 MLSLabsDepthPixelFromViewLocal(float2 localPosInView)
+{
+    float2 norm = localPosInView / ViewSize;
+    float2 depthPixelF = SceneDepthViewRectMin + norm * SceneDepthViewRectSize;
+    int2 depthPixel = int2(round(depthPixelF));
+    int2 bufMax = max(int2(SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+    return clamp(depthPixel, int2(0, 0), bufMax);
+}
+
+float MLSLabsLoadLinearDepth(int2 px)
+{
+    float raw = SceneDepthTexture.Load(int3(px, 0)).r;
+    return (bInputIsLinear != 0) ? raw : ConvertFromDeviceZ(raw);
+}
+
+// Smallest linear depth (nearest surface) in a (2r+1)x(2r+1) neighbourhood. Used by the
+// mesh-erosion step below to dilate the mesh region outward in the FusionDepth texture.
+float MLSLabsMinNeighborLinearDepthRadius(int2 px, int2 bufMax, int radius)
+{
+    float zMin = MLSLabsLoadLinearDepth(px);
+    int r = clamp(radius, 1, 5);
+    [loop]
+    for (int dy = -r; dy <= r; ++dy)
+    {
+        [loop]
+        for (int dx = -r; dx <= r; ++dx)
+        {
+            if (dx == 0 && dy == 0)
+            {
+                continue;
+            }
+            int2 q = clamp(px + int2(dx, dy), int2(0, 0), bufMax);
+            zMin = min(zMin, MLSLabsLoadLinearDepth(q));
+        }
+    }
+    return zMin;
+}
+
+void FusionDepthMainPS(
+    in float4 SvPosition : SV_Position,
+    out float4 OutLinearDepth : SV_Target0
+)
+{
+    float2 localPos = SvPosition.xy - ViewRectMin;
+    int2 px = MLSLabsDepthPixelFromViewLocal(localPos);
+    int2 bufMax = max(int2(SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+
+    float zOut = MLSLabsBilateralFilterLinearDepth(
+        SceneDepthTexture,
+        px,
+        bufMax,
+        bInputIsLinear,
+        MLSLabsFusion_SigmaWorld,
+        MLSLabsFusion_SpatialSigma,
+        MLSLabsFusion_Radius);
+
+    // Mesh erosion (= dilation of the mesh region outward by R pixels). When the nearest
+    // neighbour in an R-radius window is meaningfully closer than the bilateral output, we
+    // pull the output toward that nearest depth. The effect on the downstream fusion weight
+    // is that w=0 (mesh wins) extends R pixels beyond the geometric silhouette, covering
+    // the GS reconstruction's bad boundary pixels with UE's natural mesh edge from
+    // SceneColor instead of the over-saturated cyan/blue halo. The edge threshold gating
+    // ensures uniform interior surfaces are untouched.
+    float erosionStrength = saturate(FusionDepthMeshErosionStrength);
+    int erosionRadius = clamp(FusionDepthMeshErosionRadius, 0, 5);
+    if (erosionStrength > 1e-4f && erosionRadius > 0)
+    {
+        float zMin = MLSLabsMinNeighborLinearDepthRadius(px, bufMax, erosionRadius);
+        // Relative gap between bilateral output and nearest neighbour. The same metric is
+        // used by MLSLabsDepthEdgeFactorDeviceZ so the threshold semantics stay consistent
+        // across passes (depth-edge detection vs erosion).
+        float refZ = max(abs(zOut), 1.0f);
+        float relGap = max(0.0f, zOut - zMin) / refZ;
+        float thresh = max(FusionDepthEdgeThreshold, 1e-5f);
+        float erosionGate = saturate(relGap / thresh);
+        zOut = lerp(zOut, zMin, erosionGate * erosionStrength);
+    }
+
+    OutLinearDepth = float4(zOut, 0.0f, 0.0f, 0.0f);
+}
