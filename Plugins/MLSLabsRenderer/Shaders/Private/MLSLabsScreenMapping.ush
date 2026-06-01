@@ -1,0 +1,31 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// PassViewport <-> sub-rect within scene/GSR/depth buffers (editor resize, TSR, letterbox).
+
+#ifndef MLSLABS_SCREEN_MAPPING_USH
+#define MLSLABS_SCREEN_MAPPING_USH
+
+// Pass-local pixel -> normalized [0,1] over the active pass viewport.
+float2 MLSLabsPassNormFromLocal(float2 LocalPos, float2 PassSize)
+{
+    return (LocalPos + 0.5f) / max(PassSize, float2(1e-3f, 1e-3f));
+}
+
+// Normalized pass UV -> pixel coordinate in a buffer sub-rect (ViewRect / UnscaledViewRect).
+float2 MLSLabsBufferPixelFromPassNorm(float2 PassNorm, float2 BufferViewRectMin, float2 BufferViewRectSize)
+{
+    return BufferViewRectMin + PassNorm * BufferViewRectSize;
+}
+
+int2 MLSLabsClampPixel(int2 Pixel, float2 BufferSize)
+{
+    int2 BufMax = max(int2(BufferSize) - int2(1, 1), int2(0, 0));
+    return clamp(Pixel, int2(0, 0), BufMax);
+}
+
+int2 MLSLabsBufferPixelFromPassNormInt(float2 PassNorm, float2 BufferViewRectMin, float2 BufferViewRectSize, float2 BufferSize)
+{
+    float2 PixelF = MLSLabsBufferPixelFromPassNorm(PassNorm, BufferViewRectMin, BufferViewRectSize);
+    return MLSLabsClampPixel(int2(PixelF), BufferSize);
+}
+
+#endif // MLSLABS_SCREEN_MAPPING_USH
