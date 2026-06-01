@@ -1,0 +1,260 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Fusion weight gather (shared by weight pass and legacy composite path).
+
+#ifndef MLSLABS_FUSION_WEIGHT_COMMON_USH
+#define MLSLABS_FUSION_WEIGHT_COMMON_USH
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsFusionCommon.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsScreenMapping.ush"
+
+Texture2D img_depth;
+Texture2D GaussianFusionDepth;
+Texture2D SceneDepthTexture;
+float2 ViewSize;
+float2 ViewRectMin;
+float2 SceneDepthBufferSize;
+float2 SceneDepthViewRectMin;
+float2 SceneDepthViewRectSize;
+float2 SceneDepthEdgeBufferSize;
+float2 SceneDepthEdgeViewRectMin;
+float2 SceneDepthEdgeViewRectSize;
+float2 GSRTextureSize;
+float2 GSRViewRectMin;
+float2 GSRViewRectSize;
+float DepthCompareBias;
+float DepthSoftBandWorld;
+float DepthSoftBandRelative;
+int FusionWeightPCFRadius;
+float FusionEdgeBandScale;
+float FusionDepthEdgeThreshold;
+float FusionWeightPlaneSubpixelSpread;
+float FusionWeightEdgeSubpixelScale;
+int FusionWeightEdgePCFExtra;
+float FusionMeshGuardStrength;
+// Occlusion-aware gate (0 = legacy behavior, 1 = full gate). Disables edge band/PCF/sub-pixel
+// expansion when the splat is clearly in front of the mesh (margin >> band), so genuine
+// occluded interiors no longer pick up false silhouette softening from depth-edge heuristics.
+float FusionEdgeOcclusionGate;
+// Upper bound (in units of bandBase) where the gate becomes fully closed.
+// Lower bound is fixed at 1.0. Larger values keep silhouette AA over a wider transition
+// region (less mesh leak protection); smaller values clamp leak-through more aggressively.
+float FusionEdgeOcclusionGateEnd;
+
+int2 MLSLabsDepthPixelFromViewLocal(float2 localPosInView)
+{
+    float2 norm = localPosInView / ViewSize;
+    float2 depthPixelF = SceneDepthViewRectMin + norm * SceneDepthViewRectSize;
+    int2 depthPixel = int2(round(depthPixelF));
+    int2 bufMax = max(int2(SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+    return clamp(depthPixel, int2(0, 0), bufMax);
+}
+
+int2 MLSLabsEdgeDepthPixelFromViewLocal(float2 localPosInView)
+{
+    if (SceneDepthEdgeBufferSize.x > 0.5f)
+    {
+        float2 norm = localPosInView / ViewSize;
+        float2 depthPixelF = SceneDepthEdgeViewRectMin + norm * SceneDepthEdgeViewRectSize;
+        int2 depthPixel = int2(round(depthPixelF));
+        int2 bufMax = max(int2(SceneDepthEdgeBufferSize) - int2(1, 1), int2(0, 0));
+        return clamp(depthPixel, int2(0, 0), bufMax);
+    }
+    return MLSLabsDepthPixelFromViewLocal(localPosInView);
+}
+
+int2 MLSLabsGSRPixelFromViewLocal(float2 localPosInView, float2 subPixelOffset)
+{
+    float2 sampleLocal = localPosInView + subPixelOffset;
+    if (GSRTextureSize.x > 0.5f)
+    {
+        float2 passNorm = MLSLabsPassNormFromLocal(sampleLocal, ViewSize);
+        return MLSLabsBufferPixelFromPassNormInt(passNorm, GSRViewRectMin, GSRViewRectSize, GSRTextureSize);
+    }
+    return int2(sampleLocal);
+}
+
+float MLSLabsFusionSceneDepthAt(float2 localPosInView, float2 subPixelOffset)
+{
+    float2 sampleLocal = localPosInView + subPixelOffset;
+    int2 depthPixel = MLSLabsDepthPixelFromViewLocal(sampleLocal);
+    int2 bufMax = max(int2(SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+    depthPixel = clamp(depthPixel, int2(0, 0), bufMax);
+
+    return GaussianFusionDepth.Load(int3(depthPixel, 0)).r;
+}
+
+float MLSLabsSplatFusionWeightAt(float2 localPosInView, float2 subPixelOffset, float depthEdgeCenter)
+{
+    int2 depthPixel = MLSLabsDepthPixelFromViewLocal(localPosInView + subPixelOffset);
+    int2 edgePixel = MLSLabsEdgeDepthPixelFromViewLocal(localPosInView + subPixelOffset);
+    int2 edgeBufMax = max(int2(SceneDepthEdgeBufferSize.x > 0.5f ? SceneDepthEdgeBufferSize : SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+
+    float linearSceneDepthHere = MLSLabsFusionSceneDepthAt(localPosInView, subPixelOffset);
+
+    int2 gsrPix = MLSLabsGSRPixelFromViewLocal(localPosInView, subPixelOffset);
+    float externalDepthSample = img_depth.Load(int3(gsrPix, 0)).r;
+    float linearExternalDepthHere = GetPrimaryView().NearPlane / max(externalDepthSample, 1e-6f);
+
+    float margin = (linearSceneDepthHere + DepthCompareBias) - linearExternalDepthHere;
+
+    float linRef = max(max(linearSceneDepthHere, linearExternalDepthHere), 1e-3f);
+    float bandAbs = max(DepthSoftBandWorld, 0.0f);
+    float bandRel = max(DepthSoftBandRelative, 0.0f) * linRef;
+    float bandBase = max(bandAbs, bandRel);
+
+    float depthEdge = (depthEdgeCenter >= 0.0f)
+        ? depthEdgeCenter
+        : MLSLabsDepthEdgeFactorDeviceZ8(SceneDepthTexture, edgePixel, edgeBufMax, FusionDepthEdgeThreshold);
+
+    float occlusionGate = 1.0f;
+    float gateStrength = saturate(FusionEdgeOcclusionGate);
+    if (gateStrength > 1e-4f)
+    {
+        // marginRatio > 0 means splat in front of mesh; once it exceeds GateEnd base-bands
+        // the splat already occludes the mesh and silhouette softening would only re-introduce
+        // mesh leak-through. Negative ratios (mesh in front) keep full softening for AA.
+        float marginRatio = margin / max(bandBase, 1e-3f);
+        float gateEnd = max(FusionEdgeOcclusionGateEnd, 1.01f);
+        float rawGate = 1.0f - saturate(MLSLabsSmootherstep(1.0f, gateEnd, marginRatio));
+        occlusionGate = lerp(1.0f, rawGate, gateStrength);
+    }
+    float bandEff = bandBase * (1.0f + depthEdge * max(FusionEdgeBandScale, 0.0f) * occlusionGate);
+
+    if (bandEff <= 1e-6f)
+    {
+        return margin > 0.0f ? 1.0f : 0.0f;
+    }
+
+    float w = MLSLabsSmootherstep(-bandEff, bandEff, margin);
+
+    if (margin < 0.0f && depthEdge > 1e-3f)
+    {
+        float guard = max(FusionMeshGuardStrength, 0.0f);
+        w *= saturate(1.0f + margin / max(bandEff * 0.35f, 1e-3f)) * (1.0f - depthEdge * guard);
+    }
+
+    return saturate(w);
+}
+
+float MLSLabsGatherFusionWeight(float2 localPos)
+{
+    int2 pxCenter = MLSLabsDepthPixelFromViewLocal(localPos);
+    int2 edgeCenter = MLSLabsEdgeDepthPixelFromViewLocal(localPos);
+    int2 bufMax = max(int2(SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+    int2 edgeBufMax = max(int2(SceneDepthEdgeBufferSize.x > 0.5f ? SceneDepthEdgeBufferSize : SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+    pxCenter = clamp(pxCenter, int2(0, 0), bufMax);
+    float depthEdge = MLSLabsDepthEdgeFactorDeviceZ8(SceneDepthTexture, edgeCenter, edgeBufMax, FusionDepthEdgeThreshold);
+
+    // One-shot occlusion gate at the center pixel. Same logic as in MLSLabsSplatFusionWeightAt
+    // but used to attenuate edge-PCF / sub-pixel spread, not the soft band.
+    float gateCenter = 1.0f;
+    float gateStrength = saturate(FusionEdgeOcclusionGate);
+    if (gateStrength > 1e-4f)
+    {
+        float linearSceneZC = GaussianFusionDepth.Load(int3(pxCenter, 0)).r;
+        int2 gsrPixC = MLSLabsGSRPixelFromViewLocal(localPos, float2(0.0f, 0.0f));
+        float externalSampleC = img_depth.Load(int3(gsrPixC, 0)).r;
+        float linearExternalZC = GetPrimaryView().NearPlane / max(externalSampleC, 1e-6f);
+        float marginC = (linearSceneZC + DepthCompareBias) - linearExternalZC;
+        float linRefC = max(max(linearSceneZC, linearExternalZC), 1e-3f);
+        float bandAbsC = max(DepthSoftBandWorld, 0.0f);
+        float bandRelC = max(DepthSoftBandRelative, 0.0f) * linRefC;
+        float bandBaseC = max(bandAbsC, bandRelC);
+        float marginRatio = marginC / max(bandBaseC, 1e-3f);
+        float gateEnd = max(FusionEdgeOcclusionGateEnd, 1.01f);
+        float rawGate = 1.0f - saturate(MLSLabsSmootherstep(1.0f, gateEnd, marginRatio));
+        gateCenter = lerp(1.0f, rawGate, gateStrength);
+    }
+
+    float spreadBase = max(FusionWeightPlaneSubpixelSpread, 0.0f);
+    float spreadScale = max(FusionWeightEdgeSubpixelScale, 0.0f) * gateCenter;
+    float spread = spreadBase * (1.0f + depthEdge * spreadScale);
+
+    float wSubSum = 0.0f;
+    float wSubGwSum = 0.0f;
+
+    // Use a 5x5 gaussian-weighted sub-pixel grid at strong silhouettes (gated to skip
+    // occluded interiors). 25 taps give denser sub-pixel coverage for silhouette AA;
+    // 3x3 elsewhere keeps cost down for the bulk of the screen.
+    [branch]
+    if ((depthEdge * gateCenter) > 0.3f)
+    {
+        // At edges, outer ring spans ~spread pixels away. Let each tap recompute its own
+        // edge factor so the sub-pixel average forms a real coverage gradient.
+        [unroll]
+        for (int sy = -2; sy <= 2; ++sy)
+        {
+            [unroll]
+            for (int sx = -2; sx <= 2; ++sx)
+            {
+                float2 norm = float2(float(sx), float(sy)) * 0.5f; // [-1,1] across the grid
+                float gwSub = exp(-(norm.x * norm.x + norm.y * norm.y) * 0.6f);
+                wSubSum += gwSub * MLSLabsSplatFusionWeightAt(localPos, norm * spread, -1.0f);
+                wSubGwSum += gwSub;
+            }
+        }
+    }
+    else
+    {
+        [unroll]
+        for (int sy = -1; sy <= 1; ++sy)
+        {
+            [unroll]
+            for (int sx = -1; sx <= 1; ++sx)
+            {
+                float2 sub = float2(float(sx), float(sy)) * spread;
+                wSubSum += MLSLabsSplatFusionWeightAt(localPos, sub, depthEdge);
+                wSubGwSum += 1.0f;
+            }
+        }
+    }
+    float wSub = wSubSum / max(wSubGwSum, 1e-6f);
+
+    // Max PCF radius bumped to 6 so resolution-aware scaling (driven from C++ via
+    // r.MLSLabs.Fusion.AAResolutionScaleAmount) can keep visual silhouette AA constant at
+    // 1440p / 4K. 13x13 kernel runs only at silhouette pixels (gated and bounded).
+    int rBase = clamp(FusionWeightPCFRadius, 0, 6);
+    int rExtra = clamp(FusionWeightEdgePCFExtra, 0, 4);
+    float rExtraGated = float(rExtra) * gateCenter;
+    int rEff = min(rBase + int(floor(depthEdge * rExtraGated + 0.5f)), 6);
+
+    if (rEff <= 0)
+    {
+        return wSub;
+    }
+
+    float acc = 0.0f;
+    float gwSum = 0.0f;
+    // Widen the PCF gaussian at silhouettes for a smoother weight ramp (less stair-stepping).
+    float pcfSigmaScale = lerp(0.45f, 0.85f, saturate(depthEdge));
+    float sigmaPcfSq = max(pcfSigmaScale * float(rEff), 0.3f);
+    sigmaPcfSq = sigmaPcfSq * sigmaPcfSq;
+
+    // At silhouettes, let each PCF tap compute its own depth-edge factor (passing -1 as
+    // depthEdgeCenter triggers local edge eval inside MLSLabsSplatFusionWeightAt). This is
+    // what makes PCF actually produce a smooth gradient across the mesh outline -- if every
+    // tap reuses the center's strong edge, they all get the same wide band + guard kill and
+    // PCF degenerates back to a flat low weight. Cost is paid only at silhouettes; the
+    // interior fast path keeps the cheap center-only behavior.
+    float pcfEdgeArg = (depthEdge > 0.15f) ? -1.0f : depthEdge;
+
+    for (int dy = -rEff; dy <= rEff; ++dy)
+    {
+        for (int dx = -rEff; dx <= rEff; ++dx)
+        {
+            float spatial2 = float(dx * dx + dy * dy);
+            float gw = exp(-spatial2 / (2.0f * sigmaPcfSq));
+            acc += gw * MLSLabsSplatFusionWeightAt(localPos, float2(float(dx), float(dy)), pcfEdgeArg);
+            gwSum += gw;
+        }
+    }
+    float wPcf = acc / max(gwSum, 1e-6f);
+
+    // Keep PCF dominant at silhouettes; its broader gaussian footprint anti-aliases the
+    // mesh outline better than sparse sub-pixel taps (sub-pixel still contributes for
+    // intra-pixel coverage).
+    float blendSub = saturate(depthEdge * 0.4f + 0.1f);
+    return lerp(wPcf, wSub, blendSub);
+}
+
+#endif // MLSLABS_FUSION_WEIGHT_COMMON_USH
