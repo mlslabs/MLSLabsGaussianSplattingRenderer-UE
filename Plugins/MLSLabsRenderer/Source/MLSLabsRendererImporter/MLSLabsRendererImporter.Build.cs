@@ -12,7 +12,7 @@ public class MLSLabsRendererImporter : ModuleRules
 
         //////////////////////////////////
         bEnableExceptions = true;
-		bUseRTTI = true;
+		bUseRTTI = (Target.Platform != UnrealTargetPlatform.Linux);
 
 		AddEngineThirdPartyPrivateStaticDependencies(Target, "Imath");
 		AddEngineThirdPartyPrivateStaticDependencies(Target, "UEOpenExr");
