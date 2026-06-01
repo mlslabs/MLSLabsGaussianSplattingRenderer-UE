@@ -1,0 +1,130 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Lightweight temporal filter on fusion weight (velocity reprojection + neighborhood clamp).
+
+#include "/Engine/Private/Common.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsFusionCommon.ush"
+
+Texture2D FusionWeightCurrent;
+Texture2D FusionWeightHistory;
+Texture2D SceneVelocityTexture;
+Texture2D SceneDepthTexture;
+SamplerState FusionWeightHistorySampler;
+
+float2 ViewSize;
+float2 ViewRectMin;
+float2 SceneDepthViewRectMin;
+float2 SceneDepthViewRectSize;
+float2 SceneDepthBufferSize;
+float FusionWeightTAAAlpha;
+float FusionWeightTAAMeshSnap;
+float FusionDepthEdgeThreshold;
+int bHasVelocity;
+int bHasValidHistory;
+
+float2 MLSLabsWeightUVFromSv(float4 SvPosition)
+{
+    float2 localPos = SvPosition.xy - ViewRectMin;
+    return (localPos + 0.5f) / max(ViewSize, float2(1e-3f, 1e-3f));
+}
+
+int2 MLSLabsWeightPixelFromSv(float4 SvPosition)
+{
+    float2 localPos = SvPosition.xy - ViewRectMin;
+    return int2(localPos.x, localPos.y);
+}
+
+int2 MLSLabsScenePixelFromWeightLocal(int2 pixelCoord)
+{
+    float2 norm = (float2(pixelCoord) + 0.5f) / max(ViewSize, float2(1e-3f, 1e-3f));
+    return int2(round(SceneDepthViewRectMin + norm * SceneDepthViewRectSize));
+}
+
+float MLSLabsNeighborhoodClamp(float wHist, int2 centerPx)
+{
+    float wMin = 1.0f;
+    float wMax = 0.0f;
+    [unroll]
+    for (int dy = -1; dy <= 1; ++dy)
+    {
+        [unroll]
+        for (int dx = -1; dx <= 1; ++dx)
+        {
+            int2 q = centerPx + int2(dx, dy);
+            float wN = FusionWeightCurrent.Load(int3(q, 0)).r;
+            wMin = min(wMin, wN);
+            wMax = max(wMax, wN);
+        }
+    }
+    return clamp(wHist, wMin, wMax);
+}
+
+void FusionWeightTemporalMainPS(
+    in float4 SvPosition : SV_Position,
+    out float OutWeight : SV_Target0
+)
+{
+    int2 pixelCoord = MLSLabsWeightPixelFromSv(SvPosition);
+    float wCur = FusionWeightCurrent.Load(int3(pixelCoord, 0)).r;
+
+    if (wCur <= FusionWeightTAAMeshSnap)
+    {
+        OutWeight = 0.0f;
+        return;
+    }
+
+    if (bHasValidHistory == 0)
+    {
+        OutWeight = wCur;
+        return;
+    }
+
+    int2 scenePixel = MLSLabsScenePixelFromWeightLocal(pixelCoord);
+    int2 bufMax = max(int2(SceneDepthBufferSize) - int2(1, 1), int2(0, 0));
+    scenePixel = clamp(scenePixel, int2(0, 0), bufMax);
+    float depthEdge = MLSLabsDepthEdgeFactorDeviceZ8(SceneDepthTexture, scenePixel, bufMax, FusionDepthEdgeThreshold);
+
+    float2 uv = MLSLabsWeightUVFromSv(SvPosition);
+    float2 wHistUV = uv;
+
+    // Mesh velocity is invalid at GS/mesh silhouettes; use same-pixel history there.
+    if (bHasVelocity != 0 && depthEdge < 0.25f)
+    {
+        float4 encodedVelocity = SceneVelocityTexture.Load(int3(scenePixel, 0));
+        if (encodedVelocity.x > 0.0f)
+        {
+            float2 velocity = DecodeVelocityFromTexture(encodedVelocity).xy;
+            wHistUV = uv - velocity;
+        }
+    }
+
+    float wHist = wCur;
+    if (all(wHistUV >= 0.0f) && all(wHistUV <= 1.0f))
+    {
+        wHist = FusionWeightHistory.SampleLevel(FusionWeightHistorySampler, wHistUV, 0).r;
+        wHist = MLSLabsNeighborhoodClamp(wHist, pixelCoord);
+    }
+
+    float alpha = saturate(FusionWeightTAAAlpha);
+
+    // Silhouettes: trust current frame (stops blue halo + mesh shimmer from bad reprojection).
+    float edgeReject = saturate((depthEdge - 0.1f) / 0.35f);
+    alpha = lerp(alpha, 1.0f, edgeReject);
+
+    float wUncertainty = 1.0f - abs(wCur * 2.0f - 1.0f);
+    alpha = lerp(alpha, 1.0f, saturate(wUncertainty * 1.25f));
+
+    float disocclusion = abs(wCur - wHist);
+    if (disocclusion > 0.2f)
+    {
+        alpha = 1.0f;
+    }
+
+    float wOut = lerp(wHist, wCur, alpha);
+    if (wCur <= FusionWeightTAAMeshSnap)
+    {
+        wOut = 0.0f;
+    }
+
+    OutWeight = wOut;
+}
+
