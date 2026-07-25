@@ -1,44 +1,44 @@
-{
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0.0.10",
-	"FriendlyName": "MLSLabsRenderer",
-	"Description": "MLSLabs Renderer for Radiance Fields in UE5",
-	"Category": "Rendering",
-	"CreatedBy": "MALANSHAN AUDIO&VIDEO LABORATORY",
-	"CreatedByURL": "https://mls4dlive.cn/",
-	"DocsURL": "https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md",
-	"MarketplaceURL": "https://fab.com/s/a98e11b2a0a6",
-	"SupportURL": "https://mls4dlive.cn/",
-	"EngineVersion": "5.5.0",
-	"CanContainContent": true,
-	"IsBetaVersion": true,
-	"Installed": true,
-	"Modules": [
-		{
-			"Name": "MLSLabsRenderer",
-			"Type": "Runtime",
-			"LoadingPhase": "PostConfigInit",
-			"PlatformAllowList": [
-				"Win64"
-			],
-			"PlatformDenyList": [
-				"Linux",
-				"Mac",
-				"Android",
-				"IOS"
-			]
-		},
-		{
-			"Name": "MLSLabsRendererImporter",
-			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [
-				"Win64"
-			]
-		}
-	],
-	"Plugins": [
+﻿{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0.0.10",
+  "FriendlyName": "MLSLabsRenderer",
+  "Description": "MLSLabs Renderer for Radiance Fields in UE5",
+  "Category": "Rendering",
+  "CreatedBy": "MALANSHAN AUDIO&VIDEO LABORATORY",
+  "CreatedByURL": "https://mls4dlive.cn/",
+  "DocsURL": "https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/PluginDemo/README.md",
+  "MarketplaceURL": "https://fab.com/s/a98e11b2a0a6",
+  "SupportURL": "https://mls4dlive.cn/",
+  "EngineVersion": "5.5.0",
+  "CanContainContent": true,
+  "IsBetaVersion": true,
+  "Installed": true,
+  "Modules": [
+    {
+      "Name": "MLSLabsRenderer",
+      "Type": "Runtime",
+      "LoadingPhase": "PostConfigInit",
+      "PlatformAllowList": [
+        "Win64"
+      ],
+      "PlatformDenyList": [
+        "Linux",
+        "Mac",
+        "Android",
+        "IOS"
+      ]
+    },
+    {
+      "Name": "MLSLabsRendererImporter",
+      "Type": "Editor",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64"
+      ]
+    }
+  ],
+  "Plugins": [
 		{
 			"Name": "EditorScriptingUtilities",
 			"Enabled": true
