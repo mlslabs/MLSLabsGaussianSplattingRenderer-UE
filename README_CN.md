@@ -30,7 +30,7 @@
 
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**教学视频**](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364) •
-[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-pro/docs/README_CN.md) •
+[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.5/docs/README_CN.md) •
 [**入门指南**](#入门指南) •
 [**安装**](#installation) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,9 +43,9 @@
 [**功能特性**](#核心特性) •
 [**项目结构**](#项目结构) •
 [**路线图**](#路线图-专业版) •
-[**入门版（Lite）**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.5-plugin-lite) •
+[**入门版（Lite）**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.5) •
 [**版本记录**](#版本记录) •
-[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-pro/LICENSE)
+[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.5/LICENSE)
 
 </div>
 
@@ -147,6 +147,9 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ---
 
 ## 版本记录
+
+**Pro_V2.0.0.0_preview**
+1. 采用Vulkan高斯泼溅渲染，支持Windows支持1.0版本的所有功能，不需要下载Libtorch库了，只需要显卡驱动支持支持vulkan 1.3即可使用。
 
 **Pro_V1.0.2.10_beta**
 1. 格式支持： 新增对自定义 .sog 高斯溅射格式的支持。

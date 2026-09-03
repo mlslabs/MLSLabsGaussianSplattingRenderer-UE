@@ -30,7 +30,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Tutorial Video**](https://youtu.be/4ArswzhQ0VU) •
-[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-pro/docs/README.md) •
+[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.5/docs/README.md) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,9 +43,9 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Features**](#features) •
 [**Project Structure**](#project-structure) •
 [**Roadmap**](#roadmap-pro-version) •
-[**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.5-plugin-lite) •
+[**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.5) •
 [**Release Notes**](#release-notes) •
-[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.5-plugin-pro/LICENSE)
+[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.5/LICENSE)
 
 </div>
 
@@ -149,6 +149,9 @@ The upcoming Professional version will offer significant performance boosts and 
 - [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
 
 ## Release Notes
+**Pro_V2.0.0.0_preview**
+1. Adopted Vulkan Gaussian Splatting rendering, supporting all features from Windows v1.0. The LibTorch dependency is now eliminated—it only requires graphics drivers with Vulkan 1.3 support.
+
 **Pro_V1.0.2.10_beta**
 1. Supports .sog format Gaussian Splatting files..
 2. Copy imported PLY data and use relative paths for references to ensure seamless packaging and distribution.
