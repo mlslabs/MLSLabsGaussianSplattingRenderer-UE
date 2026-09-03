@@ -30,7 +30,7 @@
 
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**教学视频**](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364) •
-[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.7-plugin-pro/docs/README_CN.md) •
+[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_1.0_ue5.7/docs/README_CN.md) •
 [**入门指南**](#入门指南) •
 [**安装**](#installation) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,9 +43,9 @@
 [**功能特性**](#核心特性) •
 [**项目结构**](#项目结构) •
 [**路线图**](#路线图-专业版) •
-[**入门版（Lite）**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.7-plugin-lite) •
+[**入门版（Lite）**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.7) •
 [**版本记录**](#版本记录) •
-[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.7-plugin-pro/LICENSE)
+[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_1.0_ue5.7/LICENSE)
 
 </div>
 
