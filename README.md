@@ -19,7 +19,7 @@ High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal
 Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
 
 <p align="center">
-  <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.6-plugin-lite/LICENSE">
+  <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.6/LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
   <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.6-white?logo=unrealengine&logoColor=white&color=0E1128">
@@ -30,7 +30,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Tutorial Video**](https://youtu.be/4ArswzhQ0VU) •
-[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.6-plugin-lite/docs/README.md) •
+[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.6/docs/README.md) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,7 +43,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Features**](#features) •
 [**Project Structure**](#project-structure) •
 [**Roadmap**](#roadmap-pro-version) •
-[**Pro version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.6-plugin-pro) •
+[**Pro version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Pro_1.0_ue5.6) •
 [**Release Notes**](#release-notes)
 
 </div>
