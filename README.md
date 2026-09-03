@@ -30,7 +30,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Tutorial Video**](https://youtu.be/4ArswzhQ0VU) •
-[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.7-plugin-pro/docs/README.md) •
+[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_1.0_ue5.7/docs/README.md) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,9 +43,9 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Features**](#features) •
 [**Project Structure**](#project-structure) •
 [**Roadmap**](#roadmap-pro-version) •
-[**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/ue5.7-plugin-lite) •
+[**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.7) •
 [**Release Notes**](#release-notes) •
-[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/ue5.7-plugin-pro/LICENSE)
+[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_1.0_ue5.7/LICENSE)
 
 </div>
 
