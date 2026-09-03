@@ -50,7 +50,6 @@ public class MLSLabsRenderer : ModuleRules
                 "RenderCore",
                 "UMG",
                 "LevelSequence",
-                "ColorManagement",
                 "Slate",
                 "SlateCore"
             }
@@ -60,6 +59,10 @@ public class MLSLabsRenderer : ModuleRules
         {
             PublicDependencyModuleNames.Add("D3D12RHI");
             PrivateDependencyModuleNames.Add("D3D12RHI");
+            // Windows Vulkan RHI path (UE -vulkan): needed for IVulkanDynamicRHI.h / external memory interop.
+            PublicDependencyModuleNames.Add("VulkanRHI");
+            PrivateDependencyModuleNames.Add("VulkanRHI");
+            AddEngineThirdPartyPrivateStaticDependencies(Target, "Vulkan");
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
@@ -67,6 +70,15 @@ public class MLSLabsRenderer : ModuleRules
             PrivateDependencyModuleNames.Add("VulkanRHI");
             // IVulkanDynamicRHI.h pulls VulkanThirdParty.h -> <vulkan.h>; paths come from Engine ThirdParty Vulkan (VulkanRHI keeps this private).
             AddEngineThirdPartyPrivateStaticDependencies(Target, "Vulkan");
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Android)
+        {
+            // Android uses Vulkan RHI; keep module able to query device UUID during deferred GSR init.
+            PublicDependencyModuleNames.Add("VulkanRHI");
+            PrivateDependencyModuleNames.Add("VulkanRHI");
+            AddEngineThirdPartyPrivateStaticDependencies(Target, "Vulkan");
+            // AHardwareBuffer_release / acquire for GSR Vulkan AHB interop.
+            PublicSystemLibraries.Add("android");
         }
 
         string PrivateDir = Path.Combine(ModuleDirectory, "Private");
@@ -130,22 +142,41 @@ public class MLSLabsRenderer : ModuleRules
             {
                 RuntimeDependencies.Add(RendererDllPath);
             }
+            // Ship PDB next to the DLL for Debug/Development so the debugger can
+            // resolve symbols when the module is loaded from Binaries/Win64.
+            string RendererPdbPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.pdb");
+            if (File.Exists(RendererPdbPath) && Target.Configuration != UnrealTargetConfiguration.Shipping)
+            {
+                RuntimeDependencies.Add(RendererPdbPath);
+            }
             string Tbb12DllPath = Path.Combine(RendererDllDir, "tbb12.dll");
             if (File.Exists(Tbb12DllPath))
             {
                 RuntimeDependencies.Add(Tbb12DllPath);
             }
-
-            string LibTorchLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libTorch", "lib");
-            string[] CoreDlls = { "asmjit.dll", "c10.dll", "c10_cuda.dll", "cublas64_12.dll", "cublasLt64_12.dll", "cudart64_12.dll", "cudnn64_9.dll", "cufft64_11.dll", "cupti64_2025.1.0.dll", "cusolver64_11.dll", "cusparse64_12.dll", "fbgemm.dll", "libiomp5md.dll", "nvJitLink_120_0.dll", "torch_cpu.dll", "torch_cuda.dll", "uv.dll" };
-            foreach (string DllName in CoreDlls)
+            string[] RendererRuntimeDlls =
             {
-                string DllPath = Path.Combine(LibTorchLibDir, DllName);
+                "archive.dll",
+                "bz2.dll",
+                "deflate.dll",
+                "libcrypto-3-x64.dll",
+                "liblzma.dll",
+                "libwebpdecoder.dll",
+                "lz4.dll",
+                "SDL3.dll",
+                "vulkan-1.dll",
+                "zlib1.dll",
+                "zstd.dll",
+            };
+            foreach (string DllName in RendererRuntimeDlls)
+            {
+                string DllPath = Path.Combine(RendererDllDir, DllName);
                 if (File.Exists(DllPath))
                 {
                     RuntimeDependencies.Add(DllPath);
                 }
             }
+            
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
@@ -155,21 +186,62 @@ public class MLSLabsRenderer : ModuleRules
             {
                 RuntimeDependencies.Add(SoPath);
             }
-            string LinuxTorchLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libTorch", "lib");
-            if (Directory.Exists(LinuxTorchLibDir))
+            string OpenMeshSoPath = Path.Combine(LinuxRendererDir, "libOpenMeshCore.so.11.0");
+            if (File.Exists(OpenMeshSoPath))
             {
-                foreach (string F in Directory.GetFiles(LinuxTorchLibDir))
+                RuntimeDependencies.Add(OpenMeshSoPath);
+            }
+            string VulkanShaderPath = Path.Combine(LinuxRendererDir, "vulkan_rasterizer.shader");
+            if (File.Exists(VulkanShaderPath))
+            {
+                RuntimeDependencies.Add(VulkanShaderPath);
+            }
+        }
+        else if (Target.Platform == UnrealTargetPlatform.Android)
+        {
+            // Prebuilt arm64-v8a libs are staged into the APK via MLSLabsRenderer_APL.xml (resourceCopies + soLoadLibrary).
+            string AndroidRendererDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Android", "arm64-v8a");
+            // Ship NDK libc++_shared.so: UE Shipping typically links c++_static and does not
+            // package libc++_shared, but GSR/OpenMesh DT_NEEDED it (PICO dlopen otherwise fails).
+            string[] AndroidSos =
+            {
+                "libc++_shared.so",
+                "libGaussianSplatingRenderer.so",
+                "libOpenMeshCore.so",
+                "libomp.so",
+            };
+            foreach (string SoName in AndroidSos)
+            {
+                string SoPath = Path.Combine(AndroidRendererDir, SoName);
+                if (File.Exists(SoPath))
                 {
-                    if (F.EndsWith(".a", StringComparison.OrdinalIgnoreCase))
-                    {
-                        continue;
-                    }
-                    if (F.EndsWith(".so", StringComparison.OrdinalIgnoreCase) || F.Contains(".so.", StringComparison.OrdinalIgnoreCase))
-                    {
-                        RuntimeDependencies.Add(F);
-                    }
+                    RuntimeDependencies.Add(SoPath);
                 }
             }
+            string AndroidShaderPath = Path.Combine(AndroidRendererDir, "vulkan_rasterizer.shader");
+            if (File.Exists(AndroidShaderPath))
+            {
+                // Native GSR fopen's this zip package as vulkan_rasterizer.shader next to the .so.
+                RuntimeDependencies.Add(AndroidShaderPath, StagedFileType.NonUFS);
+            }
+
+            // Windows 登录后导出的 MLSLabsAuthStorage.ini，随 APK 下发供 Pico/Android 首启免登录。
+            if (!Target.bBuildEditor && Target.ProjectFile != null)
+            {
+                string PackagedAuthIni = Path.Combine(Target.ProjectFile.Directory.FullName, "Config", "Android", "MLSLabsAuthStorage.ini");
+                if (File.Exists(PackagedAuthIni))
+                {
+                    RuntimeDependencies.Add("$(ProjectDir)/Config/Android/MLSLabsAuthStorage.ini", StagedFileType.NonUFS);
+                }
+                else
+                {
+                    System.Console.WriteLine(
+                        "MLSLabsRenderer: Config/Android/MLSLabsAuthStorage.ini not found — log in on Windows Editor first to export auth for Android APK.");
+                }
+            }
+
+            string PluginPath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
+            AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(PluginPath, "MLSLabsRenderer_APL.xml"));
         }
 
         string PasswordVisibilitySvg = Path.Combine(PluginDirectory, "Resources", "password_visibility.svg");
@@ -178,19 +250,26 @@ public class MLSLabsRenderer : ModuleRules
             RuntimeDependencies.Add(PasswordVisibilitySvg);
         }
 
-        // Loose PLY and SOG under project Content (not UAssets). DirectoriesToAlwaysStageAsNonUFS is unreliable; RuntimeDependencies + SystemNonUFS stages real files for native DLL I/O.
+        // Loose PLY / SOG / mlslabs: native GSR uses fopen, so these must be NonUFS (not pak/UFS).
+        // SystemNonUFS is for third-party .so and is not deployed as game content.
         if (!Target.bBuildEditor && Target.ProjectFile != null)
         {
             string PlyStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "ply");
             if (Directory.Exists(PlyStagingRoot))
             {
-                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/ply/...", StagedFileType.SystemNonUFS);
+                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/ply/...", StagedFileType.NonUFS);
             }
 
             string SogStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "sog");
             if (Directory.Exists(SogStagingRoot))
             {
-                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/sog/...", StagedFileType.SystemNonUFS);
+                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/sog/...", StagedFileType.NonUFS);
+            }
+
+            string MlslabsStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "mlslabs");
+            if (Directory.Exists(MlslabsStagingRoot))
+            {
+                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/mlslabs/...", StagedFileType.NonUFS);
             }
         }
     }

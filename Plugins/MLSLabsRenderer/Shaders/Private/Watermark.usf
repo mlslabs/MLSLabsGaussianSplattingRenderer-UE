@@ -1,0 +1,42 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// 水印：左上角绘制 logo，半透明深色底
+
+#include "/Engine/Private/Common.ush"
+
+Texture2D SceneColorTexture;
+Texture2D LogoTexture;
+SamplerState LogoSampler;
+
+float2 ViewSize;
+float2 ViewRectMin;
+float2 LogoSize;
+float2 LogoOffset;
+float BackgroundOpacity;
+
+void WatermarkPS(
+    in float4 SvPosition : SV_Position,
+    out float4 OutColor : SV_Target0
+)
+{
+    float2 localPos = SvPosition.xy - ViewRectMin;
+    float4 SceneColor = SceneColorTexture.Load(int3(localPos, 0));
+
+    float2 MinCorner = LogoOffset;
+    float2 MaxCorner = LogoOffset + LogoSize;
+    bool bInLogoRect = all(localPos >= MinCorner) && all(localPos < MaxCorner);
+
+    if (bInLogoRect)
+    {
+        float2 LogoUV = (localPos - LogoOffset) / LogoSize;
+        float4 LogoColor = LogoTexture.SampleLevel(LogoSampler, LogoUV, 0);
+
+        float3 DarkBg = float3(0.05, 0.05, 0.08);
+        float3 WithBg = lerp(SceneColor.rgb, DarkBg, BackgroundOpacity);
+        float3 WithLogo = lerp(WithBg, LogoColor.rgb, LogoColor.a);
+        OutColor = float4(WithLogo, 1.0);
+    }
+    else
+    {
+        OutColor = SceneColor;
+    }
+}

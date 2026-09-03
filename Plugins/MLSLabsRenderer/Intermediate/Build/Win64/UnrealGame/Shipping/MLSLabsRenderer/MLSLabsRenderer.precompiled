@@ -9,6 +9,8 @@
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\GaussianSplattingComponent.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\GaussianSplattingSceneProxy.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MiscHelperLibrary.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsAniGaussianSplattingActor.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsAniGaussianSplattingComponent.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsAuthStorage.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsLoginWindow.cpp.obj",
 		"..\\..\\..\\x64\\UnrealGame\\Shipping\\MLSLabsRenderer\\MLSLabsRenderer.cpp.obj",
