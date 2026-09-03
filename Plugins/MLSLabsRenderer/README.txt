@@ -1,3 +1,16 @@
+Pro_V2.0.0.0_preview
+1. Uses Vulkan Gaussian Splatting rendering, supporting all features of Windows version 1.0.
+
+Pro_V1.0.4.0
+1. Update the progress bar prompt when importing Gaussian models.
+2. Support importing and playing 4DGS data in the mlslabs format.
+3. After entering PIE mode, there is no need for the Editor mode to perform Gaussian rendering and compositing, thereby improving the rendering frame rate of PIE mode.
+
+Pro_V1.0.3.14
+1. Fix the issue of forced re-login caused by expired tokens.
+2. Resolve VR failure (right eye not rendering) bug.
+3. Fix rendering holes caused by different blending orders in multi-Gaussian scenes.
+
 Pro_V1.0.3.13
 1. Resolved flickering issues and enhanced rendering quality.
 2. Added support for Constrained Aspect Ratio.

@@ -1,46 +1,48 @@
-{
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0.3.13",
-	"FriendlyName": "MLSLabsRenderer",
-	"Description": "MLSLabs Renderer for Radiance Fields in UE5",
-	"Category": "Rendering",
-	"CreatedBy": "MALANSHAN AUDIO&VIDEO LABORATORY",
-	"CreatedByURL": "https://mls4dlive.cn/",
-	"DocsURL": "https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/docs/README.md",
-	"MarketplaceURL": "https://fab.com/s/a98e11b2a0a6",
-	"SupportURL": "https://mls4dlive.cn/",
-	"EngineVersion": "5.5.0",
-	"CanContainContent": true,
-	"Installed": true,
-	"Modules": [
-		{
-			"Name": "MLSLabsRenderer",
-			"Type": "Runtime",
-			"LoadingPhase": "EarliestPossible",
-			"PlatformAllowList": [
-				"Win64",
-				"Linux"
-			]
-		},
-		{
-			"Name": "MLSLabsRendererImporter",
-			"Type": "Editor",
-			"LoadingPhase": "Default",
-			"PlatformAllowList": [
-				"Win64",
-				"Linux"
-			]
-		}
-	],
-	"Plugins": [
-		{
-			"Name": "EditorScriptingUtilities",
-			"Enabled": true
-		},
-		{
-			"Name": "PythonScriptPlugin",
-			"Enabled": true
-		}
-	]
+﻿{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "2.0.0.0",
+  "FriendlyName": "MLSLabsRenderer",
+  "Description": "MLSLabs Renderer for Radiance Fields in UE5",
+  "Category": "Rendering",
+  "CreatedBy": "MALANSHAN AUDIO&VIDEO LABORATORY",
+  "CreatedByURL": "https://mls4dlive.cn/",
+  "DocsURL": "https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/main/docs/README.md",
+  "MarketplaceURL": "https://fab.com/s/a98e11b2a0a6",
+  "SupportURL": "https://mls4dlive.cn/",
+  "EngineVersion": "5.5.0",
+  "CanContainContent": true,
+  "IsBetaVersion": false,
+  "Installed": false,
+  "Modules": [
+    {
+      "Name": "MLSLabsRenderer",
+      "Type": "Runtime",
+      "LoadingPhase": "EarliestPossible",
+      "PlatformAllowList": [
+        "Win64",
+        "Linux",
+        "Android"
+      ]
+    },
+    {
+      "Name": "MLSLabsRendererImporter",
+      "Type": "Editor",
+      "LoadingPhase": "Default",
+      "PlatformAllowList": [
+        "Win64",
+        "Linux"
+      ]
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "EditorScriptingUtilities",
+      "Enabled": true
+    },
+    {
+      "Name": "PythonScriptPlugin",
+      "Enabled": true
+    }
+  ]
 }
