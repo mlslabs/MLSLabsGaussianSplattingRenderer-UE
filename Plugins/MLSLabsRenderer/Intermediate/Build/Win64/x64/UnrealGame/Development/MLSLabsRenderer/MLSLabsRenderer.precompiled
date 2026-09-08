@@ -1,0 +1,25 @@
+{
+	"OutputFiles": [
+		"Module.MLSLabsRenderer.cpp.obj",
+		"AnimatableGaussianSplattingActor.cpp.obj",
+		"AnimatableGaussianSplattingComponent.cpp.obj",
+		"EmbeddedLogo.cpp.obj",
+		"GaussianSplatingRendererLibrary.cpp.obj",
+		"GaussianSplattingActor.cpp.obj",
+		"GaussianSplattingComponent.cpp.obj",
+		"GaussianSplattingSceneProxy.cpp.obj",
+		"MiscHelperLibrary.cpp.obj",
+		"MLSLabsAniGaussianSplattingActor.cpp.obj",
+		"MLSLabsAniGaussianSplattingComponent.cpp.obj",
+		"MLSLabsAuthStorage.cpp.obj",
+		"MLSLabsLoginWindow.cpp.obj",
+		"MLSLabsRenderer.cpp.obj",
+		"MLSLabsRendererAuth.cpp.obj",
+		"MLSLabsRendererModule.cpp.obj",
+		"MLSLabsRendererSlateStyle.cpp.obj",
+		"MLSLabsRendererSubsystem.cpp.obj",
+		"MLSLabsWatermark.cpp.obj",
+		"NoPhysicsPrimitiveComponent.cpp.obj",
+		"WatermarkShaderEmbedded.cpp.obj"
+	]
+}
