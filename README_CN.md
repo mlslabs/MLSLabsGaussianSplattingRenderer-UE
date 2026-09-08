@@ -22,7 +22,7 @@
   <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
-  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.5-white?logo=unrealengine&logoColor=white&color=0E1128">
+  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.6-white?logo=unrealengine&logoColor=white&color=0E1128">
   <img alt="Topic 3DGS" src="https://img.shields.io/badge/Topic-3DGS-orange">
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
@@ -30,7 +30,7 @@
 
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**教学视频**](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364) •
-[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.5/docs/README_CN.md) •
+[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/docs/README_CN.md) •
 [**入门指南**](#入门指南) •
 [**安装**](#installation) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,9 +43,9 @@
 [**功能特性**](#核心特性) •
 [**项目结构**](#项目结构) •
 [**路线图**](#路线图-专业版) •
-[**入门版（Lite）**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.5) •
+[**入门版（Lite）**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.6) •
 [**版本记录**](#版本记录) •
-[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.5/LICENSE)
+[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/LICENSE)
 
 </div>
 
@@ -121,7 +121,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ### 2. 环境要求
 
 - **操作系统**: Windows 10 或 11 (64位)
-- **虚幻引擎版本**: 5.5.x
+- **虚幻引擎版本**: 5.6.x
 - **图形 API**: DirectX 12
 - **显卡要求**: 必须使用支持 **SM 7.5 (Shader Model 7.5)** 指令集及以上的英伟达 (NVIDIA) 显卡。
 - **最低硬件**: NVIDIA GeForce RTX 2060 或更高。
@@ -132,7 +132,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ### 3. 安装步骤
 
 1. 将 `Plugins/MLSLabsRenderer` 文件夹复制到你项目的 `Plugins/` 目录下。
-2. **关于项目打包：** 为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹复制到 UE5.5 引擎安装目录中（例如：`Epic Games\UE_5.5\Engine\Plugins\Marketplace`）。
+2. **关于项目打包：** 为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹复制到 UE5.6 引擎安装目录中（例如：`Epic Games\UE_5.6\Engine\Plugins\Marketplace`）。
 3. 在虚幻引擎编辑器的“插件浏览器”中启用 **MLSLabsRenderer**。
 
 ---
