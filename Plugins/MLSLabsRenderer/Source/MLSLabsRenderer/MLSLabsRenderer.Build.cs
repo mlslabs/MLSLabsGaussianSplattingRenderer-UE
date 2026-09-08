@@ -9,6 +9,9 @@ public class MLSLabsRenderer : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         IWYUSupport = IWYUSupport.KeepAsIs;
+        // UE 5.6 packaged games link Installed marketplace plugins from UnrealGame
+        // Development .precompiled (5.5 did not require this). Keep game+editor precompile.
+        PrecompileForTargets = PrecompileTargetsType.Any;
 
         string PrivateSceneRenderingPath = EngineDirectory + "/Source/Runtime/Renderer/Private";
         if (System.IO.Directory.Exists(PrivateSceneRenderingPath))
@@ -125,77 +128,20 @@ public class MLSLabsRenderer : ModuleRules
 
         if (Target.Platform.IsInGroup(UnrealPlatformGroup.Windows))
         {
-            string libwebpLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libwebp", "bin");
-            string[] CoreDllsOfLibwebp = { "libwebp.dll", "libsharpyuv.dll" };
-            foreach (string DllName in CoreDllsOfLibwebp)
-            {
-                string DllPath = Path.Combine(libwebpLibDir, DllName);
-                if (File.Exists(DllPath))
-                {
-                    RuntimeDependencies.Add(DllPath);
-                }
-            }
-
-            string RendererDllDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64");
-            string RendererDllPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.dll");
-            if (File.Exists(RendererDllPath))
-            {
-                RuntimeDependencies.Add(RendererDllPath);
-            }
-            // Ship PDB next to the DLL for Debug/Development so the debugger can
-            // resolve symbols when the module is loaded from Binaries/Win64.
-            string RendererPdbPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.pdb");
-            if (File.Exists(RendererPdbPath) && Target.Configuration != UnrealTargetConfiguration.Shipping)
-            {
-                RuntimeDependencies.Add(RendererPdbPath);
-            }
-            string Tbb12DllPath = Path.Combine(RendererDllDir, "tbb12.dll");
-            if (File.Exists(Tbb12DllPath))
-            {
-                RuntimeDependencies.Add(Tbb12DllPath);
-            }
-            string[] RendererRuntimeDlls =
-            {
-                "archive.dll",
-                "bz2.dll",
-                "deflate.dll",
-                "libcrypto-3-x64.dll",
-                "liblzma.dll",
-                "libwebpdecoder.dll",
-                "lz4.dll",
-                "SDL3.dll",
-                "vulkan-1.dll",
-                "zlib1.dll",
-                "zstd.dll",
-            };
-            foreach (string DllName in RendererRuntimeDlls)
-            {
-                string DllPath = Path.Combine(RendererDllDir, DllName);
-                if (File.Exists(DllPath))
-                {
-                    RuntimeDependencies.Add(DllPath);
-                }
-            }
-            
+            // Stage in-place under Source/ThirdParty (files already exist there).
+            // Do NOT two-arg copy to Plugin/Binaries: Installed marketplace plugins skip
+            // that UBT copy (IsFileInstalled), then UAT fails staging a missing dest.
+            // Do NOT copy libwebp.dll / libsharpyuv.dll into GSR Bin/Win64 — they stay in libwebp/bin.
+            StageLooseNativeRuntimeDirectory(
+                Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64"),
+                "libwebp.dll", "libsharpyuv.dll");
+            StageLooseNativeRuntimeDirectory(
+                Path.Combine(PluginDirectory, "Source", "ThirdParty", "libwebp", "bin"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
-            string LinuxRendererDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Linux");
-            string SoPath = Path.Combine(LinuxRendererDir, "libGaussianSplatingRenderer.so");
-            if (File.Exists(SoPath))
-            {
-                RuntimeDependencies.Add(SoPath);
-            }
-            string OpenMeshSoPath = Path.Combine(LinuxRendererDir, "libOpenMeshCore.so.11.0");
-            if (File.Exists(OpenMeshSoPath))
-            {
-                RuntimeDependencies.Add(OpenMeshSoPath);
-            }
-            string VulkanShaderPath = Path.Combine(LinuxRendererDir, "vulkan_rasterizer.shader");
-            if (File.Exists(VulkanShaderPath))
-            {
-                RuntimeDependencies.Add(VulkanShaderPath);
-            }
+            StageLooseNativeRuntimeDirectory(
+                Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Linux"));
         }
         else if (Target.Platform == UnrealTargetPlatform.Android)
         {
@@ -271,6 +217,53 @@ public class MLSLabsRenderer : ModuleRules
             {
                 RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/mlslabs/...", StagedFileType.NonUFS);
             }
+        }
+    }
+
+    /// <summary>
+    /// Stage every loose native file in-place as NonUFS so packaged games can
+    /// LoadLibrary/fopen them from Source/ThirdParty (same layout as the editor).
+    /// </summary>
+    private void StageLooseNativeRuntimeDirectory(string NativeDir, params string[] SkipFileNames)
+    {
+        if (!Directory.Exists(NativeDir))
+        {
+            return;
+        }
+
+        foreach (string SourcePath in Directory.GetFiles(NativeDir))
+        {
+            string FileName = Path.GetFileName(SourcePath);
+            if (SkipFileNames != null)
+            {
+                bool bSkip = false;
+                foreach (string SkipName in SkipFileNames)
+                {
+                    if (FileName.Equals(SkipName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        bSkip = true;
+                        break;
+                    }
+                }
+                if (bSkip)
+                {
+                    continue;
+                }
+            }
+
+            string Ext = Path.GetExtension(SourcePath);
+            if (Ext.Equals(".lib", StringComparison.OrdinalIgnoreCase)
+                || Ext.Equals(".exp", StringComparison.OrdinalIgnoreCase)
+                || Ext.Equals(".ilk", StringComparison.OrdinalIgnoreCase)
+                || Ext.Equals(".def", StringComparison.OrdinalIgnoreCase)
+                || Ext.Equals(".a", StringComparison.OrdinalIgnoreCase)
+                || Ext.Equals(".pdb", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            ExternalDependencies.Add(SourcePath);
+            RuntimeDependencies.Add(SourcePath, StagedFileType.NonUFS);
         }
     }
 }
