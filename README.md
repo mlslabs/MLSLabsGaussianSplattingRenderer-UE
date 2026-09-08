@@ -22,7 +22,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
   <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
-  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.6-white?logo=unrealengine&logoColor=white&color=0E1128">
+  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.7-white?logo=unrealengine&logoColor=white&color=0E1128">
   <img alt="Topic 3DGS" src="https://img.shields.io/badge/Topic-3DGS-orange">
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
@@ -30,7 +30,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Tutorial Video**](https://youtu.be/4ArswzhQ0VU) •
-[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/docs/README.md) •
+[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.7/docs/README.md) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,9 +43,9 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Features**](#features) •
 [**Project Structure**](#project-structure) •
 [**Roadmap**](#roadmap-pro-version) •
-[**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.6) •
+[**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.7) •
 [**Release Notes**](#release-notes) •
-[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/LICENSE)
+[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.7/LICENSE)
 
 </div>
 
@@ -124,7 +124,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ### 2. Requirements
 
 - **Operating System**: Windows 10 or 11 (64-bit)
-- **Unreal Engine**: 5.6.x
+- **Unreal Engine**: 5.7.x
 - **Graphics API**: DirectX 12
 - **GPU Requirements**: NVIDIA GPU supporting **Shader Model 7.5** or higher (Turing architecture and above).
 - **Minimum Hardware**: NVIDIA GeForce **RTX 2060** or better.
@@ -136,7 +136,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
 
-For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.6 Engine directory (e.g., Epic Games\UE_5.6\Engine\Plugins\Marketplace).
+For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.7 Engine directory (e.g., Epic Games\UE_5.7\Engine\Plugins\Marketplace).
 
 Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 
