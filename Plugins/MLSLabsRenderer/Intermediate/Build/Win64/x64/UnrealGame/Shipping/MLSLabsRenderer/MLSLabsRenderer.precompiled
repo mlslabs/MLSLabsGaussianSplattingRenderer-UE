@@ -21,5 +21,6 @@
 		"MLSLabsWatermark.cpp.obj",
 		"NoPhysicsPrimitiveComponent.cpp.obj",
 		"WatermarkShaderEmbedded.cpp.obj"
-	]
+	],
+	"ToolChainVersion": "14.44.35222"
 }
