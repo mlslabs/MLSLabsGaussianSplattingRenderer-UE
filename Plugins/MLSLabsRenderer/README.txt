@@ -1,3 +1,7 @@
+Pro_V2.0.0.1_preview
+1. Resolve the issue where Gaussian Splatting scenes cannot be rendered after packaging.
+2. Fix the issue of flickering color patches that occurs when overlaying 3D meshes with Gaussian splatting in edit mode within the editor.
+
 Pro_V2.0.0.0_preview
 1. Uses Vulkan Gaussian Splatting rendering, supporting all features of Windows version 1.0.
 
