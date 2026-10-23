@@ -239,9 +239,9 @@ void MainPS(
 )
 {
     float2 localPos = SvPosition.xy - ViewRectMin;
-    int3 pixelCoordRT = int3(SvPosition.xy, 0);
+    int3 sceneColorCoord = int3(localPos, 0);
 
-    float4 currentSceneColor = SceneColorTexture.Load(pixelCoordRT);
+    float4 currentSceneColor = SceneColorTexture.Load(sceneColorCoord);
     float4 externalColor = MLSLabsLoadGSRAtPassLocal(localPos);
 
     int2 wPx = int2(localPos);
@@ -328,7 +328,7 @@ void MainPS(
 
         if (nearMeshSilhouette && hasMeshInterior)
         {
-            int3 meshSceneCoord = int3(pixelCoordRT.xy + meshOffsetPx, 0);
+            int3 meshSceneCoord = int3(sceneColorCoord.xy + meshOffsetPx, 0);
             float3 meshSceneColor = SceneColorTexture.Load(meshSceneCoord).rgb;
 
             bool onSplatSideRing = (wC >= meshExtSplatCenterW * 0.5f);

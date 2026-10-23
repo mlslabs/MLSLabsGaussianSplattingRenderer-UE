@@ -40,7 +40,6 @@ public class MLSLabsRenderer : ModuleRules
             {
                 "Core",
                 "HTTP",
-                "SSL",
                 "InputCore",
                 "ImageCore",
                 "ImageWrapper",
@@ -60,6 +59,7 @@ public class MLSLabsRenderer : ModuleRules
         {
             PublicDependencyModuleNames.Add("D3D12RHI");
             PrivateDependencyModuleNames.Add("D3D12RHI");
+            PublicSystemLibraries.Add("bcrypt.lib");
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
         {
@@ -67,6 +67,7 @@ public class MLSLabsRenderer : ModuleRules
             PrivateDependencyModuleNames.Add("VulkanRHI");
             // IVulkanDynamicRHI.h pulls VulkanThirdParty.h -> <vulkan.h>; paths come from Engine ThirdParty Vulkan (VulkanRHI keeps this private).
             AddEngineThirdPartyPrivateStaticDependencies(Target, "Vulkan");
+            AddEngineThirdPartyPrivateStaticDependencies(Target, "OpenSSL");
         }
 
         string PrivateDir = Path.Combine(ModuleDirectory, "Private");
@@ -191,6 +192,12 @@ public class MLSLabsRenderer : ModuleRules
             if (Directory.Exists(SogStagingRoot))
             {
                 RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/sog/...", StagedFileType.SystemNonUFS);
+            }
+
+            string MlslabsStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "mlslabs");
+            if (Directory.Exists(MlslabsStagingRoot))
+            {
+                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/mlslabs/...", StagedFileType.SystemNonUFS);
             }
         }
     }
