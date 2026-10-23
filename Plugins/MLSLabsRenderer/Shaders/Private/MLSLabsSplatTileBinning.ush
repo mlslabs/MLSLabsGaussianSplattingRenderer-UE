@@ -1,0 +1,145 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Cutoff-ellipse tile walk shared by the per-splat tile count (Android/TileCount, Desktop/TileProject) and TileEmitCS.
+
+#ifndef MLSLABS_SPLAT_TILE_BINNING_USH
+#define MLSLABS_SPLAT_TILE_BINNING_USH
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+// x: [min.x | min.y << 16], y: [max.x | max.y << 16] in tiles, max exclusive.
+uint2 PackTileRect(int2 T0, int2 T1)
+{
+	return uint2(uint(T0.x) | (uint(T0.y) << 16), uint(T1.x) | (uint(T1.y) << 16));
+}
+
+int4 UnpackTileRect(uint2 Rect)
+{
+	return int4(Rect.x & 0xffffu, Rect.x >> 16, Rect.y & 0xffffu, Rect.y >> 16);
+}
+
+// Cutoff ellipse a*x^2 + 2*b*x*y + c*y^2 <= 1 (px from Center) walked over its tile rect along the shorter axis.
+// Walk space swaps x/y when bTransposed. Without bExact every tile of the rect is walked.
+struct FEllipseTiles
+{
+	float3 Conic;
+	float2 Center;
+	int2 T0;
+	int2 T1;
+	bool bTransposed;
+	bool bExact;
+};
+
+FEllipseTiles MakeEllipseTiles(float3 Conic, float2 Center, int2 T0, int2 T1, bool bExact)
+{
+	FEllipseTiles E;
+	E.bTransposed = (T1.y - T0.y) > (T1.x - T0.x);
+	E.bExact = bExact;
+	E.Conic = E.bTransposed ? Conic.zyx : Conic;
+	E.Center = E.bTransposed ? Center.yx : Center;
+	E.T0 = E.bTransposed ? T0.yx : T0;
+	E.T1 = E.bTransposed ? T1.yx : T1;
+	return E;
+}
+
+// Walk-space tile span [Lo, Hi) of band Band (a row in walk space); Lo == Hi when the ellipse misses it.
+void GetEllipseBandSpan(FEllipseTiles E, int Band, out int Lo, out int Hi)
+{
+	Lo = E.T0.x;
+	Hi = E.T1.x;
+	if (!E.bExact)
+	{
+		return;
+	}
+	float A = E.Conic.x;
+	float B = E.Conic.y;
+	float C = E.Conic.z;
+	float Y0 = float(Band * int(TILE_SIZE)) - E.Center.y;
+	float Y1 = Y0 + float(TILE_SIZE);
+	// y of the rightmost ellipse point; the leftmost sits at -Ym.
+	float Ym = -B / C * sqrt(C / max(A * C - B * B, 1e-20));
+	float V0 = clamp(-Ym, Y0, Y1);
+	float V1 = clamp(Ym, Y0, Y1);
+	float Bv0 = -B * V0;
+	float Bv1 = -B * V1;
+	float InvA = 1.0 / A;
+	float XMin = InvA * (Bv0 - sqrt(max(Bv0 * Bv0 - A * (C * V0 * V0 - 1.0), 0.0)));
+	float XMax = InvA * (Bv1 + sqrt(max(Bv1 * Bv1 - A * (C * V1 * V1 - 1.0), 0.0)));
+	Lo = clamp(int(floor((XMin + E.Center.x) / float(TILE_SIZE))), E.T0.x, E.T1.x);
+	Hi = clamp(int(ceil((XMax + E.Center.x) / float(TILE_SIZE))), Lo, E.T1.x);
+}
+
+uint GetEllipseTile(FEllipseTiles E, int Band, int Walk, uint TilesX)
+{
+	return E.bTransposed ? uint(Walk) * TilesX + uint(Band) : uint(Band) * TilesX + uint(Walk);
+}
+
+uint CountEllipseTiles(FEllipseTiles E)
+{
+	uint Count = 0u;
+	for (int Band = E.T0.y; Band < E.T1.y; ++Band)
+	{
+		int Lo;
+		int Hi;
+		GetEllipseBandSpan(E, Band, Lo, Hi);
+		Count += uint(Hi - Lo);
+	}
+	return Count;
+}
+
+#if MLSLABS_SPLAT_MOBILE
+
+StructuredBuffer<float4> ProjectedSplats;
+float2 RasterSize;
+
+// Rejects the degenerate slots Android/MLSLabsSplatTileProject.usf writes for culled splats.
+bool LoadTileSplat(uint Index, out float2 Center, out float2 MajorPx, out float2 MinorPx, out float4 Color)
+{
+	float4 CenterClip = ProjectedSplats[Index * 4u + 0u];
+	Color = ProjectedSplats[Index * 4u + 1u];
+	float4 AxesNdc = ProjectedSplats[Index * 4u + 2u];
+	Center = 0.0;
+	MajorPx = 0.0;
+	MinorPx = 0.0;
+	if (CenterClip.w <= 1e-5
+		|| any(isnan(CenterClip)) || any(isinf(CenterClip))
+		|| any(abs(CenterClip.xy) > CenterClip.w * 3.0)
+		|| any(isnan(AxesNdc)) || any(isinf(AxesNdc))
+		|| dot(AxesNdc.xy, AxesNdc.xy) > 4.0 || dot(AxesNdc.zw, AxesNdc.zw) > 4.0
+		|| !(Color.a >= GetPixelMinAlpha()))
+	{
+		return false;
+	}
+	float2 HalfSize = 0.5 * RasterSize;
+	float2 Ndc = CenterClip.xy / CenterClip.w;
+	Center = float2(Ndc.x + 1.0, 1.0 - Ndc.y) * HalfSize;
+	MajorPx = float2(AxesNdc.x, -AxesNdc.y) * HalfSize;
+	MinorPx = float2(AxesNdc.z, -AxesNdc.w) * HalfSize;
+	return true;
+}
+
+// Projected axes in pixels; the cutoff is u^2 + v^2 < R2 with Delta = u * Major + v * Minor.
+FEllipseTiles SetupEllipseTiles(float2 Center, float2 MajorPx, float2 MinorPx, float R2, int2 T0, int2 T1)
+{
+	// Cov = Major Major^T + Minor Minor^T.
+	float Sxx = MajorPx.x * MajorPx.x + MinorPx.x * MinorPx.x;
+	float Sxy = MajorPx.x * MajorPx.y + MinorPx.x * MinorPx.y;
+	float Syy = MajorPx.y * MajorPx.y + MinorPx.y * MinorPx.y;
+	float Det = Sxx * Syy - Sxy * Sxy;
+	// Same 1.01 radius margin as the AABB.
+	float Scale = Det * R2 * 1.0201;
+	bool bExact = Det > 1e-12 && Scale > 1e-12;
+	float3 Conic = bExact ? float3(Syy, -Sxy, Sxx) / Scale : float3(1.0, 0.0, 1.0);
+	return MakeEllipseTiles(Conic, Center, T0, T1, bExact);
+}
+
+#else
+
+// Projected conic scaled so the opacity cutoff (Extend sigma) lands on 1.
+FEllipseTiles SetupEllipseTiles(float2 Xy, float3 Conic, float Extend, int2 T0, int2 T1)
+{
+	return MakeEllipseTiles(Conic / (Extend * Extend), Xy, T0, T1, true);
+}
+
+#endif // MLSLABS_SPLAT_MOBILE
+
+#endif // MLSLABS_SPLAT_TILE_BINNING_USH

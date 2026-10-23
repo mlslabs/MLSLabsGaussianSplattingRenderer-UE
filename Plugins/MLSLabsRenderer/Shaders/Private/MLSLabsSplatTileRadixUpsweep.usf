@@ -1,0 +1,50 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Tile raster radix pass, step 1: per-partition and global digit histograms.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+StructuredBuffer<uint> Meta;
+StructuredBuffer<uint> KeysIn;
+RWStructuredBuffer<uint> RWPartitionHistogram;
+RWStructuredBuffer<uint> RWGlobalHistogram;
+// Meta slot holding the element count (META_VISIBLE or META_PAIRS).
+uint CountIndex;
+uint RadixShift;
+uint RadixPass;
+
+groupshared uint GHistogram[RS_RADIX];
+
+[numthreads(RS_GROUP, 1, 1)]
+void RadixUpsweepCS(uint3 GroupId : SV_GroupID, uint GroupIndex : SV_GroupIndex)
+{
+	uint ElementCount = Meta[CountIndex];
+	uint PartitionStart = GroupId.x * RS_PARTITION;
+	if (PartitionStart >= ElementCount)
+	{
+		return;
+	}
+	if (GroupIndex < RS_RADIX)
+	{
+		GHistogram[GroupIndex] = 0u;
+	}
+	GroupMemoryBarrierWithGroupSync();
+	[unroll]
+	for (uint I = 0u; I < RS_DIVISION; ++I)
+	{
+		uint KeyIndex = PartitionStart + I * RS_GROUP + GroupIndex;
+		if (KeyIndex < ElementCount)
+		{
+			InterlockedAdd(GHistogram[(KeysIn[KeyIndex] >> RadixShift) & 255u], 1u);
+		}
+	}
+	GroupMemoryBarrierWithGroupSync();
+	if (GroupIndex < RS_RADIX)
+	{
+		uint Count = GHistogram[GroupIndex];
+		RWPartitionHistogram[RS_RADIX * GroupId.x + GroupIndex] = Count;
+		if (Count > 0u)
+		{
+			InterlockedAdd(RWGlobalHistogram[RS_RADIX * RadixPass + GroupIndex], Count);
+		}
+	}
+}

@@ -1,0 +1,143 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+
+#ifndef MLSLABS_SPLAT_TILE_COMMON_USH
+#define MLSLABS_SPLAT_TILE_COMMON_USH
+
+#include "/Engine/Public/Platform.ush"
+
+// 1 for the Android tile shaders, 0 for the desktop ones; set by the C++ shader classes.
+#ifndef MLSLABS_SPLAT_MOBILE
+#error "MLSLABS_SPLAT_MOBILE must be set by the shader class."
+#endif
+
+#define TILE_SIZE 16u
+#define TILE_PIXELS 256u
+#define LINEAR_GROUP_SIZE 256u
+#define MAX_GROUPS_X 65535u
+#define SCAN_GROUP_SIZE 256u
+#define SCAN_ITEMS 4u
+#define SCAN_BLOCK (SCAN_GROUP_SIZE * SCAN_ITEMS)
+#define RS_RADIX 256u
+#define RS_GROUP 512u
+#define RS_DIVISION 8u
+#define RS_PARTITION (RS_GROUP * RS_DIVISION)
+#define RS_BANK_WIDTH 32u
+#define RS_NUM_BANKS (RS_GROUP / RS_BANK_WIDTH)
+#define RS_HIST_STRIDE (RS_NUM_BANKS + 1u)
+#define RS_HIST_SIZE (RS_RADIX * RS_HIST_STRIDE)
+
+// Meta layout, mirrored in MLSLabsAndroidSplatRaster.cpp and MLSLabsDesktopSplatRaster.cpp.
+// The visible counts are desktop only: Android bins every projected splat.
+#define META_RAW_VISIBLE 0u
+#define META_VISIBLE 1u
+#define META_RAW_PAIRS 2u
+#define META_PAIRS 3u
+
+// Desktop pixel cutoff and blend cap; Android KernelMode 1 and 2 use the same falloff.
+static const float ALPHA_THRESHOLD = 0.5 / 255.0;
+static const float ALPHA_BLEND_MAX_OPACITY = 0.999;
+
+// Exponent bit test instead of isfinite(): fast-math may fold isfinite()/isnan() to constants.
+bool AllFinite(float4 V)
+{
+	return all((asuint(V) & 0x7f800000u) != 0x7f800000u);
+}
+
+uint LinearGroupCount(uint Count)
+{
+	return min((Count + LINEAR_GROUP_SIZE - 1u) / LINEAR_GROUP_SIZE, MAX_GROUPS_X);
+}
+
+#if MLSLABS_SPLAT_MOBILE
+
+// The front-to-back rank sits in the low key bits, so the radix sort moves keys only. When the rank does not
+// fit beside the tile id, MLSLABS_TILE_SORT_VALUES sorts tile-only keys and carries the rank as the value;
+// the emit order is the rank order and the sort is stable.
+#ifndef MLSLABS_TILE_SORT_VALUES
+#define MLSLABS_TILE_SORT_VALUES 0
+#endif
+#define RS_SORT_VALUES MLSLABS_TILE_SORT_VALUES
+// 8-bit passes over the tile bits above the rank.
+#define RS_MAX_PASSES 2u
+// uints per splat in the SplatPack read by TileRasterCS.
+#define PACK_STRIDE 8u
+
+static const float kEdgeWeight = 0.01831563889; // exp(-4): KernelMode 0 falloff floor
+static const float kExp2Gauss = 5.770780163555685; // 4 / ln(2): exp(-4*R2) == exp2(-kExp2Gauss*R2)
+static const float kMinAlpha = 1.0 / 255.0;
+static const float kMinTransmittance = 1.0 / 255.0;
+static const float kRefMaxR2 = 1.5586; // log(1 / ALPHA_THRESHOLD) / 4: opaque splats reach 3.53 sigma
+
+// 0: exp(-4) floored falloff cut at 2.83 sigma. 1: desktop falloff (unfloored, ALPHA_THRESHOLD cut,
+// ALPHA_BLEND_MAX_OPACITY cap). 2: desktop falloff cut at 2.83 sigma.
+uint KernelMode;
+
+float GetPixelMinAlpha()
+{
+	return KernelMode != 0u ? ALPHA_THRESHOLD : kMinAlpha;
+}
+
+// Largest R2 (footprint-local radius^2) where Alpha * GaussianWeight still passes the pixel alpha clip.
+float GetCutoffRadius2(float Alpha)
+{
+	if (KernelMode != 0u)
+	{
+		float R2 = Alpha > ALPHA_THRESHOLD ? log(Alpha / ALPHA_THRESHOLD) * 0.25 : -1.0;
+		return KernelMode == 2u ? min(R2, 1.0) : R2;
+	}
+	float Threshold = kEdgeWeight + (1.0 - kEdgeWeight) * kMinAlpha / max(Alpha, 1e-6);
+	return Threshold >= 1.0 ? -1.0 : saturate(-log(Threshold) * 0.25);
+}
+
+// Pixel alpha at footprint-local radius^2 R2 (R2 = 1 is 2.83 sigma).
+float GetPixelAlpha(float SplatAlpha, float R2)
+{
+	float Gauss = exp2(-kExp2Gauss * R2);
+	if (KernelMode != 0u)
+	{
+		return min(SplatAlpha * Gauss, ALPHA_BLEND_MAX_OPACITY);
+	}
+	return SplatAlpha * saturate((Gauss - kEdgeWeight) * (1.0 / (1.0 - kEdgeWeight)));
+}
+
+#else
+
+// Depth and tile sorts both carry the projected slot as the value.
+#define RS_SORT_VALUES 1
+
+// Visible-count indirect args (uint offsets), mirrored in MLSLabsDesktopSplatRaster.cpp.
+#define VISIBLE_ARGS_SORT 0u
+#define VISIBLE_ARGS_SCAN 3u
+#define VISIBLE_ARGS_LINEAR 6u
+// Pair-count indirect args.
+#define PAIR_ARGS_SORT 0u
+#define PAIR_ARGS_LINEAR 3u
+
+static const float MAX_BLEND_COLOR = 4.0;
+static const float MAX_POWER_THRESHOLD = 4.0;
+static const float MAX_PIXEL_RADIUS = 512.0;
+static const float DILATION_3DGS = 0.3;
+static const float MIN_TRANSMITTANCE = 1.0e-4;
+// NEAR_CLIP 0.01 m in UE centimetres.
+static const float NEAR_CLIP_CM = 1.0;
+
+float PowerThresholdForOpacity(float Opacity)
+{
+	return max(MAX_POWER_THRESHOLD, log(max(Opacity, ALPHA_THRESHOLD) / ALPHA_THRESHOLD));
+}
+
+float ExtendFromOpacity(float Opacity)
+{
+	return sqrt(2.0 * PowerThresholdForOpacity(Opacity));
+}
+
+// Opacity stored as fp16 in the high half of ProjB.w.
+float DecodeOpacity(uint PackedBO)
+{
+	return f16tof32(PackedBO >> 16);
+}
+
+#endif // MLSLABS_SPLAT_MOBILE
+
+#endif // MLSLABS_SPLAT_TILE_COMMON_USH

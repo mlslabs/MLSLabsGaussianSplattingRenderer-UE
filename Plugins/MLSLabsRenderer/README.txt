@@ -1,3 +1,9 @@
+Pro_V2.1.0.0
+1. Rendering pipeline upgraded, with full support for Windows/Linux/Android, multi-GPU support, and support for Nvidia/AMD/mobile GPUs;
+2. The packaged Android APK can be installed and run directly on Pico all-in-one headsets, and also supports streaming mode;
+3. Simply install the plugin; no need to download Libtorch or other third-party libraries;
+4. All platforms support ply/sog, ply sequences, and the volumetric video format .mlslabs.
+
 Pro_V2.0.0.1_preview
 1. Resolve the issue where Gaussian Splatting scenes cannot be rendered after packaging.
 2. Fix the issue of flickering color patches that occurs when overlaying 3D meshes with Gaussian splatting in edit mode within the editor.

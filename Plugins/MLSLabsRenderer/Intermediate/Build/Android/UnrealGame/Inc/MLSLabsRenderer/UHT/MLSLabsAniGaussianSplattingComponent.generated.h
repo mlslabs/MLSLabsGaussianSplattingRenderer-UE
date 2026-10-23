@@ -15,6 +15,7 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 #define MLSLABSRENDERER_MLSLabsAniGaussianSplattingComponent_generated_h
 
 #define FID_hezhiwu_git_GSPlugin_Publish_PluginRelease_MLSLabsRenderer_HostProject_Plugins_MLSLabsRenderer_Source_MLSLabsRenderer_Public_MLSLabsAniGaussianSplattingComponent_h_11_RPC_WRAPPERS_NO_PURE_DECLS \
+	DECLARE_FUNCTION(execSeekToFrame); \
 	DECLARE_FUNCTION(execCanPlay); \
 	DECLARE_FUNCTION(execPause); \
 	DECLARE_FUNCTION(execStop); \

@@ -83,23 +83,6 @@ float MLSLabsFusionSceneDepthAt(float2 localPosInView, float2 subPixelOffset)
     return GaussianFusionDepth.Load(int3(depthPixel, 0)).r;
 }
 
-// Convert GSR depth sample to UE linear depth (cm). Returns < 0 when empty/invalid.
-// CUDA GSR: deviceZ = near/Z in (0,1]. VkSplat: linear Z in meters; empty ≈ 1e10.
-// Treating 1e10 as near/Z (Near/sample≈0) falsely marks soft color fringes as "in front"
-// and produces the white silhouette halo.
-float MLSLabsGSRLinearDepthCm(float externalDepthSample)
-{
-    if (externalDepthSample <= 0.0f || externalDepthSample >= 1.0e8f)
-    {
-        return -1.0f;
-    }
-    if (externalDepthSample > 1.0f)
-    {
-        return externalDepthSample * 100.0f;
-    }
-    return GetPrimaryView().NearPlane / max(externalDepthSample, 1e-6f);
-}
-
 float MLSLabsSplatFusionWeightAt(float2 localPosInView, float2 subPixelOffset, float depthEdgeCenter)
 {
     int2 depthPixel = MLSLabsDepthPixelFromViewLocal(localPosInView + subPixelOffset);
@@ -110,7 +93,7 @@ float MLSLabsSplatFusionWeightAt(float2 localPosInView, float2 subPixelOffset, f
 
     int2 gsrPix = MLSLabsGSRPixelFromViewLocal(localPosInView, subPixelOffset);
     float externalDepthSample = img_depth.Load(int3(gsrPix, 0)).r;
-    float linearExternalDepthHere = MLSLabsGSRLinearDepthCm(externalDepthSample);
+    float linearExternalDepthHere = MLSLabsSplatLinearDepthCm(externalDepthSample);
     if (linearExternalDepthHere < 0.0f)
     {
         return 0.0f;
@@ -175,7 +158,7 @@ float MLSLabsGatherFusionWeight(float2 localPos)
         float linearSceneZC = GaussianFusionDepth.Load(int3(pxCenter, 0)).r;
         int2 gsrPixC = MLSLabsGSRPixelFromViewLocal(localPos, float2(0.0f, 0.0f));
         float externalSampleC = img_depth.Load(int3(gsrPixC, 0)).r;
-        float linearExternalZC = MLSLabsGSRLinearDepthCm(externalSampleC);
+        float linearExternalZC = MLSLabsSplatLinearDepthCm(externalSampleC);
         if (linearExternalZC >= 0.0f)
         {
             float marginC = (linearSceneZC + DepthCompareBias) - linearExternalZC;

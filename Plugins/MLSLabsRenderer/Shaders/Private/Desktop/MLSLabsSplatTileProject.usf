@@ -1,0 +1,248 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Desktop tile raster stage 1: project, cull and compact the visible splats with their depth keys (ProjectCS),
+// then clamp the visible count and size the visible-count dispatches (PrepareVisibleArgsCS).
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatCommon.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileBinning.ush"
+
+RWStructuredBuffer<float4> RWProjA;
+RWStructuredBuffer<float4> RWProjB;
+RWStructuredBuffer<uint2> RWTileRects;
+RWStructuredBuffer<uint> RWTileCounts;
+RWStructuredBuffer<uint> RWDepthKeys;
+RWStructuredBuffer<uint> RWDepthValues;
+RWStructuredBuffer<uint> RWMeta;
+RWBuffer<uint> RWVisibleArgs;
+float4x4 LocalToCamera;
+float3 CameraLocal;
+float2 Focal;
+float2 Principal;
+float2 ImageSize;
+uint SplatCount;
+uint SHDegree;
+// 0: no SH rest bands. 1: 45 int8 per splat (3 uint4). 2: 45 fp16 per splat (6 uint4).
+uint SHMode;
+uint NumProjectGroups;
+uint OutputCapacity;
+uint TilesX;
+uint TilesY;
+
+struct FProjectedSplat
+{
+	float2 Xy;
+	float3 Conic;
+	float ViewZ;
+	float3 Rgb;
+	float Opacity;
+	uint2 Rect;
+	uint TileCount;
+	uint DepthKey;
+};
+
+// Limit both eigenvalues so the cut-off ellipse stays within MAX_PIXEL_RADIUS.
+float3 ClampCovariance2DExtent(float3 Cov, float Opacity)
+{
+	float OpacitySafe = max(Opacity, ALPHA_THRESHOLD + 1e-8);
+	float PowerThreshold = max(MAX_POWER_THRESHOLD, log(OpacitySafe / ALPHA_THRESHOLD));
+	float StdDev = sqrt(2.0 * PowerThreshold);
+	float MaxSigma = (MAX_PIXEL_RADIUS + 0.5) / max(StdDev, 1e-6);
+	float MaxVariance = MaxSigma * MaxSigma;
+
+	float EigenAvg = 0.5 * (Cov.x + Cov.z);
+	float Det = Cov.x * Cov.z - Cov.y * Cov.y;
+	float Delta = sqrt(max(0.0, EigenAvg * EigenAvg - Det));
+	float E1 = EigenAvg + Delta;
+	float E2 = max(EigenAvg - Delta, 0.0);
+	float E1Clamped = min(E1, MaxVariance);
+	float E2Clamped = min(E2, MaxVariance);
+	if (E1Clamped == E1 && E2Clamped == E2)
+	{
+		return Cov;
+	}
+	float2 V1;
+	if (abs(Cov.y) > 1e-6)
+	{
+		V1 = normalize(float2(Cov.y, E1 - Cov.x));
+	}
+	else
+	{
+		V1 = Cov.x >= Cov.z ? float2(1.0, 0.0) : float2(0.0, 1.0);
+	}
+	float2 V2 = float2(V1.y, -V1.x);
+	return float3(
+		E1Clamped * V1.x * V1.x + E2Clamped * V2.x * V2.x,
+		E1Clamped * V1.x * V1.y + E2Clamped * V2.x * V2.y,
+		E1Clamped * V1.y * V1.y + E2Clamped * V2.y * V2.y);
+}
+
+bool ProjectSplat(uint SplatIndex, out FProjectedSplat Out)
+{
+	Out = (FProjectedSplat)0;
+	float4 A = SplatData[SplatIndex * 3u + 0u];
+	float4 B = SplatData[SplatIndex * 3u + 1u];
+	float4 C = SplatData[SplatIndex * 3u + 2u];
+	// Rounded to fp16 so the extent here matches the one the emit and raster passes rebuild from ProjB.
+	float Opacity = f16tof32(f32tof16(DecodeSplatOpacity(asuint(C.z))));
+	if (!(Opacity > ALPHA_THRESHOLD))
+	{
+		return false;
+	}
+
+	float3 T = mul(float4(A.xyz, 1.0), LocalToCamera).xyz;
+	float Dist2 = dot(T, T);
+	if (!(T.z > NEAR_CLIP_CM) || !(Dist2 < 1.0e30))
+	{
+		return false;
+	}
+	float InvZ = 1.0 / T.z;
+	float2 Xy = float2(Focal.x * T.x * InvZ + Principal.x, Focal.y * T.y * InvZ + Principal.y);
+	float2 Margin = ImageSize * 0.2;
+	if (!(-Margin.x <= Xy.x && Xy.x < ImageSize.x + Margin.x && -Margin.y <= Xy.y && Xy.y < ImageSize.y + Margin.y))
+	{
+		return false;
+	}
+
+	float3x3 SigmaLocal = DecodeSplatCovariance(A, B, C);
+	float3x3 R = (float3x3)LocalToCamera;
+	float3x3 SigmaCam = mul(transpose(R), mul(SigmaLocal, R));
+
+	// Pinhole Jacobian: clamp the centre direction to the frustum grown by 30 %.
+	float TanFovX = 0.5 * ImageSize.x / Focal.x;
+	float TanFovY = 0.5 * ImageSize.y / Focal.y;
+	float LimXPos = (ImageSize.x - Principal.x) / Focal.x + 0.3 * TanFovX;
+	float LimXNeg = Principal.x / Focal.x + 0.3 * TanFovX;
+	float LimYPos = (ImageSize.y - Principal.y) / Focal.y + 0.3 * TanFovY;
+	float LimYNeg = Principal.y / Focal.y + 0.3 * TanFovY;
+	float Tz = T.z;
+	float Tx = clamp(T.x * InvZ, -LimXNeg, LimXPos) * Tz;
+	float Ty = clamp(T.y * InvZ, -LimYNeg, LimYPos) * Tz;
+	float3 J0 = float3(Focal.x / Tz, 0.0, -Focal.x * Tx / (Tz * Tz));
+	float3 J1 = float3(0.0, Focal.y / Tz, -Focal.y * Ty / (Tz * Tz));
+	float3 SJ0 = mul(SigmaCam, J0);
+	float3 SJ1 = mul(SigmaCam, J1);
+	float3 Cov2D = float3(dot(J0, SJ0), dot(J0, SJ1), dot(J1, SJ1));
+	Cov2D.x += DILATION_3DGS;
+	Cov2D.z += DILATION_3DGS;
+	Cov2D = ClampCovariance2DExtent(Cov2D, Opacity);
+
+	float Det = Cov2D.x * Cov2D.z - Cov2D.y * Cov2D.y;
+	if (!(Det > 0.0))
+	{
+		return false;
+	}
+	float3 Conic = float3(Cov2D.z, -Cov2D.y, Cov2D.x) / Det;
+	Xy -= 0.5;
+	// A NaN reaching scene colour poisons eye adaptation for the rest of the session.
+	if (!AllFinite(float4(Xy, Conic.xy)) || !AllFinite(float4(Conic.z, T.z, Cov2D.xz)))
+	{
+		return false;
+	}
+
+	float Extend = ExtendFromOpacity(Opacity);
+	float2 Radii = sqrt(max(Cov2D.xz, float2(0.0, 0.0))) * Extend;
+	float2 GridSize = float2(TilesX, TilesY);
+	int2 T0 = int2(
+		int(floor(clamp((Xy.x - Radii.x) / float(TILE_SIZE), 0.0, GridSize.x))),
+		int(floor(clamp((Xy.y - Radii.y) / float(TILE_SIZE), 0.0, GridSize.y))));
+	int2 T1 = int2(
+		int(ceil(clamp((Xy.x + Radii.x) / float(TILE_SIZE), 0.0, GridSize.x))),
+		int(ceil(clamp((Xy.y + Radii.y) / float(TILE_SIZE), 0.0, GridSize.y))));
+	if (T1.x <= T0.x || T1.y <= T0.y)
+	{
+		return false;
+	}
+	uint TileCount = CountEllipseTiles(SetupEllipseTiles(Xy, Conic, Extend, T0, T1));
+	if (TileCount == 0u)
+	{
+		return false;
+	}
+
+	float3 Rgb = DecodeSplatColor(C).rgb;
+	if (SHMode != 0u && SHDegree > 0u)
+	{
+		Rgb += EvaluateSHRest(SplatIndex, normalize(A.xyz - CameraLocal), SHDegree, SHMode == 2u);
+	}
+	if (!AllFinite(float4(Rgb, 0.0)))
+	{
+		return false;
+	}
+	Out.Xy = Xy;
+	Out.Conic = Conic;
+	Out.ViewZ = T.z;
+	Out.Rgb = max(Rgb, float3(0.0, 0.0, 0.0));
+	Out.Opacity = Opacity;
+	Out.Rect = PackTileRect(T0, T1);
+	Out.TileCount = TileCount;
+	Out.DepthKey = asuint(Dist2);
+	return true;
+}
+
+groupshared uint GSurvivorCount;
+groupshared uint GSurvivorBase;
+
+// One dispatch per source; survivors from every source share the compact slot range.
+[numthreads(LINEAR_GROUP_SIZE, 1, 1)]
+void ProjectCS(uint3 GroupId : SV_GroupID, uint GroupIndex : SV_GroupIndex)
+{
+	for (uint Base = GroupId.x * LINEAR_GROUP_SIZE; Base < SplatCount; Base += NumProjectGroups * LINEAR_GROUP_SIZE)
+	{
+		uint SplatIndex = Base + GroupIndex;
+		FProjectedSplat Splat = (FProjectedSplat)0;
+		bool bVisible = false;
+		if (SplatIndex < SplatCount)
+		{
+			bVisible = ProjectSplat(SplatIndex, Splat);
+		}
+
+		if (GroupIndex == 0u)
+		{
+			GSurvivorCount = 0u;
+		}
+		GroupMemoryBarrierWithGroupSync();
+		uint LocalSlot = 0u;
+		if (bVisible)
+		{
+			InterlockedAdd(GSurvivorCount, 1u, LocalSlot);
+		}
+		GroupMemoryBarrierWithGroupSync();
+		if (GroupIndex == 0u)
+		{
+			uint GroupBase = 0u;
+			if (GSurvivorCount > 0u)
+			{
+				InterlockedAdd(RWMeta[META_RAW_VISIBLE], GSurvivorCount, GroupBase);
+			}
+			GSurvivorBase = GroupBase;
+		}
+		GroupMemoryBarrierWithGroupSync();
+
+		uint Slot = GSurvivorBase + LocalSlot;
+		if (bVisible && Slot < OutputCapacity)
+		{
+			uint PackedRG = f32tof16(Splat.Rgb.x) | (f32tof16(Splat.Rgb.y) << 16);
+			uint PackedBO = f32tof16(Splat.Rgb.z) | (f32tof16(Splat.Opacity) << 16);
+			RWProjA[Slot] = float4(Splat.Xy, Splat.Conic.x, Splat.Conic.y);
+			RWProjB[Slot] = float4(Splat.Conic.z, Splat.ViewZ, asfloat(PackedRG), asfloat(PackedBO));
+			RWTileRects[Slot] = Splat.Rect;
+			RWTileCounts[Slot] = Splat.TileCount;
+			RWDepthKeys[Slot] = Splat.DepthKey;
+			RWDepthValues[Slot] = Slot;
+		}
+	}
+}
+
+[numthreads(1, 1, 1)]
+void PrepareVisibleArgsCS()
+{
+	uint Visible = min(RWMeta[META_RAW_VISIBLE], OutputCapacity);
+	RWMeta[META_VISIBLE] = Visible;
+	RWVisibleArgs[VISIBLE_ARGS_SORT + 0u] = (Visible + RS_PARTITION - 1u) / RS_PARTITION;
+	RWVisibleArgs[VISIBLE_ARGS_SORT + 1u] = 1u;
+	RWVisibleArgs[VISIBLE_ARGS_SORT + 2u] = 1u;
+	RWVisibleArgs[VISIBLE_ARGS_SCAN + 0u] = (Visible + SCAN_BLOCK - 1u) / SCAN_BLOCK;
+	RWVisibleArgs[VISIBLE_ARGS_SCAN + 1u] = 1u;
+	RWVisibleArgs[VISIBLE_ARGS_SCAN + 2u] = 1u;
+	RWVisibleArgs[VISIBLE_ARGS_LINEAR + 0u] = LinearGroupCount(Visible);
+	RWVisibleArgs[VISIBLE_ARGS_LINEAR + 1u] = 1u;
+	RWVisibleArgs[VISIBLE_ARGS_LINEAR + 2u] = 1u;
+}
