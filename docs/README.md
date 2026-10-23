@@ -1,4 +1,4 @@
-# MLSLabsRenderer-Lite
+# MLSLabsRenderer-Pro
 
 <a href="./LICENSE">
         <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg"></a>
@@ -12,7 +12,7 @@ English | [中文](./README_CN.md)
 
 # Introduction
 
-[**MLSLabsRenderer-Lite**](https://mls4dlive.cn/)  is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is designed for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
+[**MLSLabsRenderer-Pro**](https://mls4dlive.cn/) is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is designed for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
 
 Unlike traditional Niagara-based solutions, this plugin utilizes a **custom low-level rendering pipeline**. This allows it to maintain exceptionally high frame rates even when processing millions of Gaussians, effectively bypassing common performance bottlenecks.
 
@@ -123,6 +123,14 @@ B站（中文）：
  ## Demo Data Download Links:
 
 It is recommended to download .ply files from [TestData Dir](../TestData/ply/data_download_link.md), which can then be imported into Unreal Engine (UE) via this plugin for real-time rendering.
+
+## Open your Unreal project
+
+0. Clone this repository (or download a release) so you have the `Plugins/MLSLabsRenderer` folder.
+
+1. Create or open an Unreal Engine 5.5 project and copy `Plugins/MLSLabsRenderer` into your project’s `Plugins` folder.
+
+2. Enable **MLSLabsRenderer** in **Edit → Plugins**, then restart the editor.
 
 ## Import Static Gaussian Splatting Models
 

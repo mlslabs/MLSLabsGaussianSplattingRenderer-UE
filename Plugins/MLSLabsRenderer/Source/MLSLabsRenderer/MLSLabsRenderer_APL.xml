@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MLSLabsRenderer: stage prebuilt GaussianSplatingRenderer native libs into the Android APK. -->
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+	<init>
+		<log text="MLSLabsRenderer Android APL init"/>
+		<setBool result="bArm64" value="false"/>
+		<isArch arch="arm64-v8a">
+			<setBool result="bArm64" value="true"/>
+		</isArch>
+		<if condition="bArm64">
+			<false>
+				<log text="MLSLabsRenderer: only arm64-v8a prebuilt libs are provided; skipping native GSR copy for this arch."/>
+			</false>
+		</if>
+	</init>
+
+	<!-- Copy into Intermediate/Android/APK/libs so Gradle packages them under lib/arm64-v8a. -->
+	<resourceCopies>
+		<if condition="bArm64">
+			<true>
+				<log text="MLSLabsRenderer: copying arm64-v8a GSR native libraries"/>
+				<!-- GSR/OpenMesh are NDK c++_shared builds. UE Shipping often omits libc++_shared.so
+				     (engine links c++_static), so package NDK's copy next to our .so files. -->
+				<copyFile src="$S(AbsPluginDir)/../ThirdParty/GaussianSplatingRenderer/Bin/Android/arm64-v8a/libc++_shared.so"
+					dst="$S(BuildDir)/libs/arm64-v8a/libc++_shared.so" />
+				<copyFile src="$S(AbsPluginDir)/../ThirdParty/GaussianSplatingRenderer/Bin/Android/arm64-v8a/libomp.so"
+					dst="$S(BuildDir)/libs/arm64-v8a/libomp.so" />
+				<copyFile src="$S(AbsPluginDir)/../ThirdParty/GaussianSplatingRenderer/Bin/Android/arm64-v8a/libOpenMeshCore.so"
+					dst="$S(BuildDir)/libs/arm64-v8a/libOpenMeshCore.so" />
+				<copyFile src="$S(AbsPluginDir)/../ThirdParty/GaussianSplatingRenderer/Bin/Android/arm64-v8a/libGaussianSplatingRenderer.so"
+					dst="$S(BuildDir)/libs/arm64-v8a/libGaussianSplatingRenderer.so" />
+				<!-- GSR opens vulkan_rasterizer.shader with archive_read_open_filename (real fopen).
+				     Do not rename to lib*.so — Gradle/llvm-strip treats jniLibs .so as ELF and fails.
+				     Ship as APK asset; runtime copies it beside the loaded GSR .so. -->
+				<copyFile src="$S(AbsPluginDir)/../ThirdParty/GaussianSplatingRenderer/Bin/Android/arm64-v8a/vulkan_rasterizer.shader"
+					dst="$S(BuildDir)/assets/MLSLabsRenderer/vulkan_rasterizer.shader" />
+			</true>
+		</if>
+	</resourceCopies>
+
+	<!-- Do not soLoadLibrary anything at process start. GSR DT_NEEDs libvulkan.so; even
+	     loading only its deps early has been insufficient to avoid Pico WINDOW_CHANGED
+	     VK_ERROR_NATIVE_WINDOW_IN_USE_KHR. Libs remain packaged via resourceCopies above;
+	     LoadNativeRendererLibrary() dlopens deps+GSR after the presentation gate opens. -->
+</root>

@@ -3,14 +3,14 @@
 <div align="center">
   <a href="https://mlslabs.com.cn/">
     <picture>
-      <img src="Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="100">
+      <img src="Media/image/mlslabs.png" alt="MLSLabsRenderer-Pro" height="100">
     </picture>
   </a>
 </div>
 
 <div align="center">
 
-**MLSLabsRenderer-Lite (3D Gaussian Splatting UE5 Plugin)**
+**MLSLabsRenderer-Pro (3D Gaussian Splatting UE5 Plugin)**
 
 [**mls4dlive官网入口**](https://mls4dlive.cn/)
 
@@ -19,10 +19,10 @@
 实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
 
 <p align="center">
-  <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.5/LICENSE">
+  <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
-  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.5-white?logo=unrealengine&logoColor=white&color=0E1128">
+  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.6-white?logo=unrealengine&logoColor=white&color=0E1128">
   <img alt="Topic 3DGS" src="https://img.shields.io/badge/Topic-3DGS-orange">
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
@@ -30,7 +30,7 @@
 
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**教学视频**](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364) •
-[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.5/docs/README_CN.md) •
+[**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/docs/README_CN.md) •
 [**入门指南**](#入门指南) •
 [**安装**](#installation) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,8 +43,9 @@
 [**功能特性**](#核心特性) •
 [**项目结构**](#项目结构) •
 [**路线图**](#路线图-专业版) •
-[**专业版**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Pro_1.0_ue5.5) •
-[**版本记录**](#版本记录)
+[**入门版（Lite）**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.6) •
+[**版本记录**](#版本记录) •
+[**许可证**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/LICENSE)
 
 </div>
 
@@ -60,7 +61,7 @@
 
 ## 简介
 
-**MLSLabsRenderer-Lite** 是由 [**马栏山音视频实验室**](https://www.mlslabs.com.cn/) 开发的一款高性能虚幻引擎 5 (UE5) 插件。该插件专为 3D 高斯泼溅 (3DGS) 和动态体积视频 (4DGS) 的实时可视化、管理以及可扩展混合渲染而设计。
+**MLSLabsRenderer-Pro** 是由 [**马栏山音视频实验室**](https://www.mlslabs.com.cn/) 开发的一款高性能虚幻引擎 5 (UE5) 插件。该插件专为 3D 高斯泼溅 (3DGS) 和动态体积视频 (4DGS) 的实时可视化、管理以及可扩展混合渲染而设计。
 
 通过采用自定义渲染管线而非传统的粒子系统，该插件确保了在处理数百万个高斯点时仍能保持高帧率，有效地解决了 Niagara 系统中常见的性能瓶颈。
 
@@ -75,7 +76,7 @@
 ├─ 📁 Plugins/               # MLSLabsRenderer 插件源码
 ├─ 📁 TestData/              #Test Data
     ├─ 📁 ply/               #ply Data
-	    ├─ data_download_link.txt               # 测试数据下载链接
+	    ├─ data_download_link.md               # 测试数据下载链接
 ├─ LICENSE
 ├─ README.md                 # 主概述文件（英文）
 └─ README_CN.md              # 主概述文件（中文）
@@ -100,6 +101,9 @@
 - **Sequencer 集成：全面支持 UE 定时器（Sequencer），允许用户通过关键帧控制体积视频播放及其时间轴。**
 - **自定义渲染引擎：纯原生开发（非 Niagara），旨在实现最大吞吐量和极低延迟。**
 - **生产级工作流：与 UE 原生资源无缝集成，支持资源的快速导入。**
+- **VR 与双目渲染：** 原生支持高保真 VR 内容。
+- **性能飞跃：** 4DGS 达到 120 FPS+，7M+高斯点 静态场景达到 60 FPS+。
+- **高压缩比静态3DGS：** 支持用于高压缩比3DGS 的 `.sog` 格式。
 
 ---
 
@@ -117,7 +121,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ### 2. 环境要求
 
 - **操作系统**: Windows 10 或 11 (64位)
-- **虚幻引擎版本**: 5.5.x
+- **虚幻引擎版本**: 5.6.x
 - **图形 API**: DirectX 12
 - **显卡要求**: 必须使用支持 **SM 7.5 (Shader Model 7.5)** 指令集及以上的英伟达 (NVIDIA) 显卡。
 - **最低硬件**: NVIDIA GeForce RTX 2060 或更高。
@@ -128,7 +132,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ### 3. 安装步骤
 
 1. 将 `Plugins/MLSLabsRenderer` 文件夹复制到你项目的 `Plugins/` 目录下。
-2. **关于项目打包：** 为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹复制到 UE5.5 引擎安装目录中（例如：`Epic Games\UE_5.5\Engine\Plugins\Marketplace`）。
+2. **关于项目打包：** 为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹复制到 UE5.6 引擎安装目录中（例如：`Epic Games\UE_5.6\Engine\Plugins\Marketplace`）。
 3. 在虚幻引擎编辑器的“插件浏览器”中启用 **MLSLabsRenderer**。
 
 ---
@@ -137,15 +141,15 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 即将推出的专业版将提供显著的性能提升和企业级功能：
 
-- [ ] **VR 与双目渲染：** 原生支持高保真 VR 内容。
 - [ ] **压缩版 4DGS：** 支持专用的压缩格式以大幅降低显存占用。
-- [ ] **高压缩比静态3DGS：** 支持用于高压缩比3DGS 的 `.sog` 格式。
 - [ ] **高级光照：** 支持点光源/方向光，并具备自阴影效果。
-- [ ] **性能飞跃：** 4DGS 达到 120 FPS+，5M+高斯点 静态场景达到 60 FPS+。
 
 ---
 
 ## 版本记录
+
+**Pro_V2.0.0.0_preview**
+1. 采用Vulkan高斯泼溅渲染，支持Windows支持1.0版本的所有功能，不需要下载Libtorch库了，只需要显卡驱动支持支持vulkan 1.3即可使用。
 
 **Pro_V1.0.2.10_beta**
 1. 格式支持： 新增对自定义 .sog 高斯溅射格式的支持。

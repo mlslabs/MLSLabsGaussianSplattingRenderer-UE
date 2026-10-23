@@ -1,0 +1,29 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+// R32 fusion weight pass (feeds lightweight temporal filter).
+
+
+
+#include "/Engine/Private/Common.ush"
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsFusionWeightCommon.ush"
+
+
+
+void FusionWeightMainPS(
+
+    in float4 SvPosition : SV_Position,
+
+    out float OutWeight : SV_Target0
+
+)
+
+{
+
+    float2 localPos = SvPosition.xy - ViewRectMin;
+
+    OutWeight = MLSLabsGatherFusionWeight(localPos);
+
+}
+
+

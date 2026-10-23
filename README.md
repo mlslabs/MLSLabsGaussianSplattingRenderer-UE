@@ -3,14 +3,14 @@ English | [中文](./README_CN.md)
 <div align="center">
   <a href="https://mlslabs.com.cn/">
     <picture>
-      <img src="Media/image/mlslabs.png" alt="MLSLabsRenderer-Lite" height="100">
+      <img src="Media/image/mlslabs.png" alt="MLSLabsRenderer-Pro" height="100">
     </picture>
   </a>
 </div>
 
 <div align="center">
 
-**MLSLabsRenderer-Lite (3D Gaussian Splatting UE5 Plugin)**
+**MLSLabsRenderer-Pro (3D Gaussian Splatting UE5 Plugin)**
 
 [**Official Website: mls4dlive**](https://mls4dlive.cn/)
 
@@ -19,10 +19,10 @@ High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal
 Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
 
 <p align="center">
-  <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.5/LICENSE">
+  <a href="./LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
   </a>
-  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.5-white?logo=unrealengine&logoColor=white&color=0E1128">
+  <img alt="UE Version" src="https://img.shields.io/badge/Unreal_Engine-5.6-white?logo=unrealengine&logoColor=white&color=0E1128">
   <img alt="Topic 3DGS" src="https://img.shields.io/badge/Topic-3DGS-orange">
   <img alt="Topic 4DGS" src="https://img.shields.io/badge/Topic-4DGS-red">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Windows-blue?logo=windows">
@@ -30,7 +30,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Tutorial Video**](https://youtu.be/4ArswzhQ0VU) •
-[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.5/docs/README.md) •
+[**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/docs/README.md) •
 [**Getting Started**](#getting-started) •
 [**Installation**](#installation) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
@@ -43,8 +43,9 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Features**](#features) •
 [**Project Structure**](#project-structure) •
 [**Roadmap**](#roadmap-pro-version) •
-[**Pro version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Pro_1.0_ue5.5) •
-[**Release Notes**](#release-notes)
+[**Lite version**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/tree/Lite_1.0_ue5.6) •
+[**Release Notes**](#release-notes) •
+[**License**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/LICENSE)
 
 </div>
 
@@ -60,7 +61,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 
 ## Introduction
 
-**MLSLabsRenderer-Lite** is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is engineered for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
+**MLSLabsRenderer-Pro** is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is engineered for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
 
 By utilizing a custom rendering pipeline rather than traditional particle systems, the plugin ensures high frame rates even with millions of Gaussians, effectively bypassing the performance bottlenecks typical of Niagara.
 
@@ -75,7 +76,7 @@ By utilizing a custom rendering pipeline rather than traditional particle system
 ├─ 📁 Plugins/               # MLSLabsRenderer plugin source
 ├─ 📁 TestData/              #Test Data
     ├─ 📁 ply/               #ply Data
-	    ├─ data_download_link.txt               # Test data download link
+	    ├─ data_download_link.md               # Test data download link
 ├─ LICENSE
 ├─ README.md                 # Main overview file
 └─ README_CN.md              # 中文概述
@@ -103,6 +104,12 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 - **Production Workflow: Seamless integration with native UE assets and fast resource importing.**
 
+- **VR & Binocular Rendering: Native support for high-fidelity VR content.**
+
+- **Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.**
+
+- **High-Compression Static 3DGS: Added support for the .sog format, designed for high-compression ratio 3DGS.**
+
 ---
 
 ## Getting Started
@@ -117,7 +124,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 ### 2. Requirements
 
 - **Operating System**: Windows 10 or 11 (64-bit)
-- **Unreal Engine**: 5.5.x
+- **Unreal Engine**: 5.6.x
 - **Graphics API**: DirectX 12
 - **GPU Requirements**: NVIDIA GPU supporting **Shader Model 7.5** or higher (Turing architecture and above).
 - **Minimum Hardware**: NVIDIA GeForce **RTX 2060** or better.
@@ -129,7 +136,7 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
 
-For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.5 Engine directory (e.g., Epic Games\UE_5.5\Engine\Plugins\Marketplace).
+For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.6 Engine directory (e.g., Epic Games\UE_5.6\Engine\Plugins\Marketplace).
 
 Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 
@@ -137,17 +144,13 @@ Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
 
 The upcoming Professional version will offer significant performance boosts and enterprise-level features:
 
-- [ ] VR & Binocular Rendering: Native support for high-fidelity VR content.
-
 - [ ] Compressed 4DGS: Support for specialized compressed formats to reduce memory usage.
-
-- [ ] High-Compression Static 3DGS: Added support for the .sog format, designed for high-compression ratio 3DGS.
 
 - [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
 
-- [ ] Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 5M+ Gaussians static scenes.
-
 ## Release Notes
+**Pro_V2.0.0.0_preview**
+1. Adopted Vulkan Gaussian Splatting rendering, supporting all features from Windows v1.0. The LibTorch dependency is now eliminated—it only requires graphics drivers with Vulkan 1.3 support.
 
 **Pro_V1.0.2.10_beta**
 1. Supports .sog format Gaussian Splatting files..
