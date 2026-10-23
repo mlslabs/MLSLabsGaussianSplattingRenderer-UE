@@ -112,6 +112,53 @@ DEFINE_FUNCTION(UGaussianSplatingRendererLibrary::execGetMlslabsSplatDuration)
 }
 // End Class UGaussianSplatingRendererLibrary Function GetMlslabsSplatDuration
 
+// Begin Class UGaussianSplatingRendererLibrary Function GetMlslabsSplatFrameIndex
+struct Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics
+{
+	struct GaussianSplatingRendererLibrary_eventGetMlslabsSplatFrameIndex_Parms
+	{
+		int64 InNodeHashCode;
+		int32 ReturnValue;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Function_MetaDataParams[] = {
+		{ "Category", "MLSLabsRenderer" },
+		{ "ModuleRelativePath", "Public/GaussianSplatingRendererLibrary.h" },
+	};
+#endif // WITH_METADATA
+	static const UECodeGen_Private::FInt64PropertyParams NewProp_InNodeHashCode;
+	static const UECodeGen_Private::FIntPropertyParams NewProp_ReturnValue;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+const UECodeGen_Private::FInt64PropertyParams Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::NewProp_InNodeHashCode = { "InNodeHashCode", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Int64, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(GaussianSplatingRendererLibrary_eventGetMlslabsSplatFrameIndex_Parms, InNodeHashCode), METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FIntPropertyParams Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Int, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(GaussianSplatingRendererLibrary_eventGetMlslabsSplatFrameIndex_Parms, ReturnValue), METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::NewProp_InNodeHashCode,
+	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::NewProp_ReturnValue,
+};
+static_assert(UE_ARRAY_COUNT(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::PropPointers) < 2048);
+const UECodeGen_Private::FFunctionParams Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UGaussianSplatingRendererLibrary, nullptr, "GetMlslabsSplatFrameIndex", nullptr, nullptr, Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::PropPointers), sizeof(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::GaussianSplatingRendererLibrary_eventGetMlslabsSplatFrameIndex_Parms), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04022401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::Function_MetaDataParams), Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::Function_MetaDataParams) };
+static_assert(sizeof(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::GaussianSplatingRendererLibrary_eventGetMlslabsSplatFrameIndex_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex()
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex_Statics::FuncParams);
+	}
+	return ReturnFunction;
+}
+DEFINE_FUNCTION(UGaussianSplatingRendererLibrary::execGetMlslabsSplatFrameIndex)
+{
+	P_GET_PROPERTY(FInt64Property,Z_Param_InNodeHashCode);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	*(int32*)Z_Param__Result=UGaussianSplatingRendererLibrary::GetMlslabsSplatFrameIndex(Z_Param_InNodeHashCode);
+	P_NATIVE_END;
+}
+// End Class UGaussianSplatingRendererLibrary Function GetMlslabsSplatFrameIndex
+
 // Begin Class UGaussianSplatingRendererLibrary Function GetSplatNodeBoundingBox
 struct Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetSplatNodeBoundingBox_Statics
 {
@@ -185,9 +232,9 @@ struct Z_Construct_UFunction_UGaussianSplatingRendererLibrary_InitWithCudaDevice
 #if WITH_METADATA
 	static constexpr UECodeGen_Private::FMetaDataPairParam Function_MetaDataParams[] = {
 		{ "Category", "MLSLabsRenderer" },
-		{ "Comment", "/**\n\x09 * Initializes the renderer using a specific CUDA device.\n\x09 * * @param InCudaDeviceIndex  The index of the GPU device to be used (typically starts from 0).\n\x09 * @return                   Returns 0 if initialization was successful; otherwise, returns an error code.\n\x09 */" },
+		{ "Comment", "/** Kept for Blueprint compatibility: there is no native renderer to initialize, so this always returns 0. */" },
 		{ "ModuleRelativePath", "Public/GaussianSplatingRendererLibrary.h" },
-		{ "ToolTip", "Initializes the renderer using a specific CUDA device.\n* @param InCudaDeviceIndex  The index of the GPU device to be used (typically starts from 0).\n@return                   Returns 0 if initialization was successful; otherwise, returns an error code." },
+		{ "ToolTip", "Kept for Blueprint compatibility: there is no native renderer to initialize, so this always returns 0." },
 	};
 #endif // WITH_METADATA
 	static const UECodeGen_Private::FIntPropertyParams NewProp_InCudaDeviceIndex;
@@ -395,9 +442,9 @@ struct Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetLogLevel_Static
 #if WITH_METADATA
 	static constexpr UECodeGen_Private::FMetaDataPairParam Function_MetaDataParams[] = {
 		{ "Category", "MLSLabsRenderer" },
-		{ "Comment", "/** Log verbosity: 0=Trace, 1=Debug, 2=Info, 3=Warn, 4=Error, 5=Critical, 6=Off */" },
+		{ "Comment", "/** Kept for Blueprint compatibility: the former native library's log level. No effect. */" },
 		{ "ModuleRelativePath", "Public/GaussianSplatingRendererLibrary.h" },
-		{ "ToolTip", "Log verbosity: 0=Trace, 1=Debug, 2=Info, 3=Warn, 4=Error, 5=Critical, 6=Off" },
+		{ "ToolTip", "Kept for Blueprint compatibility: the former native library's log level. No effect." },
 	};
 #endif // WITH_METADATA
 	static const UECodeGen_Private::FIntPropertyParams NewProp_InLevel;
@@ -437,6 +484,63 @@ DEFINE_FUNCTION(UGaussianSplatingRendererLibrary::execSetLogLevel)
 	P_NATIVE_END;
 }
 // End Class UGaussianSplatingRendererLibrary Function SetLogLevel
+
+// Begin Class UGaussianSplatingRendererLibrary Function SetMlslabsSplatFrameIndex
+struct Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics
+{
+	struct GaussianSplatingRendererLibrary_eventSetMlslabsSplatFrameIndex_Parms
+	{
+		int64 InNodeHashCode;
+		int32 InFrameIndex;
+		bool ReturnValue;
+	};
+#if WITH_METADATA
+	static constexpr UECodeGen_Private::FMetaDataPairParam Function_MetaDataParams[] = {
+		{ "Category", "MLSLabsRenderer" },
+		{ "ModuleRelativePath", "Public/GaussianSplatingRendererLibrary.h" },
+	};
+#endif // WITH_METADATA
+	static const UECodeGen_Private::FInt64PropertyParams NewProp_InNodeHashCode;
+	static const UECodeGen_Private::FIntPropertyParams NewProp_InFrameIndex;
+	static void NewProp_ReturnValue_SetBit(void* Obj);
+	static const UECodeGen_Private::FBoolPropertyParams NewProp_ReturnValue;
+	static const UECodeGen_Private::FPropertyParamsBase* const PropPointers[];
+	static const UECodeGen_Private::FFunctionParams FuncParams;
+};
+const UECodeGen_Private::FInt64PropertyParams Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::NewProp_InNodeHashCode = { "InNodeHashCode", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Int64, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(GaussianSplatingRendererLibrary_eventSetMlslabsSplatFrameIndex_Parms, InNodeHashCode), METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FIntPropertyParams Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::NewProp_InFrameIndex = { "InFrameIndex", nullptr, (EPropertyFlags)0x0010000000000080, UECodeGen_Private::EPropertyGenFlags::Int, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, STRUCT_OFFSET(GaussianSplatingRendererLibrary_eventSetMlslabsSplatFrameIndex_Parms, InFrameIndex), METADATA_PARAMS(0, nullptr) };
+void Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::NewProp_ReturnValue_SetBit(void* Obj)
+{
+	((GaussianSplatingRendererLibrary_eventSetMlslabsSplatFrameIndex_Parms*)Obj)->ReturnValue = 1;
+}
+const UECodeGen_Private::FBoolPropertyParams Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::NewProp_ReturnValue = { "ReturnValue", nullptr, (EPropertyFlags)0x0010000000000580, UECodeGen_Private::EPropertyGenFlags::Bool | UECodeGen_Private::EPropertyGenFlags::NativeBool, RF_Public|RF_Transient|RF_MarkAsNative, nullptr, nullptr, 1, sizeof(bool), sizeof(GaussianSplatingRendererLibrary_eventSetMlslabsSplatFrameIndex_Parms), &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::NewProp_ReturnValue_SetBit, METADATA_PARAMS(0, nullptr) };
+const UECodeGen_Private::FPropertyParamsBase* const Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::PropPointers[] = {
+	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::NewProp_InNodeHashCode,
+	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::NewProp_InFrameIndex,
+	(const UECodeGen_Private::FPropertyParamsBase*)&Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::NewProp_ReturnValue,
+};
+static_assert(UE_ARRAY_COUNT(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::PropPointers) < 2048);
+const UECodeGen_Private::FFunctionParams Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::FuncParams = { (UObject*(*)())Z_Construct_UClass_UGaussianSplatingRendererLibrary, nullptr, "SetMlslabsSplatFrameIndex", nullptr, nullptr, Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::PropPointers, UE_ARRAY_COUNT(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::PropPointers), sizeof(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::GaussianSplatingRendererLibrary_eventSetMlslabsSplatFrameIndex_Parms), RF_Public|RF_Transient|RF_MarkAsNative, (EFunctionFlags)0x04022401, 0, 0, METADATA_PARAMS(UE_ARRAY_COUNT(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::Function_MetaDataParams), Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::Function_MetaDataParams) };
+static_assert(sizeof(Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::GaussianSplatingRendererLibrary_eventSetMlslabsSplatFrameIndex_Parms) < MAX_uint16);
+UFunction* Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex()
+{
+	static UFunction* ReturnFunction = nullptr;
+	if (!ReturnFunction)
+	{
+		UECodeGen_Private::ConstructUFunction(&ReturnFunction, Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex_Statics::FuncParams);
+	}
+	return ReturnFunction;
+}
+DEFINE_FUNCTION(UGaussianSplatingRendererLibrary::execSetMlslabsSplatFrameIndex)
+{
+	P_GET_PROPERTY(FInt64Property,Z_Param_InNodeHashCode);
+	P_GET_PROPERTY(FIntProperty,Z_Param_InFrameIndex);
+	P_FINISH;
+	P_NATIVE_BEGIN;
+	*(bool*)Z_Param__Result=UGaussianSplatingRendererLibrary::SetMlslabsSplatFrameIndex(Z_Param_InNodeHashCode,Z_Param_InFrameIndex);
+	P_NATIVE_END;
+}
+// End Class UGaussianSplatingRendererLibrary Function SetMlslabsSplatFrameIndex
 
 // Begin Class UGaussianSplatingRendererLibrary Function SetMlslabsSplatTime
 struct Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatTime_Statics
@@ -692,12 +796,14 @@ void UGaussianSplatingRendererLibrary::StaticRegisterNativesUGaussianSplatingRen
 	static const FNameNativePtrPair Funcs[] = {
 		{ "GetMlslabsSplatCurrentTime", &UGaussianSplatingRendererLibrary::execGetMlslabsSplatCurrentTime },
 		{ "GetMlslabsSplatDuration", &UGaussianSplatingRendererLibrary::execGetMlslabsSplatDuration },
+		{ "GetMlslabsSplatFrameIndex", &UGaussianSplatingRendererLibrary::execGetMlslabsSplatFrameIndex },
 		{ "GetSplatNodeBoundingBox", &UGaussianSplatingRendererLibrary::execGetSplatNodeBoundingBox },
 		{ "InitWithCudaDevice", &UGaussianSplatingRendererLibrary::execInitWithCudaDevice },
 		{ "IsMlslabsSplatPlaying", &UGaussianSplatingRendererLibrary::execIsMlslabsSplatPlaying },
 		{ "PauseMlslabsSplat", &UGaussianSplatingRendererLibrary::execPauseMlslabsSplat },
 		{ "SetFrameIndexOfAnimatableSplatNode", &UGaussianSplatingRendererLibrary::execSetFrameIndexOfAnimatableSplatNode },
 		{ "SetLogLevel", &UGaussianSplatingRendererLibrary::execSetLogLevel },
+		{ "SetMlslabsSplatFrameIndex", &UGaussianSplatingRendererLibrary::execSetMlslabsSplatFrameIndex },
 		{ "SetMlslabsSplatTime", &UGaussianSplatingRendererLibrary::execSetMlslabsSplatTime },
 		{ "SetSplatNodeTransform", &UGaussianSplatingRendererLibrary::execSetSplatNodeTransform },
 		{ "SetSplatNodeVisible", &UGaussianSplatingRendererLibrary::execSetSplatNodeVisible },
@@ -715,23 +821,25 @@ struct Z_Construct_UClass_UGaussianSplatingRendererLibrary_Statics
 #if WITH_METADATA
 	static constexpr UECodeGen_Private::FMetaDataPairParam Class_MetaDataParams[] = {
 		{ "BlueprintType", "true" },
-		{ "Comment", "/** Blueprint function library wrapping the native Gaussian splatting renderer DLL. */" },
+		{ "Comment", "/**\n * Blueprint function library for splat nodes. Static .ply / .sog, .ply / .sog sequences and .mlslabs are parsed\n * and rasterized by UE compute shaders on every platform; .spz / .rad sequences are not supported.\n */" },
 		{ "IncludePath", "GaussianSplatingRendererLibrary.h" },
 		{ "IsBlueprintBase", "true" },
 		{ "ModuleRelativePath", "Public/GaussianSplatingRendererLibrary.h" },
-		{ "ToolTip", "Blueprint function library wrapping the native Gaussian splatting renderer DLL." },
+		{ "ToolTip", "Blueprint function library for splat nodes. Static .ply / .sog, .ply / .sog sequences and .mlslabs are parsed\nand rasterized by UE compute shaders on every platform; .spz / .rad sequences are not supported." },
 	};
 #endif // WITH_METADATA
 	static UObject* (*const DependentSingletons[])();
 	static constexpr FClassFunctionLinkInfo FuncInfo[] = {
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatCurrentTime, "GetMlslabsSplatCurrentTime" }, // 3588805692
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatDuration, "GetMlslabsSplatDuration" }, // 2853447887
+		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetMlslabsSplatFrameIndex, "GetMlslabsSplatFrameIndex" }, // 848589303
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_GetSplatNodeBoundingBox, "GetSplatNodeBoundingBox" }, // 1407620132
-		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_InitWithCudaDevice, "InitWithCudaDevice" }, // 2186604982
+		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_InitWithCudaDevice, "InitWithCudaDevice" }, // 600142389
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_IsMlslabsSplatPlaying, "IsMlslabsSplatPlaying" }, // 3072876602
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_PauseMlslabsSplat, "PauseMlslabsSplat" }, // 2571570971
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetFrameIndexOfAnimatableSplatNode, "SetFrameIndexOfAnimatableSplatNode" }, // 3886292463
-		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetLogLevel, "SetLogLevel" }, // 1097990538
+		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetLogLevel, "SetLogLevel" }, // 1068149302
+		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatFrameIndex, "SetMlslabsSplatFrameIndex" }, // 61632789
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetMlslabsSplatTime, "SetMlslabsSplatTime" }, // 702155801
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetSplatNodeTransform, "SetSplatNodeTransform" }, // 3899014940
 		{ &Z_Construct_UFunction_UGaussianSplatingRendererLibrary_SetSplatNodeVisible, "SetSplatNodeVisible" }, // 1197782764
@@ -784,10 +892,10 @@ UGaussianSplatingRendererLibrary::~UGaussianSplatingRendererLibrary() {}
 struct Z_CompiledInDeferFile_FID_hezhiwu_git_GSPlugin_Publish_PluginRelease_MLSLabsRenderer_HostProject_Plugins_MLSLabsRenderer_Source_MLSLabsRenderer_Public_GaussianSplatingRendererLibrary_h_Statics
 {
 	static constexpr FClassRegisterCompiledInInfo ClassInfo[] = {
-		{ Z_Construct_UClass_UGaussianSplatingRendererLibrary, UGaussianSplatingRendererLibrary::StaticClass, TEXT("UGaussianSplatingRendererLibrary"), &Z_Registration_Info_UClass_UGaussianSplatingRendererLibrary, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UGaussianSplatingRendererLibrary), 2070066522U) },
+		{ Z_Construct_UClass_UGaussianSplatingRendererLibrary, UGaussianSplatingRendererLibrary::StaticClass, TEXT("UGaussianSplatingRendererLibrary"), &Z_Registration_Info_UClass_UGaussianSplatingRendererLibrary, CONSTRUCT_RELOAD_VERSION_INFO(FClassReloadVersionInfo, sizeof(UGaussianSplatingRendererLibrary), 1329288434U) },
 	};
 };
-static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_hezhiwu_git_GSPlugin_Publish_PluginRelease_MLSLabsRenderer_HostProject_Plugins_MLSLabsRenderer_Source_MLSLabsRenderer_Public_GaussianSplatingRendererLibrary_h_2000271902(TEXT("/Script/MLSLabsRenderer"),
+static FRegisterCompiledInInfo Z_CompiledInDeferFile_FID_hezhiwu_git_GSPlugin_Publish_PluginRelease_MLSLabsRenderer_HostProject_Plugins_MLSLabsRenderer_Source_MLSLabsRenderer_Public_GaussianSplatingRendererLibrary_h_1438790927(TEXT("/Script/MLSLabsRenderer"),
 	Z_CompiledInDeferFile_FID_hezhiwu_git_GSPlugin_Publish_PluginRelease_MLSLabsRenderer_HostProject_Plugins_MLSLabsRenderer_Source_MLSLabsRenderer_Public_GaussianSplatingRendererLibrary_h_Statics::ClassInfo, UE_ARRAY_COUNT(Z_CompiledInDeferFile_FID_hezhiwu_git_GSPlugin_Publish_PluginRelease_MLSLabsRenderer_HostProject_Plugins_MLSLabsRenderer_Source_MLSLabsRenderer_Public_GaussianSplatingRendererLibrary_h_Statics::ClassInfo),
 	nullptr, 0,
 	nullptr, 0);

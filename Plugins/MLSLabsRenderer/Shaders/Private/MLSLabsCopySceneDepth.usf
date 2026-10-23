@@ -1,0 +1,22 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+#include "/Engine/Private/Common.ush"
+
+#if COPY_DEPTH_SLICE_SRV && COPY_DEPTH_SLICE_SRV_V2
+Texture2D<float> SceneDepthTexture;
+
+void MainPS(
+	in float4 SvPosition : SV_Position,
+	out float4 OutColor : SV_Target0
+)
+{
+	const int2 Pixel = int2(SvPosition.xy);
+	const float DeviceZ = SceneDepthTexture.Load(int3(Pixel, 0)).x;
+	OutColor = float4(DeviceZ, 0.0f, 0.0f, 1.0f);
+}
+#else
+void MainPS(in float4 SvPosition : SV_Position, out float4 OutColor : SV_Target0)
+{
+	OutColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+}
+#endif

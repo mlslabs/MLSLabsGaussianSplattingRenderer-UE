@@ -1,0 +1,114 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Android tile raster stage 2: per-splat tile count and the packed payload read by TileRasterCS.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileBinning.ush"
+
+#ifndef MLSLABS_TILE_DEPTH
+#define MLSLABS_TILE_DEPTH 0
+#endif
+
+RWStructuredBuffer<uint2> RWTileRects;
+RWStructuredBuffer<uint> RWTileCounts;
+RWStructuredBuffer<uint> RWSplatPack;
+#if MLSLABS_TILE_DEPTH
+// Encoded view depth per rank (x of the splat's fourth ProjectedSplats entry), for the offscreen median depth
+// or the raster's scene-depth test.
+RWStructuredBuffer<uint> RWSplatDepth;
+#endif
+uint SplatCount;
+uint TilesX;
+uint TilesY;
+
+// IEEE fp16 in the low 16 bits. The raster store uses this instead of f32tof16.
+uint PackHalf(float Value)
+{
+	uint Bits = asuint(Value);
+	uint Sign = (Bits >> 16) & 0x8000u;
+	uint AbsBits = Bits & 0x7fffffffu;
+	if (AbsBits >= 0x47800000u)
+	{
+		return Sign | 0x7c00u;
+	}
+	if (AbsBits < 0x38800000u)
+	{
+		return Sign;
+	}
+	uint HalfExp = (AbsBits >> 23) - 127u + 15u;
+	uint HalfMant = (AbsBits >> 13) & 0x3ffu;
+	return Sign | (HalfExp << 10) | HalfMant;
+}
+
+void ClearSplatPack(uint Seq)
+{
+	uint PackBase = Seq * PACK_STRIDE;
+	[unroll]
+	for (uint Z = 0u; Z < PACK_STRIDE; ++Z)
+	{
+		RWSplatPack[PackBase + Z] = 0u;
+	}
+}
+
+// Packed for TileRasterCS, which does not read ProjectedSplats: float4 loads there return 0 on Adreno.
+bool WriteSplatPack(uint Seq, float2 Center, float2 MajorPx, float2 MinorPx, float4 Color)
+{
+	uint PackBase = Seq * PACK_STRIDE;
+	float Det = MajorPx.x * MinorPx.y - MinorPx.x * MajorPx.y;
+	if (abs(Det) <= 1e-8)
+	{
+		ClearSplatPack(Seq);
+		return false;
+	}
+	float InvDet = 1.0 / Det;
+	RWSplatPack[PackBase + 0u] = asuint(Center.x);
+	RWSplatPack[PackBase + 1u] = asuint(Center.y);
+	RWSplatPack[PackBase + 2u] = asuint(MinorPx.y * InvDet);
+	RWSplatPack[PackBase + 3u] = asuint(-MinorPx.x * InvDet);
+	RWSplatPack[PackBase + 4u] = asuint(-MajorPx.y * InvDet);
+	RWSplatPack[PackBase + 5u] = asuint(MajorPx.x * InvDet);
+	RWSplatPack[PackBase + 6u] = PackHalf(Color.r) | (PackHalf(Color.g) << 16);
+	RWSplatPack[PackBase + 7u] = PackHalf(Color.b) | (PackHalf(Color.a) << 16);
+	return true;
+}
+
+[numthreads(128, 1, 1)]
+void TileCountCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Seq = DispatchThreadId.x;
+	if (Seq >= SplatCount)
+	{
+		return;
+	}
+	// Projected order is back-to-front; Seq runs front-to-back so a capacity overflow drops the farthest.
+	uint Index = SplatCount - 1u - Seq;
+	uint2 Rect = uint2(0u, 0u);
+	uint Count = 0u;
+	float2 Center;
+	float2 MajorPx;
+	float2 MinorPx;
+	float4 Color;
+	if (LoadTileSplat(Index, Center, MajorPx, MinorPx, Color) && WriteSplatPack(Seq, Center, MajorPx, MinorPx, Color))
+	{
+		float R2 = GetCutoffRadius2(Color.a);
+		if (R2 > 0.0)
+		{
+			float2 Extent = sqrt(MajorPx * MajorPx + MinorPx * MinorPx) * (sqrt(R2) * 1.01);
+			int2 GridMax = int2(TilesX, TilesY);
+			int2 T0 = clamp(int2(floor((Center - Extent) / float(TILE_SIZE))), 0, GridMax);
+			int2 T1 = clamp(int2(floor((Center + Extent) / float(TILE_SIZE))) + 1, 0, GridMax);
+			if (all(T1 > T0))
+			{
+				Rect = PackTileRect(T0, T1);
+				Count = CountEllipseTiles(SetupEllipseTiles(Center, MajorPx, MinorPx, R2, T0, T1));
+			}
+		}
+	}
+	else
+	{
+		ClearSplatPack(Seq);
+	}
+	RWTileRects[Seq] = Rect;
+	RWTileCounts[Seq] = Count;
+#if MLSLABS_TILE_DEPTH
+	RWSplatDepth[Seq] = asuint(ProjectedSplats[Index * 4u + 3u].x);
+#endif
+}

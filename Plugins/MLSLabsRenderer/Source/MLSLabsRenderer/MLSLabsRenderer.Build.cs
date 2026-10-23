@@ -40,11 +40,11 @@ public class MLSLabsRenderer : ModuleRules
             {
                 "Core",
                 "HTTP",
-                "SSL",
                 "InputCore",
                 "ImageCore",
                 "ImageWrapper",
                 "Json",
+                "MLSLabsWebP",
                 "RHICore",
                 "Renderer",
                 "RenderCore",
@@ -55,30 +55,18 @@ public class MLSLabsRenderer : ModuleRules
             }
         );
 
+        // Every platform rasterizes splats with UE compute shaders: no RHI-specific modules or native renderer binaries.
+        // X-Auth-Info AES-GCM: Windows uses bcrypt; Android/Linux/Mac use engine OpenSSL.
+        // zlib inflates stored SOG ZIP entries on Win64 / Linux / Android.
+        // MLSLabsWebP is a portable C libwebp decoder .
+        AddEngineThirdPartyPrivateStaticDependencies(Target, "zlib");
         if (Target.Platform.IsInGroup(UnrealPlatformGroup.Windows))
         {
-            PublicDependencyModuleNames.Add("D3D12RHI");
-            PrivateDependencyModuleNames.Add("D3D12RHI");
-            // Windows Vulkan RHI path (UE -vulkan): needed for IVulkanDynamicRHI.h / external memory interop.
-            PublicDependencyModuleNames.Add("VulkanRHI");
-            PrivateDependencyModuleNames.Add("VulkanRHI");
-            AddEngineThirdPartyPrivateStaticDependencies(Target, "Vulkan");
+            PublicSystemLibraries.Add("bcrypt.lib");
         }
-        else if (Target.Platform == UnrealTargetPlatform.Linux)
+        else
         {
-            PublicDependencyModuleNames.Add("VulkanRHI");
-            PrivateDependencyModuleNames.Add("VulkanRHI");
-            // IVulkanDynamicRHI.h pulls VulkanThirdParty.h -> <vulkan.h>; paths come from Engine ThirdParty Vulkan (VulkanRHI keeps this private).
-            AddEngineThirdPartyPrivateStaticDependencies(Target, "Vulkan");
-        }
-        else if (Target.Platform == UnrealTargetPlatform.Android)
-        {
-            // Android uses Vulkan RHI; keep module able to query device UUID during deferred GSR init.
-            PublicDependencyModuleNames.Add("VulkanRHI");
-            PrivateDependencyModuleNames.Add("VulkanRHI");
-            AddEngineThirdPartyPrivateStaticDependencies(Target, "Vulkan");
-            // AHardwareBuffer_release / acquire for GSR Vulkan AHB interop.
-            PublicSystemLibraries.Add("android");
+            AddEngineThirdPartyPrivateStaticDependencies(Target, "OpenSSL");
         }
 
         string PrivateDir = Path.Combine(ModuleDirectory, "Private");
@@ -123,108 +111,8 @@ public class MLSLabsRenderer : ModuleRules
             );
         }
 
-        if (Target.Platform.IsInGroup(UnrealPlatformGroup.Windows))
+        if (Target.Platform == UnrealTargetPlatform.Android)
         {
-            string libwebpLibDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "libwebp", "bin");
-            string[] CoreDllsOfLibwebp = { "libwebp.dll", "libsharpyuv.dll" };
-            foreach (string DllName in CoreDllsOfLibwebp)
-            {
-                string DllPath = Path.Combine(libwebpLibDir, DllName);
-                if (File.Exists(DllPath))
-                {
-                    RuntimeDependencies.Add(DllPath);
-                }
-            }
-
-            string RendererDllDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Win64");
-            string RendererDllPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.dll");
-            if (File.Exists(RendererDllPath))
-            {
-                RuntimeDependencies.Add(RendererDllPath);
-            }
-            // Ship PDB next to the DLL for Debug/Development so the debugger can
-            // resolve symbols when the module is loaded from Binaries/Win64.
-            string RendererPdbPath = Path.Combine(RendererDllDir, "GaussianSplatingRenderer.pdb");
-            if (File.Exists(RendererPdbPath) && Target.Configuration != UnrealTargetConfiguration.Shipping)
-            {
-                RuntimeDependencies.Add(RendererPdbPath);
-            }
-            string Tbb12DllPath = Path.Combine(RendererDllDir, "tbb12.dll");
-            if (File.Exists(Tbb12DllPath))
-            {
-                RuntimeDependencies.Add(Tbb12DllPath);
-            }
-            string[] RendererRuntimeDlls =
-            {
-                "archive.dll",
-                "bz2.dll",
-                "deflate.dll",
-                "libcrypto-3-x64.dll",
-                "liblzma.dll",
-                "libwebpdecoder.dll",
-                "lz4.dll",
-                "SDL3.dll",
-                "vulkan-1.dll",
-                "zlib1.dll",
-                "zstd.dll",
-            };
-            foreach (string DllName in RendererRuntimeDlls)
-            {
-                string DllPath = Path.Combine(RendererDllDir, DllName);
-                if (File.Exists(DllPath))
-                {
-                    RuntimeDependencies.Add(DllPath);
-                }
-            }
-            
-        }
-        else if (Target.Platform == UnrealTargetPlatform.Linux)
-        {
-            string LinuxRendererDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Linux");
-            string SoPath = Path.Combine(LinuxRendererDir, "libGaussianSplatingRenderer.so");
-            if (File.Exists(SoPath))
-            {
-                RuntimeDependencies.Add(SoPath);
-            }
-            string OpenMeshSoPath = Path.Combine(LinuxRendererDir, "libOpenMeshCore.so.11.0");
-            if (File.Exists(OpenMeshSoPath))
-            {
-                RuntimeDependencies.Add(OpenMeshSoPath);
-            }
-            string VulkanShaderPath = Path.Combine(LinuxRendererDir, "vulkan_rasterizer.shader");
-            if (File.Exists(VulkanShaderPath))
-            {
-                RuntimeDependencies.Add(VulkanShaderPath);
-            }
-        }
-        else if (Target.Platform == UnrealTargetPlatform.Android)
-        {
-            // Prebuilt arm64-v8a libs are staged into the APK via MLSLabsRenderer_APL.xml (resourceCopies + soLoadLibrary).
-            string AndroidRendererDir = Path.Combine(PluginDirectory, "Source", "ThirdParty", "GaussianSplatingRenderer", "Bin", "Android", "arm64-v8a");
-            // Ship NDK libc++_shared.so: UE Shipping typically links c++_static and does not
-            // package libc++_shared, but GSR/OpenMesh DT_NEEDED it (PICO dlopen otherwise fails).
-            string[] AndroidSos =
-            {
-                "libc++_shared.so",
-                "libGaussianSplatingRenderer.so",
-                "libOpenMeshCore.so",
-                "libomp.so",
-            };
-            foreach (string SoName in AndroidSos)
-            {
-                string SoPath = Path.Combine(AndroidRendererDir, SoName);
-                if (File.Exists(SoPath))
-                {
-                    RuntimeDependencies.Add(SoPath);
-                }
-            }
-            string AndroidShaderPath = Path.Combine(AndroidRendererDir, "vulkan_rasterizer.shader");
-            if (File.Exists(AndroidShaderPath))
-            {
-                // Native GSR fopen's this zip package as vulkan_rasterizer.shader next to the .so.
-                RuntimeDependencies.Add(AndroidShaderPath, StagedFileType.NonUFS);
-            }
-
             // Windows 登录后导出的 MLSLabsAuthStorage.ini，随 APK 下发供 Pico/Android 首启免登录。
             if (!Target.bBuildEditor && Target.ProjectFile != null)
             {
@@ -239,9 +127,6 @@ public class MLSLabsRenderer : ModuleRules
                         "MLSLabsRenderer: Config/Android/MLSLabsAuthStorage.ini not found — log in on Windows Editor first to export auth for Android APK.");
                 }
             }
-
-            string PluginPath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
-            AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(PluginPath, "MLSLabsRenderer_APL.xml"));
         }
 
         string PasswordVisibilitySvg = Path.Combine(PluginDirectory, "Resources", "password_visibility.svg");
@@ -250,27 +135,60 @@ public class MLSLabsRenderer : ModuleRules
             RuntimeDependencies.Add(PasswordVisibilitySvg);
         }
 
-        // Loose PLY / SOG / mlslabs: native GSR uses fopen, so these must be NonUFS (not pak/UFS).
-        // SystemNonUFS is for third-party .so and is not deployed as game content.
+        // Loose PLY / SOG / mlslabs: the splat readers use fopen / opendir, so these must be NonUFS (not pak/UFS).
+        // SystemNonUFS is not deployed as game content.
         if (!Target.bBuildEditor && Target.ProjectFile != null)
         {
-            string PlyStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "ply");
-            if (Directory.Exists(PlyStagingRoot))
-            {
-                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/ply/...", StagedFileType.NonUFS);
-            }
-
-            string SogStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "sog");
-            if (Directory.Exists(SogStagingRoot))
-            {
-                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/sog/...", StagedFileType.NonUFS);
-            }
-
-            string MlslabsStagingRoot = Path.Combine(Target.ProjectFile.Directory.FullName, "Content", "MLSLabsRenderer", "mlslabs");
-            if (Directory.Exists(MlslabsStagingRoot))
-            {
-                RuntimeDependencies.Add("$(ProjectDir)/Content/MLSLabsRenderer/mlslabs/...", StagedFileType.NonUFS);
-            }
+            StageLooseContentForPackaging(Target, Path.Combine("Content", "MLSLabsRenderer", "ply"));
+            StageLooseContentForPackaging(Target, Path.Combine("Content", "MLSLabsRenderer", "sog"));
+            StageLooseContentForPackaging(Target, Path.Combine("Content", "MLSLabsRenderer", "mlslabs"));
         }
+    }
+
+    /// <summary>
+    /// Stage loose splat files next to the cooked project. Android OBB is ZIP32/ZIP64 with a
+    /// 4 GiB per-file cap (bAllowLargeOBBFiles); overflow OBBs cannot split one file, so
+    /// anything larger must be adb-pushed after install.
+    /// </summary>
+    private void StageLooseContentForPackaging(ReadOnlyTargetRules Target, string ContentRelativeDir)
+    {
+        string AbsRoot = Path.Combine(Target.ProjectFile.Directory.FullName, ContentRelativeDir);
+        if (!Directory.Exists(AbsRoot))
+        {
+            return;
+        }
+
+        string Glob = "$(ProjectDir)/" + ContentRelativeDir.Replace('\\', '/') + "/...";
+        if (Target.Platform != UnrealTargetPlatform.Android)
+        {
+            RuntimeDependencies.Add(Glob, StagedFileType.NonUFS);
+            return;
+        }
+
+        // Match AndroidPlatform.Automation.cs OBBSizeAllowed (4 GiB) minus zip local/central overhead.
+        const long MaxAndroidObbFileBytes = 4294967296L - (1024L * 1024L);
+        string ProjectDir = Target.ProjectFile.Directory.FullName;
+        int StagedCount = 0;
+        int SkippedCount = 0;
+        foreach (string FilePath in Directory.GetFiles(AbsRoot, "*", SearchOption.AllDirectories))
+        {
+            long Length = new FileInfo(FilePath).Length;
+            if (Length > MaxAndroidObbFileBytes)
+            {
+                ++SkippedCount;
+                System.Console.WriteLine(
+                    "MLSLabsRenderer: skip Android OBB staging of {0} ({1} bytes > 4GiB). adb push after install.",
+                    FilePath, Length);
+                continue;
+            }
+
+            string Rel = FilePath.Substring(ProjectDir.Length).TrimStart('\\', '/').Replace('\\', '/');
+            RuntimeDependencies.Add("$(ProjectDir)/" + Rel, StagedFileType.NonUFS);
+            ++StagedCount;
+        }
+
+        System.Console.WriteLine(
+            "MLSLabsRenderer: Android staged {0} file(s) from {1}, skipped {2} over OBB limit.",
+            StagedCount, ContentRelativeDir.Replace('\\', '/'), SkippedCount);
     }
 }

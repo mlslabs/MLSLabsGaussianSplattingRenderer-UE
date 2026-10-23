@@ -1,0 +1,74 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Android foveation survivors compacted in sort order; the projection then skips the dropped splats.
+
+#include "/Engine/Public/Platform.ush"
+#include "/Engine/Private/Common.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatCompact.ush"
+#include "/Plugin/MLSLabsRenderer/Private/Android/MLSLabsSplatFoveation.ush"
+
+Buffer<uint> SortedIndices;
+RWBuffer<uint> CompactedIndices;
+RWStructuredBuffer<uint> CompactCount;
+
+float4x4 LocalToWorld;
+float4x4 WorldToClip;
+float2 ViewSize;
+
+[numthreads(64, 1, 1)]
+void ClearCompactCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	if (DispatchThreadId.x == 0)
+	{
+		CompactCount[0] = 0;
+	}
+}
+
+[numthreads(128, 1, 1)]
+void CompactFoveationCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Index = DispatchThreadId.x;
+	if (Index >= SplatCount)
+	{
+		return;
+	}
+
+	uint Keep = 0;
+	uint SplatIndex = SortedIndices[Index];
+	float4 A = SplatData[SplatIndex * 3u + 0u];
+	float4 CenterWorld = mul(float4(A.xyz, 1.0), LocalToWorld);
+	float4 CenterClip = mul(CenterWorld, WorldToClip);
+	if (CenterClip.w > 1e-5 && all(abs(CenterClip.xy) <= CenterClip.w * 3.0))
+	{
+		Keep = 1;
+		if (PeripheralOptimizationLevel != 0)
+		{
+			float Retention = GetFoveationRetention(GetFoveationRadiusForSplat(CenterWorld, CenterClip, ViewSize));
+			if (!IsFoveationSelected(SplatIndex, Retention) && !IsFoveationKeptOpaque(SplatIndex))
+			{
+				Keep = 0;
+			}
+		}
+	}
+	KeepFlags[Index] = Keep;
+}
+
+[numthreads(1, 1, 1)]
+void CompactGroupBaseCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	CompactCount[0] = CompactGroupBases();
+}
+
+[numthreads(128, 1, 1)]
+void CompactScatterCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Index = DispatchThreadId.x;
+	if (Index >= SplatCount)
+	{
+		return;
+	}
+	if (KeepFlags[Index] == 0)
+	{
+		return;
+	}
+	CompactedIndices[GetCompactSlot(Index)] = SortedIndices[Index];
+}

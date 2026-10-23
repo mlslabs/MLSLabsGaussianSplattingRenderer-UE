@@ -21,7 +21,7 @@ void EmptyLinkFunctionForGeneratedCodeMLSLabsRenderer_init() {}
 				SingletonFuncArray,
 				UE_ARRAY_COUNT(SingletonFuncArray),
 				PKG_CompiledIn | 0x00000000,
-				0xC9032151,
+				0xB5EAAC4A,
 				0x580B7C6F,
 				METADATA_PARAMS(0, nullptr)
 			};
@@ -29,5 +29,5 @@ void EmptyLinkFunctionForGeneratedCodeMLSLabsRenderer_init() {}
 		}
 		return Z_Registration_Info_UPackage__Script_MLSLabsRenderer.OuterSingleton;
 	}
-	static FRegisterCompiledInInfo Z_CompiledInDeferPackage_UPackage__Script_MLSLabsRenderer(Z_Construct_UPackage__Script_MLSLabsRenderer, TEXT("/Script/MLSLabsRenderer"), Z_Registration_Info_UPackage__Script_MLSLabsRenderer, CONSTRUCT_RELOAD_VERSION_INFO(FPackageReloadVersionInfo, 0xC9032151, 0x580B7C6F));
+	static FRegisterCompiledInInfo Z_CompiledInDeferPackage_UPackage__Script_MLSLabsRenderer(Z_Construct_UPackage__Script_MLSLabsRenderer, TEXT("/Script/MLSLabsRenderer"), Z_Registration_Info_UPackage__Script_MLSLabsRenderer, CONSTRUCT_RELOAD_VERSION_INFO(FPackageReloadVersionInfo, 0xB5EAAC4A, 0x580B7C6F));
 PRAGMA_ENABLE_DEPRECATION_WARNINGS

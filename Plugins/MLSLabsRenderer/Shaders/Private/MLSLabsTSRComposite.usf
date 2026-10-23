@@ -1,6 +1,4 @@
 // Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
-// Post-TSR composite: blend scene color with Gaussian splats using precomputed fusion weight
-// (depth compare lives in FusionWeight / FusionWeightTemporal; this pass applies the weight).
 
 #include "/Engine/Private/Common.ush"
 #include "/Plugin/MLSLabsRenderer/Private/MLSLabsScreenMapping.ush"

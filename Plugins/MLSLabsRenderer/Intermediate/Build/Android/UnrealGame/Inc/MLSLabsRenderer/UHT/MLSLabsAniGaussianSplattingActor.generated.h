@@ -20,6 +20,7 @@ MLSLABSRENDERER_API void FOnMlslabsPlaybackStateChanged_DelegateWrapper(const FM
 
 
 #define FID_hezhiwu_git_GSPlugin_Publish_PluginRelease_MLSLabsRenderer_HostProject_Plugins_MLSLabsRenderer_Source_MLSLabsRenderer_Public_MLSLabsAniGaussianSplattingActor_h_24_RPC_WRAPPERS_NO_PURE_DECLS \
+	DECLARE_FUNCTION(execSeekToFrame); \
 	DECLARE_FUNCTION(execCanPlay); \
 	DECLARE_FUNCTION(execPause); \
 	DECLARE_FUNCTION(execStop); \

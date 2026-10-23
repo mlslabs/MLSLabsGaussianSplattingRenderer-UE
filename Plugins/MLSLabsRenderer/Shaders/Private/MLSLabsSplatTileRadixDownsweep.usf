@@ -1,0 +1,130 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Tile raster radix pass, step 3: stable scatter by digit; RS_SORT_VALUES carries a value with each key.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+StructuredBuffer<uint> Meta;
+StructuredBuffer<uint> KeysIn;
+StructuredBuffer<uint> GlobalHistogram;
+StructuredBuffer<uint> PartitionHistogram;
+RWStructuredBuffer<uint> RWKeysOut;
+#if RS_SORT_VALUES
+StructuredBuffer<uint> ValuesIn;
+RWStructuredBuffer<uint> RWValuesOut;
+#endif
+// Meta slot holding the element count (META_VISIBLE or META_PAIRS).
+uint CountIndex;
+uint RadixShift;
+uint RadixPass;
+
+groupshared uint GBankHistogram[RS_HIST_SIZE];
+groupshared uint GSlotDigits[RS_GROUP];
+groupshared uint GConsumed[RS_RADIX];
+groupshared uint GGlobalBase[RS_RADIX];
+groupshared uint GSlotTotals[RS_RADIX];
+
+// Stable scatter without wave ops: per-slot rank from a 32-lane bank predecessor
+// count plus a per-digit prefix over banks. Keys are scattered from registers.
+[numthreads(RS_GROUP, 1, 1)]
+void RadixDownsweepCS(uint3 GroupId : SV_GroupID, uint GroupIndex : SV_GroupIndex)
+{
+	uint ElementCount = Meta[CountIndex];
+	uint PartitionStart = GroupId.x * RS_PARTITION;
+	if (PartitionStart >= ElementCount)
+	{
+		return;
+	}
+	uint Bank = GroupIndex / RS_BANK_WIDTH;
+	uint Lane = GroupIndex & (RS_BANK_WIDTH - 1u);
+	uint BankBase = GroupIndex & ~(RS_BANK_WIDTH - 1u);
+
+	uint LocalKeys[RS_DIVISION];
+#if RS_SORT_VALUES
+	uint LocalValues[RS_DIVISION];
+#endif
+	uint LocalDigits[RS_DIVISION];
+	uint LocalRanks[RS_DIVISION];
+	[unroll]
+	for (uint I = 0u; I < RS_DIVISION; ++I)
+	{
+		uint KeyIndex = PartitionStart + I * RS_GROUP + GroupIndex;
+		bool bValid = KeyIndex < ElementCount;
+		uint Key = bValid ? KeysIn[KeyIndex] : 0xffffffffu;
+		LocalKeys[I] = Key;
+#if RS_SORT_VALUES
+		LocalValues[I] = bValid ? ValuesIn[KeyIndex] : 0u;
+#endif
+		LocalDigits[I] = (Key >> RadixShift) & 255u;
+		LocalRanks[I] = 0u;
+	}
+	if (GroupIndex < RS_RADIX)
+	{
+		GGlobalBase[GroupIndex] = GlobalHistogram[RS_RADIX * RadixPass + GroupIndex]
+			+ PartitionHistogram[RS_RADIX * GroupId.x + GroupIndex];
+		GConsumed[GroupIndex] = 0u;
+	}
+
+	[unroll]
+	for (uint Slot = 0u; Slot < RS_DIVISION; ++Slot)
+	{
+		for (uint H = GroupIndex; H < RS_HIST_SIZE; H += RS_GROUP)
+		{
+			GBankHistogram[H] = 0u;
+		}
+		uint Digit = LocalDigits[Slot];
+		GSlotDigits[GroupIndex] = Digit;
+		GroupMemoryBarrierWithGroupSync();
+
+		uint MatchMask = 0u;
+		[unroll]
+		for (uint T = 0u; T < RS_BANK_WIDTH; ++T)
+		{
+			MatchMask |= (GSlotDigits[BankBase + T] == Digit) ? (1u << T) : 0u;
+		}
+		uint BankCount = countbits(MatchMask);
+		uint Pred = countbits(MatchMask & ((1u << Lane) - 1u));
+		if (Pred == 0u)
+		{
+			GBankHistogram[Digit * RS_HIST_STRIDE + Bank] = BankCount;
+		}
+		GroupMemoryBarrierWithGroupSync();
+
+		if (GroupIndex < RS_RADIX)
+		{
+			uint Running = 0u;
+			[unroll]
+			for (uint W = 0u; W < RS_NUM_BANKS; ++W)
+			{
+				uint Count = GBankHistogram[GroupIndex * RS_HIST_STRIDE + W];
+				GBankHistogram[GroupIndex * RS_HIST_STRIDE + W] = Running;
+				Running += Count;
+			}
+			GSlotTotals[GroupIndex] = Running;
+		}
+		GroupMemoryBarrierWithGroupSync();
+
+		LocalRanks[Slot] = GConsumed[Digit] + GBankHistogram[Digit * RS_HIST_STRIDE + Bank] + Pred;
+		GroupMemoryBarrierWithGroupSync();
+		if (GroupIndex < RS_RADIX)
+		{
+			GConsumed[GroupIndex] += GSlotTotals[GroupIndex];
+		}
+	}
+
+	[unroll]
+	for (uint J = 0u; J < RS_DIVISION; ++J)
+	{
+		uint KeyIndex = PartitionStart + J * RS_GROUP + GroupIndex;
+		if (KeyIndex < ElementCount)
+		{
+			uint Destination = GGlobalBase[LocalDigits[J]] + LocalRanks[J];
+			if (Destination < ElementCount)
+			{
+				RWKeysOut[Destination] = LocalKeys[J];
+#if RS_SORT_VALUES
+				RWValuesOut[Destination] = LocalValues[J];
+#endif
+			}
+		}
+	}
+}
