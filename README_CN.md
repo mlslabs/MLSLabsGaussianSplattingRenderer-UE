@@ -18,6 +18,8 @@
 
 实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
 
+---
+
 <div align="left">
 
 ### News
@@ -31,6 +33,8 @@
 - 支持 Development 和 Shipping 打包。
 
 </div>
+
+---
 
 <p align="center">
   <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.5/LICENSE">

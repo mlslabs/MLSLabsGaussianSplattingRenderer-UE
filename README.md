@@ -18,6 +18,8 @@ High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal
 
 Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
 
+---
+
 <div align="left">
 
 ### News
@@ -31,6 +33,8 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 - Supports Development and Shipping packaging.
 
 </div>
+
+---
 
 <p align="center">
   <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.5/LICENSE">
