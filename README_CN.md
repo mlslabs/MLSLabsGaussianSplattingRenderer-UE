@@ -18,6 +18,20 @@
 
 实时可视化、Sequencer 驱动播放，以及可支撑数百万高斯点的自定义非 Niagara 渲染管线。
 
+<div align="left">
+
+### News
+
+**最新版本：Pro_V2.1.0.0**
+
+- 渲染管线升级，全面支持 Windows/Linux/Android，多种显卡支持，支持 Nvidia/AMD/移动端 GPU。
+- 打包 Android APK 支持直接在 Pico 一体机安装运行，支持 VR 模式（默认模式，命令行 `r.MLSLabs.MixedReality 0`）及 MR 模式（命令行 `r.MLSLabs.MixedReality 1`），同时支持 VR 串流。
+- 安装插件即可，免下载 Libtorch 及其他第三方库。
+- 所有端支持 ply/sog 与 ply 序列。
+- 支持 Development 和 Shipping 打包。
+
+</div>
+
 <p align="center">
   <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.5/LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">

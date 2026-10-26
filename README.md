@@ -18,6 +18,20 @@ High-performance 3D Gaussian Splatting and 4D volumetric video Plugin for Unreal
 
 Real-time visualization, Sequencer-driven playback, and a custom non-Niagara rendering pipeline for millions of Gaussians.
 
+<div align="left">
+
+### News
+
+**Latest version: Pro_V2.1.0.0**
+
+- The rendering pipeline has been upgraded, with full support for Windows/Linux/Android and multiple GPUs, including Nvidia/AMD/mobile GPUs.
+- Android APK packaging supports direct installation and running on Pico standalone headsets, with support for VR mode (default mode, command line `r.MLSLabs.MixedReality 0`) and MR mode (command line `r.MLSLabs.MixedReality 1`), as well as VR streaming.
+- Simply install the plugin—no need to download Libtorch or other third-party libraries.
+- All platforms support ply/sog and ply sequences.
+- Supports Development and Shipping packaging.
+
+</div>
+
 <p align="center">
   <a href="https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Lite_1.0_ue5.5/LICENSE">
     <img alt="License" src="https://img.shields.io/badge/License-Apache_2.0-blue.svg">
