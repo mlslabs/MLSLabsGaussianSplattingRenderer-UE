@@ -15,8 +15,6 @@
 - [MLS Labs Ani Gaussian Splatting Component](#mls-labs-ani-gaussian-splatting-component)
 - [Animatable Gaussian Splatting Actor](#animatable-gaussian-splatting-actor)
 - [Animatable Gaussian Splatting Component](#animatable-gaussian-splatting-component)
-- [MLS Labs Renderer Subsystem](#mls-labs-renderer-subsystem)
-- [Gaussian Splating Renderer Library](#gaussian-splating-renderer-library)
 - [Misc Helper Library](#misc-helper-library)
 
 ## 选用哪个类
