@@ -15,8 +15,6 @@ These functions are call nodes with execution pins. The input and output tables 
 - [MLS Labs Ani Gaussian Splatting Component](#mls-labs-ani-gaussian-splatting-component)
 - [Animatable Gaussian Splatting Actor](#animatable-gaussian-splatting-actor)
 - [Animatable Gaussian Splatting Component](#animatable-gaussian-splatting-component)
-- [MLS Labs Renderer Subsystem](#mls-labs-renderer-subsystem)
-- [Gaussian Splating Renderer Library](#gaussian-splating-renderer-library)
 - [Misc Helper Library](#misc-helper-library)
 
 ## Which Class to Use
