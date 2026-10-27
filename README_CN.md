@@ -31,7 +31,7 @@
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**教学视频**](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364) •
 [**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.6/docs/README_CN.md) •
-[**入门指南**](#入门指南) •
+[**文档**](#文档) •
 [**安装**](#installation) •
 [**加入 Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**贡献者**](#贡献者)
@@ -107,18 +107,9 @@
 
 ---
 
-## 入门指南
+## 文档
 
-### 1. 克隆仓库
-
-使用 Git 客户端将本仓库克隆到本地。
-
-```bash
-git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
-cd MLSLabsGaussianSplattingRenderer-UE
-```
-
-### 2. 环境要求
+### 1. 环境要求
 
 - **操作系统**: Windows 10 或 11 (64位)
 - **虚幻引擎版本**: 5.6.x
@@ -129,11 +120,18 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 <a id="installation"></a>
 
-### 3. 安装步骤
+### 2. 安装步骤
 
 1. 将 `Plugins/MLSLabsRenderer` 文件夹复制到你项目的 `Plugins/` 目录下。
 2. **关于项目打包：** 为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹复制到 UE5.6 引擎安装目录中（例如：`Epic Games\UE_5.6\Engine\Plugins\Marketplace`）。
 3. 在虚幻引擎编辑器的“插件浏览器”中启用 **MLSLabsRenderer**。
+
+### 3. 蓝图 API
+
+**快速链接：**
+
+- [Blueprint API (EN)](./Plugins/MLSLabsRenderer/Docs/BlueprintAPI.md)
+- [蓝图API(中文)](./Plugins/MLSLabsRenderer/Docs/BlueprintAPI_CN.md)
 
 ---
 
