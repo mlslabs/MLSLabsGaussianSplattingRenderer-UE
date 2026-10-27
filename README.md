@@ -118,10 +118,13 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 - **Operating System**: Windows 10 or 11 (64-bit)
 - **Unreal Engine**: 5.6.x
-- **Graphics API**: DirectX 12
-- **GPU Requirements**: NVIDIA GPU supporting **Shader Model 7.5** or higher (Turing architecture and above).
-- **Minimum Hardware**: NVIDIA GeForce **RTX 2060** or better.
-- **Recommended Hardware**: NVIDIA GeForce **RTX 4070Ti** or better.
+- **Graphics API**: DirectX 12 or Vulkan.
+- **Graphics Card**: Requires DirectX 12 (Feature Level 12_2) support with the following series or newer:
+  - **NVIDIA**: GeForce RTX 20 Series and above.
+  - **AMD**: Radeon RX 6000 Series and above.
+  - **Mobile (Android)**: Mali-G68/G71/G72/G76/G77/G78/G7xx series, or Adreno 5xx/6xx/7xx series.
+- **Minimum Hardware**: NVIDIA GeForce RTX 2060 / AMD Radeon RX 6600 or equivalent.
+- **Recommended Hardware**: NVIDIA GeForce RTX 4070 Ti or equivalent.
 
 <a id="installation"></a>
 

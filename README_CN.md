@@ -113,10 +113,13 @@
 
 - **操作系统**: Windows 10 或 11 (64位)
 - **虚幻引擎版本**: 5.6.x
-- **图形 API**: DirectX 12
-- **显卡要求**: 必须使用支持 **SM 7.5 (Shader Model 7.5)** 指令集及以上的英伟达 (NVIDIA) 显卡。
-- **最低硬件**: NVIDIA GeForce RTX 2060 或更高。
-- **推荐硬件**: NVIDIA GeForce RTX 4070 Ti或更高。
+- **图形 API**: DirectX 12 或 Vulkan。
+- **显卡**: 需支持 DirectX 12（Feature Level 12_2）的以下系列或更新型号：
+  - **NVIDIA**: GeForce RTX 20 系列及以上。
+  - **AMD**: Radeon RX 6000 系列及以上。
+  - **移动端（Android）**: Mali-G68/G71/G72/G76/G77/G78/G7xx 系列，或 Adreno 5xx/6xx/7xx 系列。
+- **最低硬件**: NVIDIA GeForce RTX 2060 / AMD Radeon RX 6600 或同级显卡。
+- **推荐硬件**: NVIDIA GeForce RTX 4070 Ti 或同级显卡。
 
 <a id="installation"></a>
 
