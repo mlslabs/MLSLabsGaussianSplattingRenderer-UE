@@ -31,7 +31,7 @@ Real-time visualization, Sequencer-driven playback, and a custom non-Niagara ren
 [**Downloads**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
 [**Tutorial Video**](https://youtu.be/4ArswzhQ0VU) •
 [**Tutorial Documentation**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.8/docs/README.md) •
-[**Getting Started**](#getting-started) •
+[**Docs**](#docs) •
 [**Installation**](#installation) •
 [**Join Discord**](https://discord.com/channels/1485158006705623062/1485158007464788133) •
 [**Contributors**](#contributors)
@@ -112,16 +112,9 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 ---
 
-## Getting Started
+## Docs
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE.git
-cd MLSLabsGaussianSplattingRenderer-UE
-```
-
-### 2. Requirements
+### 1. Requirements
 
 - **Operating System**: Windows 10 or 11 (64-bit)
 - **Unreal Engine**: 5.8.x
@@ -132,13 +125,20 @@ cd MLSLabsGaussianSplattingRenderer-UE
 
 <a id="installation"></a>
 
-### 3. Installation
+### 2. Installation
 
 Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
 
 For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.8 Engine directory (e.g., Epic Games\UE_5.8\Engine\Plugins\Marketplace).
 
 Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
+
+### 3. Blueprint API
+
+**Quick Links:**
+
+- [Blueprint API (EN)](./Plugins/MLSLabsRenderer/Docs/BlueprintAPI.md)
+- [蓝图API(中文)](./Plugins/MLSLabsRenderer/Docs/BlueprintAPI_CN.md)
 
 ### Roadmap (Pro Version)
 
