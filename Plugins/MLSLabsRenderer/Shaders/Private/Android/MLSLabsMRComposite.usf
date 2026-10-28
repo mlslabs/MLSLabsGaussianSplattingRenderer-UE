@@ -1,0 +1,54 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+#include "/Engine/Private/Common.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsScreenMapping.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatColor.ush"
+
+Texture2D img_rgba;
+SamplerState img_rgba_sampler;
+Texture2D img_depth;
+SamplerState img_depth_sampler;
+Texture2D SceneColorTexture;
+Texture2D SceneDepthTexture;
+float2 ViewSize;
+float2 ViewRectMin;
+float2 GSRTextureSize;
+float2 GSRViewRectMin;
+float2 GSRViewRectSize;
+float2 SceneDepthBufferSize;
+float2 SceneDepthViewRectMin;
+float2 SceneDepthViewRectSize;
+uint LinearOutput;
+
+float2 MLSLabsGSRUVFromPassNorm(float2 PassNorm)
+{
+	float2 PixelF = MLSLabsBufferPixelFromPassNorm(PassNorm, GSRViewRectMin, GSRViewRectSize);
+	return (PixelF + 0.5f) / max(GSRTextureSize, float2(1.0f, 1.0f));
+}
+
+void MainPS(
+	in float4 SvPosition : SV_Position,
+	out float4 OutColor : SV_Target0
+)
+{
+	float2 localPos = SvPosition.xy - ViewRectMin;
+	float2 passNorm = MLSLabsPassNormFromLocal(localPos, ViewSize);
+	float2 gsrUV = MLSLabsGSRUVFromPassNorm(passNorm);
+	int2 scenePx = int2(localPos);
+
+	float4 gsr = img_rgba.SampleLevel(img_rgba_sampler, gsrUV, 0);
+	float4 scene = SceneColorTexture.Load(int3(scenePx, 0));
+	float3 SceneRgb = LinearOutput != 0u ? MLSLabsDisplaySRGBToLinear(scene.rgb) : scene.rgb;
+	float3 SplatRgb = MLSLabsPremulDisplayToLinear(gsr.rgb, gsr.a, LinearOutput);
+	float4 premul = float4(SplatRgb + SceneRgb * saturate(1.0f - gsr.a), 1.0f);
+
+	float gsrZ = MLSLabsSplatLinearDepthCm(img_depth.SampleLevel(img_depth_sampler, gsrUV, 0).r);
+	int2 depthPx = MLSLabsBufferPixelFromPassNormInt(passNorm, SceneDepthViewRectMin, SceneDepthViewRectSize, SceneDepthBufferSize);
+	float sceneZ = ConvertFromDeviceZ(SceneDepthTexture.Load(int3(depthPx, 0)).r);
+	if (gsrZ < 0.0f || gsrZ > sceneZ)
+	{
+		OutColor = float4(SceneRgb, 1.0f);
+		return;
+	}
+	OutColor = premul;
+}

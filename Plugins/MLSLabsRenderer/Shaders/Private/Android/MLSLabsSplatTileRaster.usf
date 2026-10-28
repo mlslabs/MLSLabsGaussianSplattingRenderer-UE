@@ -1,0 +1,690 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Android tile raster: one group per work item (a 16x16 tile, or one slice of its front-to-back splat list),
+// front-to-back blend with per-pixel early break. TileMergeCS composites the slices of each sliced tile.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+#ifndef MLSLABS_TILE_PPT
+#define MLSLABS_TILE_PPT 1
+#endif
+#ifndef MLSLABS_TILE_WAVE_CULL
+#define MLSLABS_TILE_WAVE_CULL 0
+#endif
+// 0: color only (MR PureGaussian). 1: also the offscreen splat depth (MR composite).
+// 2: splats behind the scene depth are skipped per pixel (plain VR blend composite).
+#ifndef MLSLABS_TILE_DEPTH
+#define MLSLABS_TILE_DEPTH 0
+#endif
+
+StructuredBuffer<uint> SplatPack;
+StructuredBuffer<uint> SortedKeys;
+StructuredBuffer<uint> TileRanges;
+// Work items from TileRangesCS, two uints each: tile index, first sorted pair.
+StructuredBuffer<uint> TileWork;
+StructuredBuffer<uint> Meta;
+RWTexture2D<float4> RWTileColor;
+int2 RasterPixelSize;
+uint SplatCount;
+uint TilesX;
+uint RankMask;
+// Applies when tiles are not sliced.
+uint MaxPerTile;
+uint EarlyDoneCount;
+// 0: TileRanges[t] = first index of tile t (binary search). 1: TileRanges[2t], [2t+1] = begin, end (boundary scan).
+uint RangesMode;
+// A quadrant wave leaves the batch once its 64 pixels are opaque (WaveCull permutation).
+uint QuadBreak;
+uint WorkCapacity;
+// log2 of the slice length, 0 = whole tiles. Always 0 with the offscreen depth: its median does not merge.
+uint SliceShift;
+// TILE_PIXELS (premul rgb, transmittance) fp16 entries per slot. Slot 2g is the slice starting at pair
+// g << SliceShift; slot 2g + 1 is the first slice of the tile whose second slice that is.
+RWStructuredBuffer<uint2> RWSlicePartial;
+
+groupshared uint GDoneCount;
+groupshared uint GSplat[TILE_PIXELS * PACK_STRIDE];
+
+struct FTileWork
+{
+	uint TileIndex;
+	uint TileEnd;
+	uint RangeBegin;
+	uint RangeEnd;
+	// Partial slot of a slice, or ~0u for a whole tile, which writes RWTileColor.
+	uint PartialSlot;
+};
+
+bool LoadTileWork(uint WorkIndex, out FTileWork Work)
+{
+	Work = (FTileWork)0;
+	if (WorkIndex >= WorkCapacity)
+	{
+		return false;
+	}
+	uint Pairs = Meta[META_PAIRS];
+	Work.TileIndex = TileWork[WorkIndex * 2u];
+	uint RangeIndex = RangesMode != 0u ? Work.TileIndex * 2u : Work.TileIndex;
+	uint TileBegin = min(TileRanges[RangeIndex], Pairs);
+	Work.TileEnd = clamp(TileRanges[RangeIndex + 1u], TileBegin, Pairs);
+	Work.RangeBegin = clamp(TileWork[WorkIndex * 2u + 1u], TileBegin, Work.TileEnd);
+	Work.RangeEnd = Work.TileEnd;
+	Work.PartialSlot = ~0u;
+	if (SliceShift != 0u)
+	{
+		uint NextSlice = (Work.RangeBegin >> SliceShift) + 1u;
+		Work.RangeEnd = min(Work.TileEnd, NextSlice << SliceShift);
+		if (Work.RangeBegin != TileBegin)
+		{
+			Work.PartialSlot = (Work.RangeBegin >> SliceShift) * 2u;
+		}
+		else if (Work.RangeEnd < Work.TileEnd)
+		{
+			Work.PartialSlot = NextSlice * 2u + 1u;
+		}
+	}
+	else if (MaxPerTile > 0u)
+	{
+		Work.RangeEnd = min(Work.RangeEnd, TileBegin + MaxPerTile);
+	}
+	return Work.RangeEnd > Work.RangeBegin;
+}
+
+// LocalPixel = y * TILE_SIZE + x inside the tile.
+void StoreTileColor(uint2 Pixel, uint LocalPixel, float3 Color, float Transmittance, uint PartialSlot)
+{
+	if (PartialSlot != ~0u)
+	{
+		RWSlicePartial[PartialSlot * TILE_PIXELS + LocalPixel] = uint2(
+			f32tof16(Color.r) | (f32tof16(Color.g) << 16),
+			f32tof16(Color.b) | (f32tof16(Transmittance) << 16));
+	}
+	else
+	{
+		RWTileColor[Pixel] = float4(Color, 1.0 - Transmittance);
+	}
+}
+
+void LoadSlicePartial(uint Slot, uint LocalPixel, out float3 Color, out float Transmittance)
+{
+	uint2 Packed = RWSlicePartial[Slot * TILE_PIXELS + LocalPixel];
+	Color = float3(f16tof32(Packed.x & 0xffffu), f16tof32(Packed.x >> 16), f16tof32(Packed.y & 0xffffu));
+	Transmittance = f16tof32(Packed.y >> 16);
+}
+
+// One group per work item; the first slice of each sliced tile composites the tile's slices front to back.
+[numthreads(TILE_PIXELS, 1, 1)]
+void TileMergeCS(
+	uint3 GroupId : SV_GroupID,
+	uint GroupIndex : SV_GroupIndex)
+{
+	FTileWork Work;
+	if (!LoadTileWork(GroupId.x, Work) || Work.PartialSlot == ~0u || (Work.PartialSlot & 1u) == 0u)
+	{
+		return;
+	}
+	uint2 Pixel = uint2(Work.TileIndex % TilesX, Work.TileIndex / TilesX) * TILE_SIZE
+		+ uint2(GroupIndex & (TILE_SIZE - 1u), GroupIndex >> 4u);
+	if (any(int2(Pixel) >= RasterPixelSize))
+	{
+		return;
+	}
+	float3 Color;
+	float Transmittance;
+	LoadSlicePartial(Work.PartialSlot, GroupIndex, Color, Transmittance);
+	for (uint Slice = Work.RangeEnd >> SliceShift; (Slice << SliceShift) < Work.TileEnd && Transmittance >= kMinTransmittance; ++Slice)
+	{
+		float3 SliceColor;
+		float SliceTransmittance;
+		LoadSlicePartial(Slice * 2u, GroupIndex, SliceColor, SliceTransmittance);
+		Color += SliceColor * Transmittance;
+		Transmittance *= SliceTransmittance;
+	}
+	RWTileColor[Pixel] = float4(Color, 1.0 - Transmittance);
+}
+
+#if MLSLABS_TILE_DEPTH
+// Per-rank view depth in the ProjectedSplats encoding.
+StructuredBuffer<uint> SplatDepth;
+groupshared uint GSplatDepth[TILE_PIXELS];
+#endif
+
+#if MLSLABS_TILE_DEPTH == 2
+// Scene device Z of the eye. Raster pixel centres map onto its view rect by SceneDepthScale.
+Texture2D<float> SceneDepthTexture;
+float2 SceneDepthViewRectMin;
+float2 SceneDepthViewRectMax;
+float2 SceneDepthScale;
+float4 InvDeviceZToWorldZTransform;
+float SplatNearPlane;
+
+// ConvertFromDeviceZ, without the View uniform buffer.
+float LoadSceneDepthCm(uint2 Pixel)
+{
+	float2 DepthPixel = clamp(SceneDepthViewRectMin + (float2(Pixel) + 0.5) * SceneDepthScale,
+		SceneDepthViewRectMin, SceneDepthViewRectMax - 1.0);
+	float DeviceZ = SceneDepthTexture.Load(int3(int2(DepthPixel), 0));
+	return DeviceZ * InvDeviceZToWorldZTransform.x + InvDeviceZToWorldZTransform.y
+		+ 1.0 / (DeviceZ * InvDeviceZToWorldZTransform.z - InvDeviceZToWorldZTransform.w);
+}
+
+// Groupshared copy of a splat's depth: linear cm, decoded once per batch instead of per pixel.
+uint GroupSplatDepth(uint PackedDepth)
+{
+	float Encoded = asfloat(PackedDepth);
+	return asuint(Encoded > 1.0 ? Encoded * 100.0 : SplatNearPlane / max(Encoded, 1e-6));
+}
+#elif MLSLABS_TILE_DEPTH == 1
+uint GroupSplatDepth(uint PackedDepth)
+{
+	return PackedDepth;
+}
+
+// Offscreen target depth in the ProjectedSplats encoding, 0 where no splat contributes. Median depth (where
+// transmittance crosses 0.5) as on desktop; pixels that never reach half coverage keep the front-most
+// contributing splat, so the composites still draw their fringe.
+RWTexture2D<float4> RWTileDepth;
+
+void AccumulateDepth(float SplatViewDepth, float Transmittance, float Alpha, inout float FrontDepth, inout float MedianDepth)
+{
+	FrontDepth = FrontDepth > 0.0 ? FrontDepth : SplatViewDepth;
+	if (Transmittance > 0.5 && Transmittance * (1.0 - Alpha) <= 0.5)
+	{
+		MedianDepth = SplatViewDepth;
+	}
+}
+
+float4 ResolveDepth(float FrontDepth, float MedianDepth)
+{
+	return float4(MedianDepth > 0.0 ? MedianDepth : FrontDepth, 0.0, 0.0, 1.0);
+}
+#endif
+
+#if MLSLABS_TILE_PPT == 1 && !MLSLABS_TILE_WAVE_CULL
+
+[numthreads(TILE_PIXELS, 1, 1)]
+void TileRasterCS(
+	uint3 GroupId : SV_GroupID,
+	uint GroupIndex : SV_GroupIndex)
+{
+	FTileWork Work;
+	if (!LoadTileWork(GroupId.x, Work))
+	{
+		return;
+	}
+	uint TileX = Work.TileIndex % TilesX;
+	uint TileY = Work.TileIndex / TilesX;
+	uint2 Pixel = uint2(TileX, TileY) * TILE_SIZE + uint2(GroupIndex & (TILE_SIZE - 1u), GroupIndex >> 4u);
+	bool bInside = all(int2(Pixel) < RasterPixelSize);
+	float2 PixelCenter = float2(Pixel) + 0.5;
+	uint RangeBegin = Work.RangeBegin;
+	uint RangeEnd = Work.RangeEnd;
+
+	if (GroupIndex == 0u)
+	{
+		GDoneCount = 0u;
+	}
+	GroupMemoryBarrierWithGroupSync();
+	bool bDone = !bInside;
+	if (bDone)
+	{
+		InterlockedAdd(GDoneCount, 1u);
+	}
+
+	float3 Color = 0.0;
+	float Transmittance = 1.0;
+#if MLSLABS_TILE_DEPTH == 1
+	float FrontDepth = 0.0;
+	float MedianDepth = 0.0;
+#elif MLSLABS_TILE_DEPTH == 2
+	float SceneDepthCm = LoadSceneDepthCm(Pixel);
+#endif
+	uint DoneTarget = EarlyDoneCount > 0u ? EarlyDoneCount : TILE_PIXELS;
+	for (uint BatchStart = RangeBegin; BatchStart < RangeEnd; BatchStart += TILE_PIXELS)
+	{
+		uint BatchCount = min(RangeEnd - BatchStart, TILE_PIXELS);
+		uint PackedCenterX = 0u;
+		uint PackedCenterY = 0u;
+		uint PackedInvUX = 0u;
+		uint PackedInvUY = 0u;
+		uint PackedInvVX = 0u;
+		uint PackedInvVY = 0u;
+		uint PackedRG = 0u;
+		uint PackedBA = 0u;
+#if MLSLABS_TILE_DEPTH
+		uint PackedDepth = 0u;
+#endif
+		if (GroupIndex < BatchCount)
+		{
+			uint Seq = SortedKeys[BatchStart + GroupIndex] & RankMask;
+			if (Seq < SplatCount)
+			{
+				uint Base = Seq * PACK_STRIDE;
+				PackedBA = SplatPack[Base + 7u];
+				if ((PackedBA >> 16) != 0u)
+				{
+					PackedCenterX = SplatPack[Base + 0u];
+					PackedCenterY = SplatPack[Base + 1u];
+					PackedInvUX = SplatPack[Base + 2u];
+					PackedInvUY = SplatPack[Base + 3u];
+					PackedInvVX = SplatPack[Base + 4u];
+					PackedInvVY = SplatPack[Base + 5u];
+					PackedRG = SplatPack[Base + 6u];
+#if MLSLABS_TILE_DEPTH
+					PackedDepth = SplatDepth[Seq];
+#endif
+				}
+			}
+		}
+		uint Slot = GroupIndex * PACK_STRIDE;
+		GSplat[Slot + 0u] = PackedCenterX;
+		GSplat[Slot + 1u] = PackedCenterY;
+		GSplat[Slot + 2u] = PackedInvUX;
+		GSplat[Slot + 3u] = PackedInvUY;
+		GSplat[Slot + 4u] = PackedInvVX;
+		GSplat[Slot + 5u] = PackedInvVY;
+		GSplat[Slot + 6u] = PackedRG;
+		GSplat[Slot + 7u] = PackedBA;
+#if MLSLABS_TILE_DEPTH
+		GSplatDepth[GroupIndex] = GroupSplatDepth(PackedDepth);
+#endif
+		GroupMemoryBarrierWithGroupSync();
+
+		for (uint J = 0u; J < BatchCount; ++J)
+		{
+			// Uniform loop on Adreno: divergent break serializes the wave and was slower.
+			if (bDone)
+			{
+				continue;
+			}
+			uint Base = J * PACK_STRIDE;
+			uint RgbaBA = GSplat[Base + 7u];
+			if ((RgbaBA >> 16) == 0u)
+			{
+				continue;
+			}
+			float2 Delta = PixelCenter - float2(asfloat(GSplat[Base + 0u]), asfloat(GSplat[Base + 1u]));
+			float U = dot(Delta, float2(asfloat(GSplat[Base + 2u]), asfloat(GSplat[Base + 3u])));
+			float V = dot(Delta, float2(asfloat(GSplat[Base + 4u]), asfloat(GSplat[Base + 5u])));
+			float R2 = U * U + V * V;
+			if (R2 >= (KernelMode == 1u ? kRefMaxR2 : 1.0))
+			{
+				continue;
+			}
+#if MLSLABS_TILE_DEPTH == 2
+			if (asfloat(GSplatDepth[J]) > SceneDepthCm)
+			{
+				continue;
+			}
+#endif
+			uint RgbaRG = GSplat[Base + 6u];
+			float SplatAlpha = f16tof32(RgbaBA >> 16);
+			float Alpha = GetPixelAlpha(SplatAlpha, R2);
+			if (Alpha >= GetPixelMinAlpha())
+			{
+				float3 SplatRgb = float3(
+					f16tof32(RgbaRG & 0xffffu),
+					f16tof32(RgbaRG >> 16),
+					f16tof32(RgbaBA & 0xffffu));
+#if MLSLABS_TILE_DEPTH == 1
+				AccumulateDepth(asfloat(GSplatDepth[J]), Transmittance, Alpha, FrontDepth, MedianDepth);
+#endif
+				Color += SplatRgb * (Alpha * Transmittance);
+				Transmittance *= 1.0 - Alpha;
+				if (Transmittance < kMinTransmittance)
+				{
+					bDone = true;
+					InterlockedAdd(GDoneCount, 1u);
+				}
+			}
+		}
+		GroupMemoryBarrierWithGroupSync();
+		if (GDoneCount >= DoneTarget)
+		{
+			break;
+		}
+	}
+
+	if (bInside)
+	{
+		StoreTileColor(Pixel, GroupIndex, Color, Transmittance, Work.PartialSlot);
+#if MLSLABS_TILE_DEPTH == 1
+		RWTileDepth[Pixel] = ResolveDepth(FrontDepth, MedianDepth);
+#endif
+	}
+}
+
+#else
+
+// Each thread shades a RASTER_BW x RASTER_BH pixel block. The blocks of one 8x8 quadrant are
+// consecutive threads, so a 64-wide wave covers whole quadrants and the quadrant skip is wave-uniform.
+#if MLSLABS_TILE_PPT == 4
+#define RASTER_THREADS 64
+#define RASTER_BW 2u
+#define RASTER_BH 2u
+#elif MLSLABS_TILE_PPT == 2
+#define RASTER_THREADS 128
+#define RASTER_BW 2u
+#define RASTER_BH 1u
+#else
+#define RASTER_THREADS 256
+#define RASTER_BW 1u
+#define RASTER_BH 1u
+#endif
+#define RASTER_PPT (RASTER_BW * RASTER_BH)
+#define RASTER_QUAD_THREADS (64u / RASTER_PPT)
+#define RASTER_QUAD_BLOCKS_X (8u / RASTER_BW)
+#define RASTER_LOADS (TILE_PIXELS / RASTER_THREADS)
+
+#if MLSLABS_TILE_WAVE_CULL
+// Low 4 bits: quadrants with a pixel center inside the alpha cutoff ellipse. The word read as fp32
+// is that cutoff R2 (mask bits only perturb the low mantissa, covered by the 1.0001 margin).
+groupshared uint GCull[TILE_PIXELS];
+// Finished (opaque or outside) pixels per 8x8 quadrant.
+groupshared uint GQuadDone[4];
+
+// Min of the convex quadratic a*x^2 + 2*b*x*y + c*y^2 over [Lo, Hi]; on the boundary unless 0 is inside.
+float RectMinR2(float3 Conic, float2 Lo, float2 Hi)
+{
+	if (all(Lo <= 0.0) && all(Hi >= 0.0))
+	{
+		return 0.0;
+	}
+	float A = max(Conic.x, 1e-30);
+	float B = Conic.y;
+	float C = max(Conic.z, 1e-30);
+	float Best = 3.0e38;
+	[unroll]
+	for (uint E = 0u; E < 2u; ++E)
+	{
+		float X = E == 0u ? Lo.x : Hi.x;
+		float YAtX = clamp(-B * X / C, Lo.y, Hi.y);
+		Best = min(Best, A * X * X + 2.0 * B * X * YAtX + C * YAtX * YAtX);
+		float Y = E == 0u ? Lo.y : Hi.y;
+		float XAtY = clamp(-B * Y / A, Lo.x, Hi.x);
+		Best = min(Best, A * XAtY * XAtY + 2.0 * B * XAtY * Y + C * Y * Y);
+	}
+	return Best;
+}
+
+uint ComputeSplatCull(uint PackedBA, float2 Center, float2 InvU, float2 InvV, float2 TileOrigin)
+{
+	float CutR2 = GetCutoffRadius2(f16tof32(PackedBA >> 16));
+	if (!(CutR2 > 0.0))
+	{
+		return 0u;
+	}
+	// R2 = U^2 + V^2 with U = dot(Delta, InvU), V = dot(Delta, InvV).
+	float3 Conic = float3(
+		InvU.x * InvU.x + InvV.x * InvV.x,
+		InvU.x * InvU.y + InvV.x * InvV.y,
+		InvU.y * InvU.y + InvV.y * InvV.y);
+	float Limit = CutR2 * 1.001 + 1e-6;
+	uint Mask = 0u;
+	[unroll]
+	for (uint Q = 0u; Q < 4u; ++Q)
+	{
+		float2 Lo = TileOrigin + float2(float((Q & 1u) * 8u), float((Q >> 1u) * 8u)) + 0.5 - Center;
+		if (RectMinR2(Conic, Lo, Lo + 7.0) < Limit)
+		{
+			Mask |= 1u << Q;
+		}
+	}
+	return Mask == 0u ? 0u : ((asuint(CutR2 * 1.0001) & ~15u) | Mask);
+}
+#endif
+
+[numthreads(RASTER_THREADS, 1, 1)]
+void TileRasterCS(
+	uint3 GroupId : SV_GroupID,
+	uint GroupIndex : SV_GroupIndex)
+{
+	FTileWork Work;
+	if (!LoadTileWork(GroupId.x, Work))
+	{
+		return;
+	}
+	uint TileX = Work.TileIndex % TilesX;
+	uint TileY = Work.TileIndex / TilesX;
+	uint2 TileOrigin = uint2(TileX, TileY) * TILE_SIZE;
+	uint Quad = GroupIndex / RASTER_QUAD_THREADS;
+	uint QuadThread = GroupIndex % RASTER_QUAD_THREADS;
+	uint2 BlockPixel = TileOrigin
+		+ uint2((Quad & 1u) * 8u, (Quad >> 1u) * 8u)
+		+ uint2((QuadThread % RASTER_QUAD_BLOCKS_X) * RASTER_BW, (QuadThread / RASTER_QUAD_BLOCKS_X) * RASTER_BH);
+	float2 BlockCenter = float2(BlockPixel) + 0.5;
+	uint RangeBegin = Work.RangeBegin;
+	uint RangeEnd = Work.RangeEnd;
+
+	if (GroupIndex == 0u)
+	{
+		GDoneCount = 0u;
+	}
+#if MLSLABS_TILE_WAVE_CULL
+	if (GroupIndex < 4u)
+	{
+		GQuadDone[GroupIndex] = 0u;
+	}
+#endif
+	GroupMemoryBarrierWithGroupSync();
+
+	float3 Color[RASTER_PPT];
+	float Transmittance[RASTER_PPT];
+#if MLSLABS_TILE_DEPTH == 1
+	float FrontDepth[RASTER_PPT];
+	float MedianDepth[RASTER_PPT];
+#elif MLSLABS_TILE_DEPTH == 2
+	float SceneDepthCm[RASTER_PPT];
+#endif
+	bool bPixelDone[RASTER_PPT];
+	uint OutsideCount = 0u;
+	[unroll]
+	for (uint K = 0u; K < RASTER_PPT; ++K)
+	{
+		Color[K] = 0.0;
+		Transmittance[K] = 1.0;
+		uint2 Pixel = BlockPixel + uint2(K % RASTER_BW, K / RASTER_BW);
+#if MLSLABS_TILE_DEPTH == 1
+		FrontDepth[K] = 0.0;
+		MedianDepth[K] = 0.0;
+#elif MLSLABS_TILE_DEPTH == 2
+		SceneDepthCm[K] = LoadSceneDepthCm(Pixel);
+#endif
+		bPixelDone[K] = !all(int2(Pixel) < RasterPixelSize);
+		OutsideCount += bPixelDone[K] ? 1u : 0u;
+	}
+	if (OutsideCount > 0u)
+	{
+		InterlockedAdd(GDoneCount, OutsideCount);
+#if MLSLABS_TILE_WAVE_CULL
+		InterlockedAdd(GQuadDone[Quad], OutsideCount);
+#endif
+	}
+	bool bDone = OutsideCount == RASTER_PPT;
+#if MLSLABS_TILE_WAVE_CULL
+	uint QuadBit = 1u << Quad;
+#endif
+
+	uint DoneTarget = EarlyDoneCount > 0u ? EarlyDoneCount : TILE_PIXELS;
+	for (uint BatchStart = RangeBegin; BatchStart < RangeEnd; BatchStart += TILE_PIXELS)
+	{
+		uint BatchCount = min(RangeEnd - BatchStart, TILE_PIXELS);
+		[unroll]
+		for (uint L = 0u; L < RASTER_LOADS; ++L)
+		{
+			uint Local = GroupIndex + L * RASTER_THREADS;
+			uint PackedCenterX = 0u;
+			uint PackedCenterY = 0u;
+			uint PackedInvUX = 0u;
+			uint PackedInvUY = 0u;
+			uint PackedInvVX = 0u;
+			uint PackedInvVY = 0u;
+			uint PackedRG = 0u;
+			uint PackedBA = 0u;
+#if MLSLABS_TILE_DEPTH
+			uint PackedDepth = 0u;
+#endif
+			if (Local < BatchCount)
+			{
+				uint Seq = SortedKeys[BatchStart + Local] & RankMask;
+				if (Seq < SplatCount)
+				{
+					uint Base = Seq * PACK_STRIDE;
+					PackedBA = SplatPack[Base + 7u];
+					if ((PackedBA >> 16) != 0u)
+					{
+						PackedCenterX = SplatPack[Base + 0u];
+						PackedCenterY = SplatPack[Base + 1u];
+						PackedInvUX = SplatPack[Base + 2u];
+						PackedInvUY = SplatPack[Base + 3u];
+						PackedInvVX = SplatPack[Base + 4u];
+						PackedInvVY = SplatPack[Base + 5u];
+						PackedRG = SplatPack[Base + 6u];
+#if MLSLABS_TILE_DEPTH
+						PackedDepth = SplatDepth[Seq];
+#endif
+					}
+				}
+			}
+			uint Slot = Local * PACK_STRIDE;
+			GSplat[Slot + 0u] = PackedCenterX;
+			GSplat[Slot + 1u] = PackedCenterY;
+			GSplat[Slot + 2u] = PackedInvUX;
+			GSplat[Slot + 3u] = PackedInvUY;
+			GSplat[Slot + 4u] = PackedInvVX;
+			GSplat[Slot + 5u] = PackedInvVY;
+			GSplat[Slot + 6u] = PackedRG;
+			GSplat[Slot + 7u] = PackedBA;
+#if MLSLABS_TILE_DEPTH
+			GSplatDepth[Local] = GroupSplatDepth(PackedDepth);
+#endif
+#if MLSLABS_TILE_WAVE_CULL
+			GCull[Local] = (PackedBA >> 16) != 0u
+				? ComputeSplatCull(PackedBA,
+					float2(asfloat(PackedCenterX), asfloat(PackedCenterY)),
+					float2(asfloat(PackedInvUX), asfloat(PackedInvUY)),
+					float2(asfloat(PackedInvVX), asfloat(PackedInvVY)),
+					float2(TileOrigin))
+				: 0u;
+#endif
+		}
+		GroupMemoryBarrierWithGroupSync();
+
+		for (uint J = 0u; J < BatchCount; ++J)
+		{
+#if MLSLABS_TILE_WAVE_CULL
+			// GQuadDone[Quad] is the same for every lane of a 64-wide quadrant wave, so this break stays uniform.
+			if (QuadBreak != 0u && (J & 7u) == 0u && GQuadDone[Quad] >= 64u)
+			{
+				break;
+			}
+#endif
+			// Uniform loop on Adreno: divergent break serializes the wave and was slower.
+			if (bDone)
+			{
+				continue;
+			}
+#if MLSLABS_TILE_WAVE_CULL
+			uint Cull = GCull[J];
+			if ((Cull & QuadBit) == 0u)
+			{
+				continue;
+			}
+			float CutR2 = asfloat(Cull);
+#else
+			const float CutR2 = KernelMode == 1u ? kRefMaxR2 : 1.0;
+#endif
+			uint Base = J * PACK_STRIDE;
+			uint RgbaBA = GSplat[Base + 7u];
+#if !MLSLABS_TILE_WAVE_CULL
+			if ((RgbaBA >> 16) == 0u)
+			{
+				continue;
+			}
+#endif
+			float2 InvU = float2(asfloat(GSplat[Base + 2u]), asfloat(GSplat[Base + 3u]));
+			float2 InvV = float2(asfloat(GSplat[Base + 4u]), asfloat(GSplat[Base + 5u]));
+			float2 Delta = BlockCenter - float2(asfloat(GSplat[Base + 0u]), asfloat(GSplat[Base + 1u]));
+			float U0 = dot(Delta, InvU);
+			float V0 = dot(Delta, InvV);
+#if MLSLABS_TILE_DEPTH == 2
+			float SplatDepthCm = asfloat(GSplatDepth[J]);
+#endif
+			float R2[RASTER_PPT];
+			bool bAnyInside = false;
+			[unroll]
+			for (uint K = 0u; K < RASTER_PPT; ++K)
+			{
+				float2 Offset = float2(float(K % RASTER_BW), float(K / RASTER_BW));
+				float U = U0 + dot(Offset, InvU);
+				float V = V0 + dot(Offset, InvV);
+				R2[K] = U * U + V * V;
+#if MLSLABS_TILE_DEPTH == 2
+				// Behind the scene at this pixel: treated as outside the cutoff ellipse.
+				R2[K] = SplatDepthCm <= SceneDepthCm[K] ? R2[K] : CutR2;
+#endif
+				bAnyInside = bAnyInside || (!bPixelDone[K] && R2[K] < CutR2);
+			}
+			if (!bAnyInside)
+			{
+				continue;
+			}
+			uint RgbaRG = GSplat[Base + 6u];
+			float SplatAlpha = f16tof32(RgbaBA >> 16);
+			float3 SplatRgb = float3(
+				f16tof32(RgbaRG & 0xffffu),
+				f16tof32(RgbaRG >> 16),
+				f16tof32(RgbaBA & 0xffffu));
+#if MLSLABS_TILE_DEPTH == 1
+			float SplatViewDepth = asfloat(GSplatDepth[J]);
+#endif
+			bool bAllDone = true;
+			[unroll]
+			for (uint K2 = 0u; K2 < RASTER_PPT; ++K2)
+			{
+				if (!bPixelDone[K2] && R2[K2] < CutR2)
+				{
+					float Alpha = GetPixelAlpha(SplatAlpha, R2[K2]);
+					if (Alpha >= GetPixelMinAlpha())
+					{
+#if MLSLABS_TILE_DEPTH == 1
+						AccumulateDepth(SplatViewDepth, Transmittance[K2], Alpha, FrontDepth[K2], MedianDepth[K2]);
+#endif
+						Color[K2] += SplatRgb * (Alpha * Transmittance[K2]);
+						Transmittance[K2] *= 1.0 - Alpha;
+						if (Transmittance[K2] < kMinTransmittance)
+						{
+							bPixelDone[K2] = true;
+							InterlockedAdd(GDoneCount, 1u);
+#if MLSLABS_TILE_WAVE_CULL
+							InterlockedAdd(GQuadDone[Quad], 1u);
+#endif
+						}
+					}
+				}
+				bAllDone = bAllDone && bPixelDone[K2];
+			}
+			bDone = bAllDone;
+		}
+		GroupMemoryBarrierWithGroupSync();
+		if (GDoneCount >= DoneTarget)
+		{
+			break;
+		}
+	}
+
+	[unroll]
+	for (uint KOut = 0u; KOut < RASTER_PPT; ++KOut)
+	{
+		uint2 Pixel = BlockPixel + uint2(KOut % RASTER_BW, KOut / RASTER_BW);
+		if (all(int2(Pixel) < RasterPixelSize))
+		{
+			uint2 Local = Pixel - TileOrigin;
+			StoreTileColor(Pixel, Local.y * TILE_SIZE + Local.x, Color[KOut], Transmittance[KOut], Work.PartialSlot);
+#if MLSLABS_TILE_DEPTH == 1
+			RWTileDepth[Pixel] = ResolveDepth(FrontDepth[KOut], MedianDepth[KOut]);
+#endif
+		}
+	}
+}
+
+#endif

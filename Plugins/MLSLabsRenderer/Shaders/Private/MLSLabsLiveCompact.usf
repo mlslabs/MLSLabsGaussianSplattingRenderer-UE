@@ -1,0 +1,60 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+#include "/Engine/Public/Platform.ush"
+#include "/Engine/Private/Common.ush"
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatCompact.ush"
+
+StructuredBuffer<float4> PackedSplat;
+RWStructuredBuffer<uint> LiveIndices;
+RWBuffer<uint> CompactCount;
+RWBuffer<uint> RWIndirect;
+
+[numthreads(128, 1, 1)]
+void BakeMarkCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Index = DispatchThreadId.x;
+	if (Index >= SplatCount)
+	{
+		return;
+	}
+	// WritePackedSplat stores round(alpha * 65535) in the high 16 bits. WriteHidden stores 0.
+	uint PackedBA = asuint(PackedSplat[Index * 3u + 2u].z);
+	KeepFlags[Index] = (PackedBA >> 16) != 0u ? 1u : 0u;
+}
+
+[numthreads(1, 1, 1)]
+void CompactGroupBaseCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Sum = CompactGroupBases();
+	CompactCount[0] = Sum;
+	CompactCount[1] = SplatCount;
+	CompactCount[2] = 0u;
+	CompactCount[3] = 0u;
+	// Kept so the count buffer and this pass stay in the graph. Sort does not dispatch from these args.
+	RWIndirect[0] = max((Sum + 127u) / 128u, 1u);
+	RWIndirect[1] = 1u;
+	RWIndirect[2] = 1u;
+	RWIndirect[3] = max((Sum + 255u) / 256u, 1u);
+	RWIndirect[4] = 1u;
+	RWIndirect[5] = 1u;
+	RWIndirect[6] = max((Sum + 1023u) / 1024u, 1u);
+	RWIndirect[7] = 1u;
+	RWIndirect[8] = 1u;
+}
+
+[numthreads(128, 1, 1)]
+void BakeScatterCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Index = DispatchThreadId.x;
+	if (Index >= SplatCount)
+	{
+		return;
+	}
+	if (KeepFlags[Index] == 0u)
+	{
+		// Any hidden packed slot is enough for the sort tail. Project still walks every slot.
+		CompactCount[2] = Index;
+		return;
+	}
+	LiveIndices[GetCompactSlot(Index)] = Index;
+}

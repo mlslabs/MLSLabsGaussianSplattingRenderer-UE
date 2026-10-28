@@ -1,0 +1,42 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Group scan shared by TileScanLocalCS and TileScanGroupsCS.
+
+#ifndef MLSLABS_SPLAT_TILE_SCAN_USH
+#define MLSLABS_SPLAT_TILE_SCAN_USH
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+groupshared uint GScanA[SCAN_GROUP_SIZE];
+groupshared uint GScanB[SCAN_GROUP_SIZE];
+
+// Inclusive Hillis-Steele ping-pong: one barrier per doubling instead of two.
+uint GroupInclusiveScan(uint GroupIndex, uint Value)
+{
+	GScanA[GroupIndex] = Value;
+	GroupMemoryBarrierWithGroupSync();
+	uint SrcIsA = 1u;
+	[unroll]
+	for (uint Offset = 1u; Offset < SCAN_GROUP_SIZE; Offset <<= 1u)
+	{
+		uint Cur = SrcIsA != 0u ? GScanA[GroupIndex] : GScanB[GroupIndex];
+		uint Add = 0u;
+		if (GroupIndex >= Offset)
+		{
+			Add = SrcIsA != 0u ? GScanA[GroupIndex - Offset] : GScanB[GroupIndex - Offset];
+		}
+		uint Sum = Cur + Add;
+		if (SrcIsA != 0u)
+		{
+			GScanB[GroupIndex] = Sum;
+		}
+		else
+		{
+			GScanA[GroupIndex] = Sum;
+		}
+		GroupMemoryBarrierWithGroupSync();
+		SrcIsA ^= 1u;
+	}
+	return SrcIsA != 0u ? GScanA[GroupIndex] : GScanB[GroupIndex];
+}
+
+#endif // MLSLABS_SPLAT_TILE_SCAN_USH

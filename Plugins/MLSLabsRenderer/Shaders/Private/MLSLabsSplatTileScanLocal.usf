@@ -1,0 +1,71 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Tile raster: exclusive scan of the per-rank tile counts within each SCAN_BLOCK.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileScan.ush"
+
+StructuredBuffer<uint> TileCounts;
+RWStructuredBuffer<uint> RWRankOffsets;
+RWStructuredBuffer<uint> RWGroupSums;
+
+#if MLSLABS_SPLAT_MOBILE
+// Android ranks are the projected splats front to back; rank and slot coincide.
+uint SplatCount;
+
+uint GetRankCount()
+{
+	return SplatCount;
+}
+
+uint LoadRankTileCount(uint Rank)
+{
+	return TileCounts[Rank];
+}
+#else
+// Desktop ranks walk the depth-sorted visible slots.
+StructuredBuffer<uint> Meta;
+StructuredBuffer<uint> SortedSlots;
+
+uint GetRankCount()
+{
+	return Meta[META_VISIBLE];
+}
+
+uint LoadRankTileCount(uint Rank)
+{
+	return TileCounts[SortedSlots[Rank]];
+}
+#endif
+
+[numthreads(SCAN_GROUP_SIZE, 1, 1)]
+void TileScanLocalCS(uint3 GroupId : SV_GroupID, uint GroupIndex : SV_GroupIndex)
+{
+	uint RankCount = GetRankCount();
+	uint Base = GroupId.x * SCAN_BLOCK + GroupIndex * SCAN_ITEMS;
+	uint Local[SCAN_ITEMS];
+	uint Sum = 0u;
+	[unroll]
+	for (uint I = 0u; I < SCAN_ITEMS; ++I)
+	{
+		uint Value = 0u;
+		if ((Base + I) < RankCount)
+		{
+			Value = LoadRankTileCount(Base + I);
+		}
+		Local[I] = Sum;
+		Sum += Value;
+	}
+	uint Inclusive = GroupInclusiveScan(GroupIndex, Sum);
+	uint ThreadBase = Inclusive - Sum;
+	[unroll]
+	for (uint J = 0u; J < SCAN_ITEMS; ++J)
+	{
+		if ((Base + J) < RankCount)
+		{
+			RWRankOffsets[Base + J] = ThreadBase + Local[J];
+		}
+	}
+	if (GroupIndex == SCAN_GROUP_SIZE - 1u)
+	{
+		RWGroupSums[GroupId.x] = Inclusive;
+	}
+}

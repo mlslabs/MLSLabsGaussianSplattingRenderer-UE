@@ -1,0 +1,142 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Android tile raster: per-tile ranges of the sorted keys, the raster work list and the occupied tiles' bounding box.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+StructuredBuffer<uint> Meta;
+StructuredBuffer<uint> SortedKeys;
+RWStructuredBuffer<uint> RWTileRanges;
+RWBuffer<uint> RWRasterArgs;
+// Raster work items, two uints each: tile index, first sorted pair. Counted in RWRasterArgs[0].
+RWStructuredBuffer<uint> RWTileWork;
+// Occupied tile box: min x, ~max x, min y, ~max y, cleared to 0xffffffff (min > max when no tile is occupied).
+RWBuffer<uint> RWTileBounds;
+uint RankBits;
+uint NumTiles;
+uint TilesX;
+// 0: TileRanges[t] = first index of tile t (binary search). 1: TileRanges[2t], [2t+1] = begin, end (boundary scan).
+uint RangesMode;
+// log2 of the slice length, 0 = one work item per tile. A tile is sliced at its first pair and at every multiple of
+// the slice length inside it, so each slice start is found from its own pair.
+uint SliceShift;
+uint WorkCapacity;
+
+uint LowerBoundTile(uint TargetTile, uint Pairs)
+{
+	uint Lo = 0u;
+	uint Hi = Pairs;
+	[loop]
+	while (Lo < Hi)
+	{
+		uint Mid = Lo + ((Hi - Lo) >> 1u);
+		uint MidTile = min(SortedKeys[Mid] >> RankBits, NumTiles);
+		if (MidTile < TargetTile)
+		{
+			Lo = Mid + 1u;
+		}
+		else
+		{
+			Hi = Mid;
+		}
+	}
+	return Lo;
+}
+
+void AppendWork(uint Tile, uint Begin)
+{
+	uint Slot;
+	InterlockedAdd(RWRasterArgs[0], 1u, Slot);
+	if (Slot < WorkCapacity)
+	{
+		RWTileWork[Slot * 2u] = Tile;
+		RWTileWork[Slot * 2u + 1u] = Begin;
+	}
+}
+
+void AppendOccupiedTile(uint Tile, uint Begin)
+{
+	AppendWork(Tile, Begin);
+	uint TileX = Tile % TilesX;
+	uint TileY = Tile / TilesX;
+	InterlockedMin(RWTileBounds[0], TileX);
+	InterlockedMin(RWTileBounds[1], ~TileX);
+	InterlockedMin(RWTileBounds[2], TileY);
+	InterlockedMin(RWTileBounds[3], ~TileY);
+}
+
+bool IsSliceStart(uint PairIndex)
+{
+	return SliceShift != 0u && (PairIndex & ((1u << SliceShift) - 1u)) == 0u;
+}
+
+#define RANGES_SCAN_ITEMS 16u
+
+// RangesMode 1, dispatched with the sort args (RS_PARTITION = 256 threads x 16 pairs per group).
+// A tile starts where its sorted tile id differs from the previous pair; that pair also ends the previous tile.
+void TileRangesBoundaryScan(uint GroupIdX, uint GroupIndex, uint Pairs)
+{
+	uint Start = GroupIdX * RS_PARTITION + GroupIndex * RANGES_SCAN_ITEMS;
+	if (Start >= Pairs)
+	{
+		return;
+	}
+	uint End = min(Start + RANGES_SCAN_ITEMS, Pairs);
+	uint PrevTile = Start == 0u ? 0xffffffffu : min(SortedKeys[Start - 1u] >> RankBits, NumTiles);
+	for (uint I = Start; I < End; ++I)
+	{
+		uint Tile = min(SortedKeys[I] >> RankBits, NumTiles);
+		if (Tile != PrevTile)
+		{
+			if (PrevTile < NumTiles)
+			{
+				RWTileRanges[PrevTile * 2u + 1u] = I;
+			}
+			if (Tile < NumTiles)
+			{
+				RWTileRanges[Tile * 2u] = I;
+				AppendOccupiedTile(Tile, I);
+			}
+			PrevTile = Tile;
+		}
+		else if (Tile < NumTiles && IsSliceStart(I))
+		{
+			AppendWork(Tile, I);
+		}
+	}
+	uint NextTile = End < Pairs ? min(SortedKeys[End] >> RankBits, NumTiles) : 0xffffffffu;
+	if (NextTile != PrevTile && PrevTile < NumTiles)
+	{
+		RWTileRanges[PrevTile * 2u + 1u] = End;
+	}
+}
+
+// RangesMode 0: RWTileRanges[t] = first sorted index of tile t; [NumTiles] = pair count.
+[numthreads(256, 1, 1)]
+void TileRangesCS(uint3 DispatchThreadId : SV_DispatchThreadID, uint3 GroupId : SV_GroupID, uint GroupIndex : SV_GroupIndex)
+{
+	uint Pairs = Meta[META_PAIRS];
+	if (RangesMode != 0u)
+	{
+		TileRangesBoundaryScan(GroupId.x, GroupIndex, Pairs);
+		return;
+	}
+	uint Tile = DispatchThreadId.x;
+	if (Tile > NumTiles)
+	{
+		return;
+	}
+	uint Begin = LowerBoundTile(Tile, Pairs);
+	RWTileRanges[Tile] = Begin;
+	uint End = Tile < NumTiles ? LowerBoundTile(Tile + 1u, Pairs) : Begin;
+	if (End > Begin)
+	{
+		AppendOccupiedTile(Tile, Begin);
+		if (SliceShift != 0u)
+		{
+			for (uint SliceBegin = ((Begin >> SliceShift) + 1u) << SliceShift; SliceBegin < End; SliceBegin += 1u << SliceShift)
+			{
+				AppendWork(Tile, SliceBegin);
+			}
+		}
+	}
+}

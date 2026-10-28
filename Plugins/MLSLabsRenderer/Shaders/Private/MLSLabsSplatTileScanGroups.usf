@@ -1,0 +1,109 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Tile raster: exclusive scan of the ScanLocal group sums, then sizes the pair passes.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileScan.ush"
+
+RWStructuredBuffer<uint> RWMeta;
+RWStructuredBuffer<uint> RWGroupSums;
+uint PairCapacity;
+
+#if MLSLABS_SPLAT_MOBILE
+RWBuffer<uint> RWSortArgs;
+RWBuffer<uint> RWRangesArgs;
+RWStructuredBuffer<uint> RWGlobalHistogram;
+uint NumScanGroups;
+#else
+RWBuffer<uint> RWPairArgs;
+#endif
+
+groupshared uint GCarry;
+
+uint GetScanGroupCount()
+{
+#if MLSLABS_SPLAT_MOBILE
+	return NumScanGroups;
+#else
+	return (RWMeta[META_VISIBLE] + SCAN_BLOCK - 1u) / SCAN_BLOCK;
+#endif
+}
+
+void WritePairArgs(uint Pairs)
+{
+#if MLSLABS_SPLAT_MOBILE
+	RWSortArgs[0] = (Pairs + RS_PARTITION - 1u) / RS_PARTITION;
+	RWSortArgs[1] = 1u;
+	RWSortArgs[2] = 1u;
+	// TileRangesCS counts the occupied tiles into the raster dispatch.
+	RWRangesArgs[0] = 0u;
+	RWRangesArgs[1] = 1u;
+	RWRangesArgs[2] = 1u;
+#else
+	RWPairArgs[PAIR_ARGS_SORT + 0u] = (Pairs + RS_PARTITION - 1u) / RS_PARTITION;
+	RWPairArgs[PAIR_ARGS_SORT + 1u] = 1u;
+	RWPairArgs[PAIR_ARGS_SORT + 2u] = 1u;
+	RWPairArgs[PAIR_ARGS_LINEAR + 0u] = LinearGroupCount(Pairs);
+	RWPairArgs[PAIR_ARGS_LINEAR + 1u] = 1u;
+	RWPairArgs[PAIR_ARGS_LINEAR + 2u] = 1u;
+#endif
+}
+
+// Single group: scans every group sum in chunks of SCAN_BLOCK.
+[numthreads(SCAN_GROUP_SIZE, 1, 1)]
+void TileScanGroupsCS(uint GroupIndex : SV_GroupIndex)
+{
+	uint NumGroups = GetScanGroupCount();
+	if (GroupIndex == 0u)
+	{
+		GCarry = 0u;
+	}
+	GroupMemoryBarrierWithGroupSync();
+	for (uint ChunkBase = 0u; ChunkBase < NumGroups; ChunkBase += SCAN_BLOCK)
+	{
+		uint Base = ChunkBase + GroupIndex * SCAN_ITEMS;
+		uint Local[SCAN_ITEMS];
+		uint Sum = 0u;
+		[unroll]
+		for (uint I = 0u; I < SCAN_ITEMS; ++I)
+		{
+			uint Value = 0u;
+			if ((Base + I) < NumGroups)
+			{
+				Value = RWGroupSums[Base + I];
+			}
+			Local[I] = Sum;
+			Sum += Value;
+		}
+		uint Carry = GCarry;
+		uint Inclusive = GroupInclusiveScan(GroupIndex, Sum);
+		uint ThreadBase = Carry + Inclusive - Sum;
+		[unroll]
+		for (uint J = 0u; J < SCAN_ITEMS; ++J)
+		{
+			if ((Base + J) < NumGroups)
+			{
+				RWGroupSums[Base + J] = ThreadBase + Local[J];
+			}
+		}
+		GroupMemoryBarrierWithGroupSync();
+		if (GroupIndex == SCAN_GROUP_SIZE - 1u)
+		{
+			GCarry = Carry + Inclusive;
+		}
+		GroupMemoryBarrierWithGroupSync();
+	}
+#if MLSLABS_SPLAT_MOBILE
+	// The tile radix passes accumulate into this; desktop clears it with a UAV clear.
+	for (uint H = GroupIndex; H < RS_RADIX * RS_MAX_PASSES; H += SCAN_GROUP_SIZE)
+	{
+		RWGlobalHistogram[H] = 0u;
+	}
+#endif
+	if (GroupIndex == 0u)
+	{
+		uint RawPairs = GCarry;
+		uint Pairs = min(RawPairs, PairCapacity);
+		RWMeta[META_RAW_PAIRS] = RawPairs;
+		RWMeta[META_PAIRS] = Pairs;
+		WritePairArgs(Pairs);
+	}
+}

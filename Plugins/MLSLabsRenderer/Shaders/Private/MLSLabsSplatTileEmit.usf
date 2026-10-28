@@ -1,0 +1,128 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Tile raster: one pair per tile covered by each splat's cutoff ellipse, in front-to-back rank order.
+// Android keys are (tile << RankBits) | rank, or (tile, rank) pairs with MLSLABS_TILE_SORT_VALUES;
+// desktop pairs are (tile, projected slot).
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileBinning.ush"
+
+StructuredBuffer<uint> TileCounts;
+StructuredBuffer<uint> RankOffsets;
+StructuredBuffer<uint> GroupSums;
+StructuredBuffer<uint2> TileRects;
+RWStructuredBuffer<uint> RWKeysOut;
+#if RS_SORT_VALUES
+RWStructuredBuffer<uint> RWValuesOut;
+#endif
+uint TilesX;
+uint NumTiles;
+uint PairCapacity;
+
+#if MLSLABS_SPLAT_MOBILE
+uint SplatCount;
+uint RankBits;
+#else
+StructuredBuffer<uint> Meta;
+StructuredBuffer<uint> SortedSlots;
+StructuredBuffer<float4> ProjA;
+StructuredBuffer<float4> ProjB;
+#endif
+
+// Android passes its rank as the slot.
+void WritePair(uint Offset, uint Tile, uint Rank, uint Slot)
+{
+#if RS_SORT_VALUES
+	RWKeysOut[Offset] = Tile;
+	RWValuesOut[Offset] = Slot;
+#else
+	RWKeysOut[Offset] = (Tile << RankBits) | Rank;
+#endif
+}
+
+// Tile NumTiles sorts the padding past every range.
+void WritePadding(uint Offset, uint End, uint Rank, uint Slot)
+{
+	for (; Offset < End; ++Offset)
+	{
+		WritePair(Offset, NumTiles, Rank, Slot);
+	}
+}
+
+// Fills [Offset, End); a shorter re-walk than the count pass leaves reserved slots as padding.
+void EmitPairs(FEllipseTiles E, uint Offset, uint End, uint Rank, uint Slot)
+{
+	for (int Band = E.T0.y; Band < E.T1.y && Offset < End; ++Band)
+	{
+		int Lo;
+		int Hi;
+		GetEllipseBandSpan(E, Band, Lo, Hi);
+		for (int Walk = Lo; Walk < Hi && Offset < End; ++Walk)
+		{
+			WritePair(Offset, GetEllipseTile(E, Band, Walk, TilesX), Rank, Slot);
+			++Offset;
+		}
+	}
+	WritePadding(Offset, End, Rank, Slot);
+}
+
+#if MLSLABS_SPLAT_MOBILE
+
+[numthreads(128, 1, 1)]
+void TileEmitCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Seq = DispatchThreadId.x;
+	if (Seq >= SplatCount)
+	{
+		return;
+	}
+	uint Count = TileCounts[Seq];
+	if (Count == 0u)
+	{
+		return;
+	}
+	uint Offset = RankOffsets[Seq] + GroupSums[Seq / SCAN_BLOCK];
+	if (Offset >= PairCapacity)
+	{
+		return;
+	}
+	uint End = min(Offset + Count, PairCapacity);
+	float2 Center;
+	float2 MajorPx;
+	float2 MinorPx;
+	float4 Color;
+	if (!LoadTileSplat(SplatCount - 1u - Seq, Center, MajorPx, MinorPx, Color))
+	{
+		WritePadding(Offset, End, Seq, Seq);
+		return;
+	}
+	int4 Rect = UnpackTileRect(TileRects[Seq]);
+	FEllipseTiles E = SetupEllipseTiles(Center, MajorPx, MinorPx, GetCutoffRadius2(Color.a), Rect.xy, Rect.zw);
+	EmitPairs(E, Offset, End, Seq, Seq);
+}
+
+#else
+
+// Pairs past PairCapacity are dropped; they belong to the farthest ranks.
+[numthreads(LINEAR_GROUP_SIZE, 1, 1)]
+void TileEmitCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Visible = Meta[META_VISIBLE];
+	uint Stride = LinearGroupCount(Visible) * LINEAR_GROUP_SIZE;
+	for (uint Rank = DispatchThreadId.x; Rank < Visible; Rank += Stride)
+	{
+		uint Slot = SortedSlots[Rank];
+		uint Count = TileCounts[Slot];
+		uint Offset = RankOffsets[Rank] + GroupSums[Rank / SCAN_BLOCK];
+		if (Count == 0u || Offset >= PairCapacity)
+		{
+			continue;
+		}
+		uint End = min(Offset + Count, PairCapacity);
+		float4 A = ProjA[Slot];
+		float4 B = ProjB[Slot];
+		int4 Rect = UnpackTileRect(TileRects[Slot]);
+		FEllipseTiles E = SetupEllipseTiles(A.xy, float3(A.z, A.w, B.x), ExtendFromOpacity(DecodeOpacity(asuint(B.w))), Rect.xy, Rect.zw);
+		EmitPairs(E, Offset, End, Rank, Slot);
+	}
+}
+
+#endif // MLSLABS_SPLAT_MOBILE
