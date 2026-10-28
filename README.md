@@ -85,6 +85,7 @@ By utilizing a custom rendering pipeline rather than traditional particle system
 
 The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs` folder contains detailed plugin guides.
 
+
 **Quick Links:**
 
 - [Plugin Guide (EN)](./docs/README.md)
@@ -96,16 +97,10 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 <img src="Media/image/7M_50+fps.jpg" width="1000" />
 
-- **High-Performance Static 3DGS**: Supports 7 million+ Gaussians at 50+ FPS (tested on an NVIDIA RTX 4070 Ti).
-
 - **Dynamic 4DGS Playback**: Real-time volumetric video sequence playback, supporting 100,000+ Gaussians at 100+ FPS (tested on an NVIDIA RTX 4070 Ti).
-
 - **Sequencer Integration**: Full support for UE Sequencer, with keyframe control over volumetric video playback.
-
 - **High-Compression Static 3DGS**: Supports the `.sog` format for high-compression 3DGS.
-
 - **Android Support**: Renders Gaussians on Android devices, with 250,000+ Gaussians at 60+ FPS (tested on a REDMI K80).
-
 - **VR Headset Support**: Runs directly on a VR headset, with 250,000+ Gaussians at 30+ FPS (tested on a Pico 4 Ultra Enterprise). PC streaming playback is also supported.
 
 ---
@@ -128,28 +123,43 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 ### 2. Installation
 
-Copy the Plugins/MLSLabsRenderer folder to your project's Plugins/ directory.
+1. Copy the `Plugins/MLSLabsRenderer` folder into your project's `Plugins/` directory.
+2. **Project packaging:** To package the project successfully, copy the `MLSLabsRenderer` folder into the UE5.5 engine installation directory (for example, `Epic Games\UE_5.5\Engine\Plugins\Marketplace`).
+3. Enable **MLSLabsRenderer** in the Unreal Editor Plugin Browser.
 
-For Packaging: To ensure successful project packaging, copy the MLSLabsRenderer folder to your UE5.5 Engine directory (e.g., Epic Games\UE_5.5\Engine\Plugins\Marketplace).
+### 3. Tutorial Documentation
 
-Enable MLSLabsRenderer in the Unreal Editor Plugin Browser.
+**Quick Links:**
 
-### 3. Blueprint API
+- [Tutorial Doc (EN)](./Plugins/MLSLabsRenderer/Docs/README.md)
+- [Tutorial Doc (Chinese)](./Plugins/MLSLabsRenderer/Docs/README_CN.md)
+
+### 4. Blueprint API
 
 **Quick Links:**
 
 - [Blueprint API (EN)](./Plugins/MLSLabsRenderer/Docs/BlueprintAPI.md)
-- [蓝图API(中文)](./Plugins/MLSLabsRenderer/Docs/BlueprintAPI_CN.md)
+- [Blueprint API (Chinese)](./Plugins/MLSLabsRenderer/Docs/BlueprintAPI_CN.md)
 
-### Roadmap (Pro Version)
+---
 
-The upcoming Professional version will offer significant performance boosts and enterprise-level features:
+## Roadmap (Pro Version)
 
-- [ ] Compressed 4DGS: Support for specialized compressed formats to reduce memory usage.
+The upcoming Professional version will provide a significant performance improvement and enterprise features:
 
-- [ ] Advanced Lighting: Support for Point/Directional lights with self-shadowing.
+- [ ] **Advanced Lighting:** Support for point lights and directional lights, including self-shadowing.
+
+---
 
 ## Release Notes
+
+**Pro_V2.1.0.0**
+1. Rendering pipeline upgrade. Full support for Windows, Linux, and Android, with multiple GPU vendors: NVIDIA, AMD, and mobile GPUs.
+2. A packaged Android APK can be installed and run directly on a Pico standalone headset. VR mode is supported (the default, command line `r.MLSLabs.MixedReality 0`) and MR mode (command line `r.MLSLabs.MixedReality 1`). VR streaming is also supported.
+3. Installing the plugin is enough. LibTorch and other third-party libraries no longer need to be downloaded.
+4. ply/sog files and ply sequences are supported on every platform.
+5. Both Development and Shipping packaging are supported.
+
 **Pro_V2.0.0.0_preview**
 1. Adopted Vulkan Gaussian Splatting rendering, supporting all features from Windows v1.0. The LibTorch dependency is now eliminated—it only requires graphics drivers with Vulkan 1.3 support.
 
