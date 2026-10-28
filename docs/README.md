@@ -221,3 +221,7 @@ Packaging environment requirements: Visual Studio 2022, MSVC v143 x64.
 <img src="../Media/image/package.jpg" width="500" />
 
 Important: After packaging, ensure the .ply files are stored in the same absolute data path on the target machine for the application to run correctly.
+
+## Packaging a Pico VR APK
+
+To package the project as an Android APK and install it on a Pico headset, see [Package a Pico VR APK](./Android_Package.md).
