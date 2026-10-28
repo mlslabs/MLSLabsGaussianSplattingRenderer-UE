@@ -1,0 +1,83 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Tile raster radix pass, step 2: exclusive scans of the digit histograms.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+StructuredBuffer<uint> Meta;
+RWStructuredBuffer<uint> RWPartitionHistogram;
+RWStructuredBuffer<uint> RWGlobalHistogram;
+// Meta slot holding the element count (META_VISIBLE or META_PAIRS).
+uint CountIndex;
+uint RadixPass;
+
+groupshared uint GSpineA[RS_GROUP];
+groupshared uint GSpineB[RS_GROUP];
+
+uint SpineExclusiveScan(uint GroupIndex, uint Value, out uint Total)
+{
+	GSpineA[GroupIndex] = Value;
+	GroupMemoryBarrierWithGroupSync();
+	uint SrcIsA = 1u;
+	[unroll]
+	for (uint Offset = 1u; Offset < RS_GROUP; Offset <<= 1u)
+	{
+		uint Cur = SrcIsA != 0u ? GSpineA[GroupIndex] : GSpineB[GroupIndex];
+		uint Add = 0u;
+		if (GroupIndex >= Offset)
+		{
+			Add = SrcIsA != 0u ? GSpineA[GroupIndex - Offset] : GSpineB[GroupIndex - Offset];
+		}
+		uint Sum = Cur + Add;
+		if (SrcIsA != 0u)
+		{
+			GSpineB[GroupIndex] = Sum;
+		}
+		else
+		{
+			GSpineA[GroupIndex] = Sum;
+		}
+		GroupMemoryBarrierWithGroupSync();
+		SrcIsA ^= 1u;
+	}
+	uint Inclusive = SrcIsA != 0u ? GSpineA[GroupIndex] : GSpineB[GroupIndex];
+	Total = SrcIsA != 0u ? GSpineA[RS_GROUP - 1u] : GSpineB[RS_GROUP - 1u];
+	return Inclusive - Value;
+}
+
+// One group per digit: exclusive scan of that digit across partitions. Group 0 also scans the global digit totals.
+[numthreads(RS_GROUP, 1, 1)]
+void RadixSpineCS(uint3 GroupId : SV_GroupID, uint GroupIndex : SV_GroupIndex)
+{
+	uint ElementCount = Meta[CountIndex];
+	uint PartitionCount = (ElementCount + RS_PARTITION - 1u) / RS_PARTITION;
+	uint Digit = GroupId.x;
+	uint Reduction = 0u;
+	for (uint Chunk = 0u; Chunk * RS_GROUP < PartitionCount; ++Chunk)
+	{
+		uint Partition = Chunk * RS_GROUP + GroupIndex;
+		uint Value = 0u;
+		if (Partition < PartitionCount)
+		{
+			Value = RWPartitionHistogram[RS_RADIX * Partition + Digit];
+		}
+		uint Total;
+		uint Exclusive = SpineExclusiveScan(GroupIndex, Value, Total);
+		if (Partition < PartitionCount)
+		{
+			RWPartitionHistogram[RS_RADIX * Partition + Digit] = Exclusive + Reduction;
+		}
+		Reduction += Total;
+		// The next scan overwrites GSpineA, which the last Total read when the scan ends in A.
+		GroupMemoryBarrierWithGroupSync();
+	}
+	if (Digit == 0u)
+	{
+		uint Value = GroupIndex < RS_RADIX ? RWGlobalHistogram[RS_RADIX * RadixPass + GroupIndex] : 0u;
+		uint Total;
+		uint Exclusive = SpineExclusiveScan(GroupIndex, Value, Total);
+		if (GroupIndex < RS_RADIX)
+		{
+			RWGlobalHistogram[RS_RADIX * RadixPass + GroupIndex] = Exclusive;
+		}
+	}
+}

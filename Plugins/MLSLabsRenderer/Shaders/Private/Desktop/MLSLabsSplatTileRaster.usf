@@ -1,0 +1,118 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Desktop tile raster: front-to-back blend of each 16x16 tile into color and normalized depth.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+StructuredBuffer<uint> TileRanges;
+StructuredBuffer<uint> SortedSlots;
+StructuredBuffer<float4> ProjA;
+StructuredBuffer<float4> ProjB;
+RWTexture2D<float4> RWColor;
+RWTexture2D<float> RWDepth;
+float2 ImageSize;
+float NearPlaneCm;
+uint TilesX;
+
+groupshared float4 GSplatA[TILE_PIXELS];
+groupshared float4 GSplatB[TILE_PIXELS];
+groupshared float4 GSplatC[TILE_PIXELS];
+groupshared uint GDoneCount;
+
+// One 16x16 tile per group, splats staged through groupshared in depth order.
+[numthreads(TILE_SIZE, TILE_SIZE, 1)]
+void TileRasterCS(uint3 GroupId : SV_GroupID, uint3 GroupThreadId : SV_GroupThreadID, uint GroupIndex : SV_GroupIndex)
+{
+	uint2 Pixel = GroupId.xy * TILE_SIZE + GroupThreadId.xy;
+	bool bInside = Pixel.x < uint(ImageSize.x) && Pixel.y < uint(ImageSize.y);
+	uint Tile = GroupId.y * TilesX + GroupId.x;
+	uint RangeBegin = TileRanges[Tile * 2u];
+	uint RangeEnd = max(TileRanges[Tile * 2u + 1u], RangeBegin);
+
+	float2 PixelCoord = float2(Pixel);
+	float3 Color = float3(0.0, 0.0, 0.0);
+	float Transmittance = 1.0;
+	float MedianDepth = 0.0;
+	bool bDone = !bInside;
+
+	if (GroupIndex == 0u)
+	{
+		GDoneCount = 0u;
+	}
+	GroupMemoryBarrierWithGroupSync();
+	if (bDone)
+	{
+		InterlockedAdd(GDoneCount, 1u);
+	}
+
+	for (uint BatchBegin = RangeBegin; BatchBegin < RangeEnd; BatchBegin += TILE_PIXELS)
+	{
+		GroupMemoryBarrierWithGroupSync();
+		if (GDoneCount >= TILE_PIXELS)
+		{
+			break;
+		}
+		uint Load = BatchBegin + GroupIndex;
+		if (Load < RangeEnd)
+		{
+			uint Slot = SortedSlots[Load];
+			float4 A = ProjA[Slot];
+			float4 B = ProjB[Slot];
+			uint PackedRG = asuint(B.z);
+			uint PackedBO = asuint(B.w);
+			float Opacity = DecodeOpacity(PackedBO);
+			GSplatA[GroupIndex] = A;
+			GSplatB[GroupIndex] = float4(B.x, B.y, PowerThresholdForOpacity(Opacity), Opacity);
+			GSplatC[GroupIndex] = float4(f16tof32(PackedRG & 0xffffu), f16tof32(PackedRG >> 16), f16tof32(PackedBO & 0xffffu), 0.0);
+		}
+		GroupMemoryBarrierWithGroupSync();
+
+		if (!bDone)
+		{
+			uint BatchCount = min(TILE_PIXELS, RangeEnd - BatchBegin);
+			for (uint J = 0u; J < BatchCount; ++J)
+			{
+				float4 A = GSplatA[J];
+				float4 B = GSplatB[J];
+				float2 D = PixelCoord - A.xy;
+				float Sigma = 0.5 * (A.z * D.x * D.x + B.x * D.y * D.y) + A.w * D.x * D.y;
+				if (Sigma < 0.0 || Sigma > B.z)
+				{
+					continue;
+				}
+				float Alpha = min(ALPHA_BLEND_MAX_OPACITY, B.w * exp(-Sigma));
+				if (Alpha < ALPHA_THRESHOLD)
+				{
+					continue;
+				}
+				float NextTransmittance = Transmittance * (1.0 - Alpha);
+				if (MedianDepth == 0.0 && Transmittance > 0.5 && NextTransmittance <= 0.5)
+				{
+					MedianDepth = B.y;
+				}
+				if (NextTransmittance < MIN_TRANSMITTANCE)
+				{
+					bDone = true;
+					break;
+				}
+				Color += clamp(GSplatC[J].rgb, 0.0, MAX_BLEND_COLOR) * (Alpha * Transmittance);
+				Transmittance = NextTransmittance;
+			}
+			if (bDone)
+			{
+				InterlockedAdd(GDoneCount, 1u);
+			}
+		}
+	}
+
+	if (bInside)
+	{
+		if (!AllFinite(float4(Color, Transmittance)))
+		{
+			Color = float3(0.0, 0.0, 0.0);
+			Transmittance = 1.0;
+			MedianDepth = 0.0;
+		}
+		RWColor[Pixel] = float4(Color, 1.0 - Transmittance);
+		RWDepth[Pixel] = MedianDepth > 0.0 ? min(NearPlaneCm / MedianDepth, 1.0) : 0.0;
+	}
+}

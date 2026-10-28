@@ -1,13 +1,14 @@
 // Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
-// 水印：左上角绘制 logo，半透明深色底
+// Watermark plate, same small-rect idea as MLSLabsFPSOverlay.usf.
+// The plate covers its whole rect, so the color is blended in hardware and this
+// shader never reads SceneColor. A SceneColor copy ends the tile pass and stores
+// every tile on Adreno, which is what drops Pico 4 Ultra off 90 fps.
 
 #include "/Engine/Private/Common.ush"
 
-Texture2D SceneColorTexture;
 Texture2D LogoTexture;
 SamplerState LogoSampler;
 
-float2 ViewSize;
 float2 ViewRectMin;
 float2 LogoSize;
 float2 LogoOffset;
@@ -18,25 +19,18 @@ void WatermarkPS(
     out float4 OutColor : SV_Target0
 )
 {
-    float2 localPos = SvPosition.xy - ViewRectMin;
-    float4 SceneColor = SceneColorTexture.Load(int3(localPos, 0));
+    float2 LocalPos = SvPosition.xy - ViewRectMin;
+    float2 LogoUV = (LocalPos - LogoOffset) / max(LogoSize, float2(1.0, 1.0));
+    float4 LogoColor = LogoTexture.SampleLevel(LogoSampler, saturate(LogoUV), 0);
 
-    float2 MinCorner = LogoOffset;
-    float2 MaxCorner = LogoOffset + LogoSize;
-    bool bInLogoRect = all(localPos >= MinCorner) && all(localPos < MaxCorner);
-
-    if (bInLogoRect)
-    {
-        float2 LogoUV = (localPos - LogoOffset) / LogoSize;
-        float4 LogoColor = LogoTexture.SampleLevel(LogoSampler, LogoUV, 0);
-
-        float3 DarkBg = float3(0.05, 0.05, 0.08);
-        float3 WithBg = lerp(SceneColor.rgb, DarkBg, BackgroundOpacity);
-        float3 WithLogo = lerp(WithBg, LogoColor.rgb, LogoColor.a);
-        OutColor = float4(WithLogo, 1.0);
-    }
-    else
-    {
-        OutColor = SceneColor;
-    }
+    // lerp(scene, dark, opacity), then lerp in the straight logo color.
+    // Coverage is the RGB blend factor. The pass writes render-target alpha to 0,
+    // matching MLSLabsFPSOverlay: Pico MR treats alpha 1 as the camera hole.
+    float3 DarkBg = float3(0.05, 0.05, 0.08);
+    float LogoA = saturate(LogoColor.a);
+    float KeepScene = (1.0 - BackgroundOpacity) * (1.0 - LogoA);
+    float Coverage = saturate(1.0 - KeepScene);
+    float3 Premul = DarkBg * BackgroundOpacity * (1.0 - LogoA) + LogoColor.rgb * LogoA;
+    float3 SrcRgb = Premul / max(Coverage, 1.0e-4);
+    OutColor = float4(SrcRgb, Coverage);
 }

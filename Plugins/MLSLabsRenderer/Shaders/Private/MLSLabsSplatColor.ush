@@ -1,0 +1,25 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+
+
+#ifndef MLSLABS_SPLAT_COLOR_USH
+#define MLSLABS_SPLAT_COLOR_USH
+
+float3 MLSLabsDisplaySRGBToLinear(float3 Color)
+{
+	float3 C = saturate(Color);
+	float3 LinearLo = C * (1.0 / 12.92);
+	float3 LinearHi = pow(C * (1.0 / 1.055) + 0.0521327, 2.4);
+	return lerp(LinearLo, LinearHi, step(0.04045, C));
+}
+
+// Premultiplied display sRGB -> premultiplied linear when the eye target encodes on write.
+float3 MLSLabsPremulDisplayToLinear(float3 PremulRgb, float Coverage, uint LinearOutput)
+{
+	if (LinearOutput != 0u && Coverage > 1e-5)
+	{
+		return MLSLabsDisplaySRGBToLinear(saturate(PremulRgb / Coverage)) * Coverage;
+	}
+	return PremulRgb;
+}
+
+#endif

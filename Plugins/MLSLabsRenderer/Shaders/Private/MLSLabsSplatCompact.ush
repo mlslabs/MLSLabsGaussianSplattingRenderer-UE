@@ -1,0 +1,63 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Order-preserving stream compaction shared by MLSLabsLiveCompact.usf and Android/MLSLabsFoveationCompact.usf:
+// mark KeepFlags -> CompactGroupScanCS -> group bases (CompactGroupBases) -> scatter to GetCompactSlot.
+
+#ifndef MLSLABS_SPLAT_COMPACT_USH
+#define MLSLABS_SPLAT_COMPACT_USH
+
+#include "/Engine/Public/Platform.ush"
+
+#define COMPACT_GROUP_SIZE 256u
+
+RWBuffer<uint> KeepFlags;
+RWBuffer<uint> LocalPrefix;
+RWBuffer<uint> GroupSums;
+RWBuffer<uint> GroupBase;
+uint SplatCount;
+uint NumGroups;
+
+// Exclusive prefix of KeepFlags within each group; the group total goes to GroupSums.
+// One thread walks the group. A parallel Hillis-Steele left unread LiveIndices slots on Adreno.
+[numthreads(COMPACT_GROUP_SIZE, 1, 1)]
+void CompactGroupScanCS(uint3 GroupId : SV_GroupID, uint3 GroupThreadId : SV_GroupThreadID)
+{
+	if (GroupThreadId.x != 0u)
+	{
+		return;
+	}
+	uint Gid = GroupId.x;
+	uint Base = Gid * COMPACT_GROUP_SIZE;
+	uint Sum = 0u;
+	for (uint Lid = 0u; Lid < COMPACT_GROUP_SIZE; ++Lid)
+	{
+		uint Index = Base + Lid;
+		uint Value = (Index < SplatCount) ? KeepFlags[Index] : 0u;
+		if (Index < SplatCount)
+		{
+			LocalPrefix[Index] = Sum;
+		}
+		Sum += Value;
+	}
+	GroupSums[Gid] = Sum;
+}
+
+// Single thread: exclusive prefix of GroupSums into GroupBase. Returns the kept total.
+uint CompactGroupBases()
+{
+	uint Sum = 0u;
+	uint Groups = max(NumGroups, 1u);
+	for (uint G = 0u; G < Groups; ++G)
+	{
+		uint Count = GroupSums[G];
+		GroupBase[G] = Sum;
+		Sum += Count;
+	}
+	return Sum;
+}
+
+uint GetCompactSlot(uint Index)
+{
+	return GroupBase[Index / COMPACT_GROUP_SIZE] + LocalPrefix[Index];
+}
+
+#endif // MLSLABS_SPLAT_COMPACT_USH

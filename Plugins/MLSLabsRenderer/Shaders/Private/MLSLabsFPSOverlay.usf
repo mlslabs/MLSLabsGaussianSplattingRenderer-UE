@@ -1,0 +1,143 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// 屏幕前方醒目绘制当前渲染帧率（红色 5x7 点阵，供 Pico 头显阅读）
+
+#include "/Engine/Private/Common.ush"
+
+Texture2D SceneColorTexture;
+
+float2 ViewSize;
+float2 ViewRectMin;
+float FPSValue;
+
+int GlyphRowBits(int Glyph, int Row)
+{
+	int Lo = 0;
+	int Hi = 0;
+	if (Glyph == 0) { Lo = 575022; Hi = 14897; }
+	else if (Glyph == 1) { Lo = 135556; Hi = 14468; }
+	else if (Glyph == 2) { Lo = 198190; Hi = 32264; }
+	else if (Glyph == 3) { Lo = 198190; Hi = 14881; }
+	else if (Glyph == 4) { Lo = 600258; Hi = 2143; }
+	else if (Glyph == 5) { Lo = 64031; Hi = 14881; }
+	else if (Glyph == 6) { Lo = 999950; Hi = 14897; }
+	else if (Glyph == 7) { Lo = 133183; Hi = 8452; }
+	else if (Glyph == 8) { Lo = 476718; Hi = 14897; }
+	else if (Glyph == 9) { Lo = 509486; Hi = 14881; }
+	else if (Glyph == 10) { Lo = 0; Hi = 4224; }
+	else if (Glyph == 11) { Lo = 999967; Hi = 16912; }
+	else if (Glyph == 12) { Lo = 1001022; Hi = 16912; }
+	else if (Glyph == 13) { Lo = 475663; Hi = 30753; }
+	else { return 0; }
+
+	int Bits = (Row < 4) ? Lo : Hi;
+	int Shift = (Row < 4) ? (Row * 5) : ((Row - 4) * 5);
+	return (Bits >> Shift) & 31;
+}
+
+float SampleGlyph(int Glyph, float2 CellUV)
+{
+	if (Glyph < 0 || Glyph > 13)
+	{
+		return 0.0;
+	}
+	if (any(CellUV < 0.0) || any(CellUV >= 1.0))
+	{
+		return 0.0;
+	}
+
+	int2 Grid = int2(floor(CellUV * float2(6.0, 8.0)));
+	if (Grid.x < 0 || Grid.x > 4 || Grid.y < 0 || Grid.y > 6)
+	{
+		return 0.0;
+	}
+	int RowBits = GlyphRowBits(Glyph, Grid.y);
+	int BitX = 4 - Grid.x;
+	return ((RowBits >> BitX) & 1) != 0 ? 1.0 : 0.0;
+}
+
+int IntPow10(int Exp)
+{
+	if (Exp <= 0) return 1;
+	if (Exp == 1) return 10;
+	if (Exp == 2) return 100;
+	return 1000;
+}
+
+int GlyphAtChar(int CharIndex, int IntDigits, int IntegerPart)
+{
+	if (CharIndex < 0 || CharIndex >= IntDigits)
+	{
+		return 14;
+	}
+	int Divisor = IntPow10(IntDigits - 1 - CharIndex);
+	return (IntegerPart / Divisor) % 10;
+}
+
+void MainPS(
+	in float4 SvPosition : SV_Position,
+	out float4 OutColor : SV_Target0
+)
+{
+	float2 LocalPos = SvPosition.xy - ViewRectMin;
+	float4 SceneColor = SceneColorTexture.Load(int3(LocalPos, 0));
+
+	int IntegerPart = (int)floor(clamp(FPSValue, 0.0, 9999.0) + 0.5);
+	int IntDigits = 1;
+	if (IntegerPart >= 1000) IntDigits = 4;
+	else if (IntegerPart >= 100) IntDigits = 3;
+	else if (IntegerPart >= 10) IntDigits = 2;
+	int CharCount = IntDigits;
+
+	// Pico 4 Ultra 单眼约 2160px：字高约 7% 视口，置于上方中央舒适区。
+	float CellH = max(64.0, ViewSize.y * 0.07);
+	float CellW = CellH * (6.0 / 8.0);
+	float TextW = float(CharCount) * CellW;
+	float2 TextOrigin = float2((ViewSize.x - TextW) * 0.5, ViewSize.y * 0.18);
+	float2 Rel = LocalPos - TextOrigin;
+	float2 Pad = float2(CellW * 0.45, CellH * 0.28);
+	bool bInPanel = all(Rel >= -Pad) && (Rel.x < TextW + Pad.x) && (Rel.y < CellH + Pad.y);
+
+	float Coverage = 0.0;
+	float Outline = 0.0;
+	if (Rel.x >= 0.0 && Rel.y >= 0.0 && Rel.x < TextW && Rel.y < CellH)
+	{
+		float CharIndexF = Rel.x / CellW;
+		int CharIndex = (int)floor(CharIndexF);
+		if (CharIndex >= 0 && CharIndex < CharCount)
+		{
+			int Glyph = GlyphAtChar(CharIndex, IntDigits, IntegerPart);
+			float2 CellUV = float2(frac(CharIndexF), Rel.y / CellH);
+			Coverage = SampleGlyph(Glyph, CellUV);
+
+			float2 Texel = float2(1.0 / 6.0, 1.0 / 8.0);
+			Outline = Coverage;
+			Outline = max(Outline, SampleGlyph(Glyph, CellUV + float2(Texel.x, 0.0)));
+			Outline = max(Outline, SampleGlyph(Glyph, CellUV - float2(Texel.x, 0.0)));
+			Outline = max(Outline, SampleGlyph(Glyph, CellUV + float2(0.0, Texel.y)));
+			Outline = max(Outline, SampleGlyph(Glyph, CellUV - float2(0.0, Texel.y)));
+			Outline = max(Outline, SampleGlyph(Glyph, CellUV + Texel));
+			Outline = max(Outline, SampleGlyph(Glyph, CellUV - Texel));
+			Outline = max(Outline, SampleGlyph(Glyph, CellUV + float2(Texel.x, -Texel.y)));
+			Outline = max(Outline, SampleGlyph(Glyph, CellUV + float2(-Texel.x, Texel.y)));
+		}
+	}
+
+	// Pico MR tile composite submits 1-coverage: alpha 1 is the camera hole, alpha 0 stays opaque.
+	// Digits, outline, and the panel must submit 0 or the compositor shows passthrough through them.
+	if (Coverage > 0.5)
+	{
+		OutColor = float4(1.0, 0.08, 0.08, 0.0);
+	}
+	else if (Outline > 0.5)
+	{
+		OutColor = float4(0.0, 0.0, 0.0, 0.0);
+	}
+	else if (bInPanel)
+	{
+		OutColor = float4(lerp(SceneColor.rgb, float3(0.02, 0.02, 0.04), 0.72), 0.0);
+	}
+	else
+	{
+		OutColor = SceneColor;
+	}
+}

@@ -1,6 +1,7 @@
 // Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
 
 
+using System.IO;
 using UnrealBuildTool;
 
 public class MLSLabsRendererImporter : ModuleRules
@@ -9,6 +10,12 @@ public class MLSLabsRendererImporter : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
         IWYUSupport = IWYUSupport.KeepAsIs;
+
+        // Release packages delete Private/.cpp. The editor loads the prebuilt DLL.
+        if (!Directory.Exists(Path.Combine(ModuleDirectory, "Private")))
+        {
+            bUsePrecompiled = true;
+        }
 
         //////////////////////////////////
         bEnableExceptions = true;

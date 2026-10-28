@@ -1,0 +1,93 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Android tile raster: composite of the tile color UAV into the eye buffer.
+// MR: opaque fullscreen write. Plain VR: premul blend over the occupied tiles only.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+#if VERTEXSHADER
+Buffer<uint> TileBounds;
+int2 BoundsRasterPixelSize;
+#endif
+
+#if PIXELSHADER
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatColor.ush"
+
+Texture2D TileColor;
+SamplerState TileSampler;
+int2 ViewportMin;
+int2 RasterPixelSize;
+float2 CompositeScale;
+uint UseBilinear;
+float2 ViewportSize;
+float Saturation;
+float Contrast;
+uint LinearOutput;
+#endif
+
+// One triangle covering the viewport.
+float4 TileCompositeVS(uint VertexId : SV_VertexID) : SV_POSITION
+{
+	float2 Corner = float2((VertexId << 1) & 2, VertexId & 2);
+	return float4(Corner * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
+}
+
+#if VERTEXSHADER
+// Triangle strip over the occupied tiles plus one raster texel of bilinear footprint; the raster target covers
+// the viewport, so raster pixel / raster size is the viewport UV. Collapses to a point when no tile is occupied.
+float4 TileBoundsVS(uint VertexId : SV_VertexID) : SV_POSITION
+{
+	uint2 TileMin = uint2(TileBounds[0], TileBounds[2]);
+	uint2 TileMax = uint2(~TileBounds[1], ~TileBounds[3]);
+	if (any(TileMin > TileMax))
+	{
+		return float4(-2.0, -2.0, 0.0, 1.0);
+	}
+	float2 RasterSize = float2(BoundsRasterPixelSize);
+	float2 PixelMin = max(float2(TileMin * TILE_SIZE) - 1.0, 0.0);
+	float2 PixelMax = min(float2((TileMax + 1u) * TILE_SIZE) + 1.0, RasterSize);
+	float2 Corner = float2(VertexId & 1u, VertexId >> 1u);
+	float2 Uv = lerp(PixelMin, PixelMax, Corner) / RasterSize;
+	return float4(Uv * float2(2.0, -2.0) + float2(-1.0, 1.0), 0.0, 1.0);
+}
+#endif
+
+#if PIXELSHADER
+// Premul rgb, coverage in alpha. Pico shows the camera where the submitted alpha is 1,
+// so the eye buffer gets 1-coverage: the person stays covered, empty pixels are the hole.
+void TileCompositePS(
+	in float4 SvPosition : SV_POSITION,
+	out float4 OutColor : SV_Target0)
+{
+	float2 Local = SvPosition.xy - float2(ViewportMin);
+	float4 Accum;
+	if (UseBilinear != 0u)
+	{
+		float2 Uv = (Local * CompositeScale + 0.5) / float2(RasterPixelSize);
+		Accum = TileColor.SampleLevel(TileSampler, Uv, 0);
+	}
+	else
+	{
+		Accum = TileColor.Load(int3(int2(Local), 0));
+	}
+
+	OutColor = float4(MLSLabsPremulDisplayToLinear(Accum.rgb, Accum.a, LinearOutput), 1.0 - Accum.a);
+}
+
+void TileBlendPS(
+	in float4 SvPosition : SV_POSITION,
+	out float4 OutColor : SV_Target0)
+{
+	float2 Uv = (SvPosition.xy - float2(ViewportMin)) / ViewportSize;
+	float4 Result = TileColor.SampleLevel(TileSampler, Uv, 0);
+	if (Result.a > 1e-5)
+	{
+		float3 Straight = Result.rgb / Result.a;
+		float Grey = dot(Straight, float3(0.299, 0.587, 0.114));
+		Straight = lerp(Grey.xxx, Straight, Saturation);
+		Straight = saturate((Straight - 0.5) * Contrast + 0.5);
+		Result.rgb = Straight * Result.a;
+	}
+	Result.rgb = MLSLabsPremulDisplayToLinear(Result.rgb, Result.a, LinearOutput);
+	OutColor = Result;
+}
+#endif
