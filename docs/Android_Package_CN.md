@@ -2,12 +2,12 @@
 
 [English](./Android_Package.md) | 中文
 
-本教程说明如何把使用 **MLSLabsRenderer** 的虚幻引擎 5.5 Virtual Reality 工程打包为 Android APK，并安装到 Pico 头显上运行。
+本教程说明如何把使用 **MLSLabsRenderer** 的虚幻引擎 5.7 Virtual Reality 工程打包为 Android APK，并安装到 Pico 头显上运行。
 
 开始之前：
 
 - **操作系统**: Windows 10 或 11（64 位）
-- **虚幻引擎**: 5.5.x
+- **虚幻引擎**: 5.7.x
 - **插件**: 已安装 MLSLabsRenderer。下载、环境配置和高斯泼溅导入见 [快速入门](./README_CN.md)。
 - **设备**: Pico 头显，以及一根 USB 数据线
 
@@ -17,7 +17,7 @@
 
 ## 1. 安装 Android 组件
 
-1. 在 Epic Games Launcher 中找到已安装的虚幻引擎 5.5。点击 **启动** 旁边的下拉按钮，打开安装选项。
+1. 在 Epic Games Launcher 中找到已安装的虚幻引擎 5.7。点击 **启动** 旁边的下拉按钮，打开安装选项。
 
 <img src="../Media/image/Android_Package_CN_1.1.jpg" width="500" />
 
@@ -27,9 +27,9 @@
 
 ## 2. 安装 NDK、SDK 和 JDK
 
-安装与当前引擎版本对应的 NDK、SDK 和 JDK。请按虚幻引擎 5.5 官方文档操作：
+安装与当前引擎版本对应的 NDK、SDK 和 JDK。请按虚幻引擎 5.7 官方文档操作：
 
-[使用 Turnkey 设置 Android SDK、NDK 和 Android Studio](https://dev.epicgames.com/documentation/unreal-engine/set-up-android-sdk-ndk-and-android-studio-using-turnkey-for-unreal-engine?application_version=5.5)
+[使用 Turnkey 设置 Android SDK、NDK 和 Android Studio](https://dev.epicgames.com/documentation/unreal-engine/set-up-android-sdk-ndk-and-android-studio-using-turnkey-for-unreal-engine?application_version=5.7)
 
 ## 3. 新建 VR 工程
 
@@ -77,7 +77,7 @@
 
 <img src="../Media/image/Android_Package_5.6.jpg" width="720" />
 
-7. 打开 **Platforms → Android SDK**，按第 2 步的实际安装路径填写 **Location of Android SDK**、**Location of Android NDK** 和 **Location of JAVA**。**SDK API Level** 与 **NDK API Level** 需要与已安装版本一致。图中是一套可用的 UE 5.5 配置：NDK `25.1.8937393`、JDK 17、SDK API Level `android-34`。
+7. 打开 **Platforms → Android SDK**，按第 2 步的实际安装路径填写 **Location of Android SDK**、**Location of Android NDK** 和 **Location of JAVA**。**SDK API Level** 与 **NDK API Level** 需要与已安装版本一致。图中是一套可用的 UE 5.7 配置：NDK `25.1.8937393`、JDK 17、SDK API Level `android-34`。
 
 <img src="../Media/image/Android_Package_5.7.jpg" width="720" />
 
