@@ -213,3 +213,7 @@ B站（中文）：
 <img src="../Media/image/package.jpg" width="500" />
 
 重要提示：打包后，请确保 .ply 文件存放在目标机器上相同的绝对路径下，以保证应用程序能够正确运行。
+
+## 打包 Pico VR APK
+
+将工程打包为 Android APK 并安装到 Pico 头显的步骤，见 [打包 Pico VR APK](./Android_Package_CN.md)。
