@@ -39,7 +39,7 @@ B站（中文）：
 ## 系统要求
 
 - **操作系统**: Windows 10 或 11 (64位)
-- **虚幻引擎版本**: 5.5.x
+- **虚幻引擎版本**: 5.8.x
 - **图形 API**: DirectX 12 或 Vulkan。
 - **显卡**: 需支持 DirectX 12（Feature Level 12_2）的以下系列或更新型号：
   - **NVIDIA**: GeForce RTX 20 系列及以上。
@@ -74,7 +74,7 @@ B站（中文）：
   
   或者，直接解压到你项目根目录的`Plugins\`文件夹中。
   
-  <font color="red">为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹解压到 UE5.5 引擎安装目录中</font>
+  <font color="red">为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹解压到 UE5.8 引擎安装目录中</font>
   
   <img src="../Media/image/after_unzip.jpg" width="500" />
   
@@ -90,7 +90,7 @@ B站（中文）：
 
 ## 在虚幻项目中使用
 
-1. 创建或打开虚幻引擎 5.5 工程，在 **编辑 → 插件** 中启用 **MLSLabsRenderer**，然后重启编辑器。
+1. 创建或打开虚幻引擎 5.8 工程，在 **编辑 → 插件** 中启用 **MLSLabsRenderer**，然后重启编辑器。
 
 ## 导入静态高斯泼溅模型
 

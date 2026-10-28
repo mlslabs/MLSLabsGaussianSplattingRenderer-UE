@@ -2,12 +2,12 @@
 
 English | [中文](./Android_Package_CN.md)
 
-This tutorial explains how to package an Unreal Engine 5.5 Virtual Reality project that uses **MLSLabsRenderer** into an Android APK, then install and run it on a Pico headset.
+This tutorial explains how to package an Unreal Engine 5.8 Virtual Reality project that uses **MLSLabsRenderer** into an Android APK, then install and run it on a Pico headset.
 
 Before you start:
 
 - **Operating System**: Windows 10 or 11 (64-bit)
-- **Unreal Engine**: 5.5.x
+- **Unreal Engine**: 5.8.x
 - **Plugin**: MLSLabsRenderer is already installed. See [Getting Started](./README.md) for download, environment setup, and Gaussian Splatting import.
 - **Device**: a Pico headset and a USB cable
 
@@ -17,7 +17,7 @@ Before you start:
 
 ## 1. Install the Android engine component
 
-1. In the Epic Games Launcher, find the installed Unreal Engine 5.5. Click the dropdown next to **Launch** and open the installation options.
+1. In the Epic Games Launcher, find the installed Unreal Engine 5.8. Click the dropdown next to **Launch** and open the installation options.
 
 <img src="../Media/image/Android_Package_1.1.jpg" width="500" />
 
@@ -27,9 +27,9 @@ Before you start:
 
 ## 2. Install the NDK, SDK, and JDK
 
-Install the NDK, SDK, and JDK versions required by this engine. Follow the official Unreal Engine 5.5 guide:
+Install the NDK, SDK, and JDK versions required by this engine. Follow the official Unreal Engine 5.8 guide:
 
-[Set Up Android SDK, NDK, and Android Studio using Turnkey](https://dev.epicgames.com/documentation/unreal-engine/set-up-android-sdk-ndk-and-android-studio-using-turnkey-for-unreal-engine?application_version=5.5)
+[Set Up Android SDK, NDK, and Android Studio using Turnkey](https://dev.epicgames.com/documentation/unreal-engine/set-up-android-sdk-ndk-and-android-studio-using-turnkey-for-unreal-engine?application_version=5.8)
 
 ## 3. Create a VR project
 
@@ -77,7 +77,7 @@ Import the Gaussian Splatting asset, place it in the level, and adjust playback 
 
 <img src="../Media/image/Android_Package_5.6.jpg" width="720" />
 
-7. Open **Platforms → Android SDK**. Set **Location of Android SDK**, **Location of Android NDK**, and **Location of JAVA** to the paths installed in step 2. **SDK API Level** and **NDK API Level** must match those installs. The figure shows one valid UE 5.5 setup: NDK `25.1.8937393`, JDK 17, and SDK API level `android-34`.
+7. Open **Platforms → Android SDK**. Set **Location of Android SDK**, **Location of Android NDK**, and **Location of JAVA** to the paths installed in step 2. **SDK API Level** and **NDK API Level** must match those installs. The figure shows one valid UE 5.8 setup: NDK `25.1.8937393`, JDK 17, and SDK API level `android-34`.
 
 <img src="../Media/image/Android_Package_5.7.jpg" width="720" />
 

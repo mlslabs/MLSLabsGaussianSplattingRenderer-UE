@@ -40,7 +40,7 @@ Bilibili (Chinese):
 ## System Requirements
 
 - **Operating System**: Windows 10 or 11 (64-bit)
-- **Unreal Engine**: 5.5.x
+- **Unreal Engine**: 5.8.x
 - **Graphics API**: DirectX 12 or Vulkan.
 - **GPU**: One of the following series, or a newer model, with DirectX 12 (Feature Level 12_2) support:
   - **NVIDIA**: GeForce RTX 20 series or newer.
@@ -75,7 +75,7 @@ Bilibili (Chinese):
   
   Alternatively, unzip it directly into the `Plugins\` folder at the root of your project.
   
-  <font color="red">To package the project successfully, unzip the `MLSLabsRenderer` folder into the UE5.5 engine installation directory.</font>
+  <font color="red">To package the project successfully, unzip the `MLSLabsRenderer` folder into the UE5.8 engine installation directory.</font>
   
   <img src="../Media/image/after_unzip.jpg" width="500" />
   
@@ -91,7 +91,7 @@ Download .ply files from [Ply TestData Dir](../TestData/ply/data_download_link.m
 
 ## Use It in an Unreal Project
 
-1. Create or open an Unreal Engine 5.5 project. Enable **MLSLabsRenderer** in **Edit → Plugins**, then restart the editor.
+1. Create or open an Unreal Engine 5.8 project. Enable **MLSLabsRenderer** in **Edit → Plugins**, then restart the editor.
 
 ## Import a Static Gaussian Splatting Model
 
