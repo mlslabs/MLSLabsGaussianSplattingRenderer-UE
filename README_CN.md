@@ -97,7 +97,6 @@
 
 <img src="Media/image/7M_50+fps.jpg" width="1000" />
 
-- **高性能静态 3DGS**:支持 700 万+ 高斯点，并保持 50+ FPS（在NVIDIA RTX 4070Ti上测试）。
 - **动态4DGS播放**: 实时体积视频序列播放，支持 10 万+ 高斯点，帧率可达 100+ FPS（在NVIDIA RTX 4070Ti上测试）。
 - **Sequencer 集成**: 完全支持 UE Sequencer，允许通过关键帧控制体积视频播放。
 - **高压缩比静态3DGS：** 支持用于高压缩比3DGS 的 `.sog` 格式。
@@ -128,7 +127,14 @@
 2. **关于项目打包：** 为确保项目顺利打包，请将 `MLSLabsRenderer` 文件夹复制到 UE5.8 引擎安装目录中（例如：`Epic Games\UE_5.8\Engine\Plugins\Marketplace`）。
 3. 在虚幻引擎编辑器的“插件浏览器”中启用 **MLSLabsRenderer**。
 
-### 3. 蓝图 API
+### 3. 教学文档
+
+**快速链接：**
+
+- [Tutorail Doc (EN)](./Plugins/MLSLabsRenderer/Docs/README.md)
+- [教学文档(中文)](./Plugins/MLSLabsRenderer/Docs/README_CN.md)
+
+### 4. 蓝图 API
 
 **快速链接：**
 
@@ -141,12 +147,18 @@
 
 即将推出的专业版将提供显著的性能提升和企业级功能：
 
-- [ ] **压缩版 4DGS：** 支持专用的压缩格式以大幅降低显存占用。
 - [ ] **高级光照：** 支持点光源/方向光，并具备自阴影效果。
 
 ---
 
 ## 版本记录
+
+**Pro_V2.1.0.0**
+1. 渲染管线升级，全面支持 Windows/Linux/Android，多种显卡支持，支持 Nvidia/AMD/移动端 GPU。
+2. 打包 Android APK 支持直接在 Pico 一体机安装运行，支持 VR 模式（默认模式，命令行 r.MLSLabs.MixedReality 0）及 MR 模式（命令行 r.MLSLabs.MixedReality 1），同时支持 VR 串流。
+3. 安装插件即可，免下载 Libtorch 及其他第三方库。
+4. 所有端支持 ply/sog 与 ply 序列。
+5. 支持 Development 和 Shipping 打包。
 
 **Pro_V2.0.0.0_preview**
 1. 采用Vulkan高斯泼溅渲染，支持Windows支持1.0版本的所有功能，不需要下载Libtorch库了，只需要显卡驱动支持支持vulkan 1.3即可使用。
