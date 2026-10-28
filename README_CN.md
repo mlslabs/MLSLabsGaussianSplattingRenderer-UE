@@ -131,8 +131,8 @@
 
 **快速链接：**
 
-- [Tutorail Doc (EN)](./Plugins/MLSLabsRenderer/Docs/README.md)
-- [教学文档(中文)](./Plugins/MLSLabsRenderer/Docs/README_CN.md)
+- [Tutorail Doc (EN)](./docs/README.md)
+- [教学文档(中文)](./docs/README_CN.md)
 
 ### 4. 蓝图 API
 
