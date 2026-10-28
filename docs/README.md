@@ -14,214 +14,179 @@ English | [中文](./README_CN.md)
 
 [**MLSLabsRenderer-Pro**](https://mls4dlive.cn/) is a high-performance Unreal Engine 5 (UE5) plugin developed by [**MaLanShan Audio & Video Laboratory**](https://www.mlslabs.com.cn/). It is designed for real-time visualization, management, and scalable hybrid rendering of 3D Gaussian Splatting (3DGS) and dynamic Volumetric Video (4DGS).
 
-Unlike traditional Niagara-based solutions, this plugin utilizes a **custom low-level rendering pipeline**. This allows it to maintain exceptionally high frame rates even when processing millions of Gaussians, effectively bypassing common performance bottlenecks.
+Unlike traditional Niagara-based solutions, this plugin uses a custom rendering pipeline. It keeps a high frame rate while processing millions of Gaussians, and avoids the usual performance bottlenecks.
 
-Since we are at early access, current accessible features are summarized below:
-- **High-Performance Static 3DGS**: Supports 7M+ Gaussians while maintaining 50+ FPS(tested on NVIDIA RTX 4070 Ti).
-- **Dynamic 4DGS Playback**: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100+ FPS(tested on NVIDIA RTX 4070 Ti).
-- **Sequencer Integration**: Full support for UE Sequencer, allowing keyframe control over volumetric playback.
-- **Native Custom Engine**: Built from the ground up (Non-Niagara) for maximum throughput and low latency.
-- **Production Workflow**: Seamless integration with native UE assets and rapid resource importing.
+Available features:
+
+- **High-Performance Static 3DGS**: Supports 7 million+ Gaussians at 50+ FPS (tested on an NVIDIA RTX 4070 Ti).
+- **Dynamic 4DGS Playback**: Real-time volumetric video sequence playback, supporting 100,000+ Gaussians at 100+ FPS (tested on an NVIDIA RTX 4070 Ti).
+- **Sequencer Integration**: Full support for UE Sequencer, with keyframe control over volumetric video playback.
+- **High-Compression Static 3DGS**: Supports the `.sog` format for high-compression 3DGS.
+- **Android Support**: Renders Gaussians on Android devices, with 250,000+ Gaussians at 60+ FPS (tested on a REDMI K80).
+- **VR Headset Support**: Runs directly on a VR headset, with 250,000+ Gaussians at 30+ FPS (tested on a Pico 4 Ultra Enterprise). PC streaming playback is also supported.
 
 ---
 # Getting Started
 
 ## Video Tutorial
 
-Youtube（English）：  
+Youtube (English):  
 [How to Use MLSLabsRenderer (Gaussian Splatting) Plugin in UE5(Updated)](https://youtu.be/4ArswzhQ0VU)
 
-B站（中文）：  
+Bilibili (Chinese):  
 [MLSLabsRenderer（高斯泼溅）插件操作教程](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364)
+
 
 ## System Requirements
 
 - **Operating System**: Windows 10 or 11 (64-bit)
 - **Unreal Engine**: 5.5.x
-- **Graphics API**: DirectX 12
-- **GPU Requirements**: NVIDIA GPU supporting **Shader Model 7.5** or higher (Turing architecture and above).
-- **Minimum Hardware**: NVIDIA GeForce **RTX 2060** or better.
-- **Recommended Hardware**: NVIDIA GeForce **RTX 4070Ti** or better.
+- **Graphics API**: DirectX 12 or Vulkan.
+- **GPU**: One of the following series, or a newer model, with DirectX 12 (Feature Level 12_2) support:
+  - **NVIDIA**: GeForce RTX 20 series or newer.
+  - **AMD**: Radeon RX 6000 series or newer.
+  - **Mobile (Android)**: Mali-G68/G71/G72/G76/G77/G78/G7xx series, or Adreno 5xx/6xx/7xx series.
+- **Minimum Hardware**: NVIDIA GeForce RTX 2060 / AMD Radeon RX 6600, or an equivalent GPU.
+- **Recommended Hardware**: NVIDIA GeForce RTX 4070 Ti, or an equivalent GPU.
 
 
-## Plugin download
+## Plugin Download
 
-  1. Open github Release page 
+  1. Open the GitHub Releases page.
 
-  <img src="../Media/image/github_release.jpg" width="500" />
+  <img src="../Media/image/github_latest_release_2.0.jpg" width="500" />
 
-  2. Select the appropriate plugin version according to the engine version..
-  <img src="../Media/image/github_release_latest.jpg" width="500" />
+  2. Select the plugin version that matches your engine version.
   
-  3. Download the zip file.
+  <img src="../Media/image/github_release_2.0.jpg" width="500" />
+  
+  3. Download the zip archive.
 
-  <img src="../Media/image/download_link.jpg" width="500" />
+  <img src="../Media/image/download_link_cloud_disk.jpg" width="500" />
 
   4. Installation:
-  To package your project, unzip downloaded zip to your Engine Installation Path `Plugins\Marketplace`.
+  To package a project, unzip the downloaded plugin into the `Plugins\Marketplace` folder under the engine installation directory.
 
-  <img src="../Media/image/unzip.jpg" width="500" />
+  <img src="../Media/image/unzip_2.0.jpg" width="500" />
   
-  If there is no Marketplace directory, please create a new one.
+  If the Marketplace directory does not exist, create it.
   
   <img src="../Media/image/marketplace.jpg" width="500" />
   
-  Alternatively, unzip it directly into your project's `Plugins\` folder. 
+  Alternatively, unzip it directly into the `Plugins\` folder at the root of your project.
   
-  <font color="red">Attention, To ensure successful project packaging, unzip the MLSLabsRenderer folder to your UE5.5 Engine directory </font>
+  <font color="red">To package the project successfully, unzip the `MLSLabsRenderer` folder into the UE5.5 engine installation directory.</font>
   
   <img src="../Media/image/after_unzip.jpg" width="500" />
   
-  <font color="red">This plugin conflicts with the Jawset Postshot UE5 plugin. Please back up the Jawset Postshot plugin to a directory outside the Plugins folder or to the Plugins\Marketplace directory.</font>
-  
-  5. Open Unreal Editor，enable the MLSLabsRenderer Plugin, and restart editor.
+  5. Open Unreal Editor, enable the MLSLabsRenderer plugin, and restart the editor.
 
   <img src="../Media/image/enable_plugin.jpg" width="500" />
   
-  6. After launching the Unreal Editor, open the environment setup prompt or click the "Setup Environment" button in the navigation bar.
-  
-  
-  <img src="../Media/image/setup_env_tip.jpg" width="500" />
-
-  
-  7. In the Setup Environment window, click "Install Dependencies".
-
-  
-  <img src="../Media/image/install_dep.jpg" width="500" />
-
-  
-  8. The system will begin downloading and installing the LibTorch package. Please wait for the process to complete.
-
-  
-  <img src="../Media/image/install_dep_progress.jpg" width="500" />
-
-
-   If the download fails and the following error occurs:
-   
-   
-   <img src="../Media/image/download_faile.jpg" width="500" />
-
-   
-   You can try downloading the libtorch library directly from this link: (https://download.pytorch.org/libtorch/cu128/libtorch-win-shared-with-deps-2.7.0%2Bcu128.zip), and then extract it to the following directory:
-
-   
-   <img src="../Media/image/unzip_libtorch.jpg" width="500" />
-
-  
-  9. Once installation is finished, click to restart the Editor automatically.
-
-  
-  <img src="../Media/image/install_dep_complete.jpg" width="500" />
-
-  
-  10. If the automatic restart fails, you must manually restart the Editor. This step is crucial; otherwise, the plugin will not load correctly.
-
-  
-  <img src="../Media/image/install_dep_manual_restart.jpg" width="500" />
-
 
  ## Demo Data Download Links:
 
-It is recommended to download .ply files from [TestData Dir](../TestData/ply/data_download_link.md), which can then be imported into Unreal Engine (UE) via this plugin for real-time rendering.
+Download .ply files from [Ply TestData Dir](../TestData/ply/data_download_link.md), and .ply sequence files from [Ply Sequence TestData Dir](../TestData/ply_sequence/data_download_link.md). Import them into Unreal Engine (UE) with this plugin for real-time rendering.
 
-## Open your Unreal project
 
-0. Clone this repository (or download a release) so you have the `Plugins/MLSLabsRenderer` folder.
+## Use It in an Unreal Project
 
-1. Create or open an Unreal Engine 5.5 project and copy `Plugins/MLSLabsRenderer` into your project’s `Plugins` folder.
+1. Create or open an Unreal Engine 5.5 project. Enable **MLSLabsRenderer** in **Edit → Plugins**, then restart the editor.
 
-2. Enable **MLSLabsRenderer** in **Edit → Plugins**, then restart the editor.
+## Import a Static Gaussian Splatting Model
 
-## Import Static Gaussian Splatting Models
+Open Unreal Editor, create a Demo project, and create a Level.
 
-Open Unreal Editor, create a new Demo project, and create a new Level.
+1. Click **Import single 3D Gaussian Splatting file** on the navigation bar.
 
-1.Click on the 'Import single 3D Gaussian Splatting file' button on the navigation bar.
 <img src="../Media/image/import_single_ply.jpg" width="500" />
 
-2.Select your 'ply' file.
+2. Select your .ply file.
 
 <img src="../Media/image/select_single_ply.jpg" width="500" />
 
-3.After importing, drag the Blueprint (BP) asset into the viewport.
+3. After import, drag the generated Blueprint (BP) asset into the viewport.
 
 <img src="../Media/image/single_ply_drag_to_level.jpg" width="500" />
 
-4.The scene will render. You can adjust its position using the Move, Rotate, and Scale gizmos.
-'Note': The "Splat Data Path" uses an absolute path. If you move the project or clone it to a new machine, ensure you update the path to point to your local .ply file.
+4. The scene starts rendering. Use the Move, Rotate, and Scale tools to adjust its transform. Note: **Splat Data Path** uses a relative path.
 
 <img src="../Media/image/render_single_ply.jpg" width="500" />
 
 
-## Import Animated Gaussian Splatting (4DGS/Volumetric Video)
+## Import an Animated Gaussian Splatting Model (4DGS / Volumetric Video)
 
-1.Click the 'Import multiple 3D Gaussian Splatting files' button on the navigation bar.
+1. Click **Import multiple 3D Gaussian Splatting files** on the navigation bar.
+
 <img src="../Media/image/import_multiple_plys.jpg" width="500" />
 
-2.Select the .ply files. (You do not need to select all files; selecting two or more files will load the entire sequence in that directory).
+2. Select multiple .ply files. You do not need to select every file. Selecting two or more files loads the whole sequence in that directory.
 
 <img src="../Media/image/select_multiple_plys.jpg" width="500" />
 
-3.Drag the animation BP asset into the viewport.
+3. Drag the generated animation Blueprint (BP) asset into the viewport.
 
 <img src="../Media/image/multiple_ply_drag_to_level.jpg" width="500" />
 
-4.The first frame will render. 'Frame Count' indicates the total number of frames loaded.
+4. The first frame of the animation is displayed. **Frame Count** is the total number of loaded frames.
 
-You can adjust its position using the Move, Rotate, and Scale gizmos.
-'Note': The "Splat Data Path" uses an absolute path. If you move the project or clone it to a new machine, ensure you update the path to point to your local .ply file's directory.
+Use the Move, Rotate, and Scale tools to adjust its transform. Note: **Splat Data Path** uses a relative path.
 
 <img src="../Media/image/render_multiple_ply.jpg" width="500" />
 
-5.You can press the 'F' key to focus on the Gaussian Splatting Actor when it is selected.
+5. With the Gaussian Splatting Actor selected, press **F** to focus on it.
 
 <img src="../Media/image/focus.jpg" width="500" />
 
-6.To enable playback:
-Click the 'Add' button in the Details panel.
-Search for and add the 'Volume Actor' component.
+6. Enable playback. In the Outliner, click to edit the `BP_Animatable_Gaussian_Splatting_WanJiangDance` Blueprint.
 
-<img src="../Media/image/add_volume_actor_comp.jpg" width="500" />
+<img src="../Media/image/EditAnimatableGaussianBP.jpg" width="500" />
 
-Click the 'Play' (Run) button on the top navigation bar.
+In the Event Graph, right-click and type `mlslabs`. Scroll up and find the **Play** function.
+
+<img src="../Media/image/SearchPlayApi.jpg" width="500" />
+
+Connect the **Event BeginPlay** node to the **Play** node.
+
+<img src="../Media/image/ConnectPlayApi.jpg" width="500" />
+
+Click **Play** on the top navigation bar.
 
 <img src="../Media/image/enter_run_mode.jpg" width="500" />
 
-the Volume video(4DGS) will be played.
+The volumetric video (4DGS) starts playing.
 
 <img src="../Media/image/play_volume_video.jpg" width="500" />
 
-## Keyframe Control via UE Sequencer
+## Control Keyframes with UE Sequencer
 
-1.Create Level Sequence.
+1. Create a Level Sequence.
 
 <img src="../Media/image/new_sequence.jpg" width="500" />
 
-2.Add the selected Animation Gaussian Splatting Actor to the Sequencer.
+2. Add the selected animated Gaussian Splatting Actor to Sequencer.
 
 <img src="../Media/image/add_animation_actor_to_seq.jpg" width="500" />
 
-3.Add the AnimSplattingComponent to the track.
+3. Add AnimSplattingComponent to the track.
 
 <img src="../Media/image/add_AnimSplattingComponent.jpg" width="500" />
 
-4.Add Frame Index to the track.
+4. Add Frame Index to the track.
 
 <img src="../Media/image/add_FrameIndex.jpg" width="500" />
 
-5.Add keyframes to the 'Frame Index' track as needed to control playback.
+5. Add keyframes on the **Frame Index** track to control playback.
 
 <img src="../Media/image/add_key_frame.jpg" width="500" />
 
-## Packaging for Windows
+## Package for Windows
 
-The plugin is currently provided as a Shipping package, so you must set your Build Configuration to Shipping.
-Packaging environment requirements: Visual Studio 2022, MSVC v143 x64.
+The plugin is currently provided as a Shipping build, so set **Build Configuration** to **Shipping**.
+Packaging requirements: Visual Studio 2022, MSVC v143 x64.
 
 <img src="../Media/image/package.jpg" width="500" />
 
-Important: After packaging, ensure the .ply files are stored in the same absolute data path on the target machine for the application to run correctly.
-
-## Packaging a Pico VR APK
+## Package a Pico VR APK
 
 To package the project as an Android APK and install it on a Pico headset, see [Package a Pico VR APK](./Android_Package.md).

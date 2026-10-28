@@ -96,19 +96,17 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 <img src="Media/image/7M_50+fps.jpg" width="1000" />
 
-- **Dynamic 4DGS Playback: Real-time volumetric video sequence playback supporting 100K+ Gaussians at 100 FPS+.(tested on NVIDIA RTX 4070 Ti)**
+- **High-Performance Static 3DGS**: Supports 7 million+ Gaussians at 50+ FPS (tested on an NVIDIA RTX 4070 Ti).
 
-- **Sequencer Integration: Full support for UE Sequencer, allowing users to keyframe volumetric playback and control timelines.**
+- **Dynamic 4DGS Playback**: Real-time volumetric video sequence playback, supporting 100,000+ Gaussians at 100+ FPS (tested on an NVIDIA RTX 4070 Ti).
 
-- **Custom Rendering Engine: Built from the ground up (Non-Niagara) for maximum throughput and low latency.**
+- **Sequencer Integration**: Full support for UE Sequencer, with keyframe control over volumetric video playback.
 
-- **Production Workflow: Seamless integration with native UE assets and fast resource importing.**
+- **High-Compression Static 3DGS**: Supports the `.sog` format for high-compression 3DGS.
 
-- **VR & Binocular Rendering: Native support for high-fidelity VR content.**
+- **Android Support**: Renders Gaussians on Android devices, with 250,000+ Gaussians at 60+ FPS (tested on a REDMI K80).
 
-- **Performance Boost: 120 FPS+ for 4DGS and 60 FPS+ for 7M+ Gaussians static scenes.**
-
-- **High-Compression Static 3DGS: Added support for the .sog format, designed for high-compression ratio 3DGS.**
+- **VR Headset Support**: Runs directly on a VR headset, with 250,000+ Gaussians at 30+ FPS (tested on a Pico 4 Ultra Enterprise). PC streaming playback is also supported.
 
 ---
 

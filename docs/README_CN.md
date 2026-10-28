@@ -14,14 +14,15 @@
 
 [**MLSLabsRenderer-Pro**](https://mls4dlive.cn/) 是由[**马栏山音视频实验室**](https://www.mlslabs.com.cn/).开发的一款高性能虚幻引擎 5 (UE5) 插件。它专为 3D 高斯泼溅 (3DGS) 和动态体积视频 (4DGS) 的实时可视化、管理及可扩展混合渲染而设计。
 
-与传统的基于 Niagara 的方案不同，本插件采用了自定义底层渲染管线。这使得它在处理数百万个高斯点时仍能保持极高的帧率，有效绕过了常见的性能瓶颈。
+与传统的基于 Niagara 的方案不同，本插件采用了自定义渲染管线。这使得它在处理数百万个高斯点时仍能保持极高的帧率，有效绕过了常见的性能瓶颈。
 
-目前项目处于早期访问（Early Access）阶段，现已实现的功能概括如下：
+现已实现的功能概括如下：
 - **高性能静态 3DGS**:支持 700 万+ 高斯点，并保持 50+ FPS（在NVIDIA RTX 4070Ti上测试）。
 - **动态4DGS播放**: 实时体积视频序列播放，支持 10 万+ 高斯点，帧率可达 100+ FPS（在NVIDIA RTX 4070Ti上测试）。
 - **Sequencer 集成**: 完全支持 UE Sequencer，允许通过关键帧控制体积视频播放。
-- **原生自定义引擎**: 从零构建（非 Niagara），以实现最大吞吐量和低延迟。
-- **生产级工作流**:与UE原生资产无缝集成，支持快速资源导入。
+- **高压缩比静态3DGS：** 支持用于高压缩比3DGS 的 `.sog` 格式。
+- **Android支持**: 支持Android设备渲染高斯，25 万+高斯点，60+ FPS（在REDMI K80上测试）。
+- **VR头显设备支持**:支持VR头显机直接运行，25 万+高斯点，30+ FPS（在Pico 4 Ultra Enterprise上测试），也支持PC串流播放。
 
 ---
 # 快速入门
@@ -37,32 +38,35 @@ B站（中文）：
 
 ## 系统要求
 
-- **操作系统**: Windows 10 or 11 (64-bit)
-- **虚幻引擎**: 5.5.x
-- **图形 API**: DirectX 12
-- **GPU 要求**: 支持 Shader Model 7.5 或更高版本的 NVIDIA GPU（Turing 架构及以上）。
-- **最低硬件**: NVIDIA GeForce RTX 2060 或更高。
-- **推荐硬件**: NVIDIA GeForce RTX 4070 Ti或更高。
+- **操作系统**: Windows 10 或 11 (64位)
+- **虚幻引擎版本**: 5.5.x
+- **图形 API**: DirectX 12 或 Vulkan。
+- **显卡**: 需支持 DirectX 12（Feature Level 12_2）的以下系列或更新型号：
+  - **NVIDIA**: GeForce RTX 20 系列及以上。
+  - **AMD**: Radeon RX 6000 系列及以上。
+  - **移动端（Android）**: Mali-G68/G71/G72/G76/G77/G78/G7xx 系列，或 Adreno 5xx/6xx/7xx 系列。
+- **最低硬件**: NVIDIA GeForce RTX 2060 / AMD Radeon RX 6600 或同级显卡。
+- **推荐硬件**: NVIDIA GeForce RTX 4070 Ti 或同级显卡。
 
 
 ## 插件下载
 
   1. 打开 GitHub Releases 页面。
 
-  <img src="../Media/image/github_release.jpg" width="500" />
+  <img src="../Media/image/github_latest_release_2.0.jpg" width="500" />
 
   2. 根据引擎版本选择合适的插件版本。
   
-  <img src="../Media/image/github_release_latest.jpg" width="500" />
+  <img src="../Media/image/github_release_2.0.jpg" width="500" />
   
   3. 下载 zip 压缩包。
 
-  <img src="../Media/image/download_link.jpg" width="500" />
+  <img src="../Media/image/download_link_cloud_disk.jpg" width="500" />
 
   4. 安装方法：
   如果你需要打包项目，请将下载的插件包解压到引擎安装目录下的 'Plugins\Marketplace' 文件夹中。
 
-  <img src="../Media/image/unzip.jpg" width="500" />
+  <img src="../Media/image/unzip_2.0.jpg" width="500" />
   
   如果没有Marketplace目录，请新建一个。
   
@@ -74,57 +78,19 @@ B站（中文）：
   
   <img src="../Media/image/after_unzip.jpg" width="500" />
   
-  <font color="red">本插件与Jawset Postshot UE5插件冲突，请将Jawset Postshot插件备份到非Plugins或者Plugins\Marketplace目录。</font>
-  
   5. 打开虚幻编辑器，启用MLSLabsRenderer 插件，并重启编辑器。
 
   <img src="../Media/image/enable_plugin.jpg" width="500" />
   
-  6. 启动虚幻编辑器后，打开安装环境提示，或者在导航栏点击安装环境按钮。
-  
-  <img src="../Media/image/setup_env_tip.jpg" width="500" />
-  
-  7. 安装环境界面如下，点击"Install Dependencies"。
-  
-  <img src="../Media/image/install_dep.jpg" width="500" />
-  
-  8. 等待下载安装libtorch包，请耐心等待一下。
-  
-  <img src="../Media/image/install_dep_progress.jpg" width="500" />
-  
-  
-   如果下载失败，出现如下错误：
-   
-   
-   <img src="../Media/image/download_faile.jpg" width="500" />
-   
-   
-   可以尝试直接下载libtorch库 (https://download.pytorch.org/libtorch/cu128/libtorch-win-shared-with-deps-2.7.0%2Bcu128.zip) ，然后解压到以下目录：
-   
-   
-   <img src="../Media/image/unzip_libtorch.jpg" width="500" />
-   
-   
-  9. 安装完成，点击自动重启编辑器。
-  
-  <img src="../Media/image/install_dep_complete.jpg" width="500" />
-  
-  10. 自动重启编辑器失败，需要手动重启编辑器，这一步非常重要，否则插件无法正确加载。
-  
-  <img src="../Media/image/install_dep_manual_restart.jpg" width="500" />
 
  ## 示例数据下载链接：
 
-建议到 [TestData Dir](../TestData/ply/data_download_link.md) 下载ply文件，可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
+建议到 [Ply TestData Dir](../TestData/ply/data_download_link.md) 下载ply文件， [Ply Sequence TestData Dir](../TestData/ply_sequence/data_download_link.md) 下载ply序列文件，可通过本插件导入虚幻引擎 (UE) 进行实时渲染。
 
 
 ## 在虚幻项目中使用
 
-0. 克隆本仓库（或下载发行包），获得 `Plugins/MLSLabsRenderer` 文件夹。
-
-1. 创建或打开虚幻引擎 5.5 工程，将 `Plugins/MLSLabsRenderer` 复制到工程的 `Plugins` 目录。
-
-2. 在 **编辑 → 插件** 中启用 **MLSLabsRenderer**，然后重启编辑器。
+1. 创建或打开虚幻引擎 5.5 工程，在 **编辑 → 插件** 中启用 **MLSLabsRenderer**，然后重启编辑器。
 
 ## 导入静态高斯泼溅模型
 
@@ -142,7 +108,7 @@ B站（中文）：
 
 <img src="../Media/image/single_ply_drag_to_level.jpg" width="500" />
 
-4.场景将开始渲染。你可以使用移动、旋转和缩放工具来调整其位置。 注意：“Splat Data Path”（泼溅数据路径）使用的是绝对路径。如果你移动了项目或将其克隆到新机器上，请务必更新该路径以指向你本地的 .ply 文件。
+4.场景将开始渲染。你可以使用移动、旋转和缩放工具来调整其位置。 注意：“Splat Data Path”（泼溅数据路径）使用的是相对路径。
 
 <img src="../Media/image/render_single_ply.jpg" width="500" />
 
@@ -163,7 +129,7 @@ B站（中文）：
 
 4.动画的第一帧将显示。“Frame Count”（帧数）表示加载的总帧数。
 
-你可以使用移动、旋转和缩放工具调整其位置。 注意：“Splat Data Path” 使用的是绝对路径。如果你移动了项目，请确保将路径更新为你本地 .ply 序列所在的目录。
+你可以使用移动、旋转和缩放工具调整其位置。 注意：“Splat Data Path” 使用的是相对路径。
 
 <img src="../Media/image/render_multiple_ply.jpg" width="500" />
 
@@ -171,9 +137,17 @@ B站（中文）：
 
 <img src="../Media/image/focus.jpg" width="500" />
 
-6.启用播放： 在“细节”（Details）面板中点击 “Add”（添加）按钮。 搜索并添加 “Volume Actor” 组件。
+6.启用播放： 在Outliner中点击 编辑BP_Animatable_Gaussian_Splatting_WanJiangDance蓝图，
 
-<img src="../Media/image/add_volume_actor_comp.jpg" width="500" />
+<img src="../Media/image/EditAnimatableGaussianBP.jpg" width="500" />
+
+在EventGraph中，右键输入 "mlslabs"，往上滚动滑动条，找到 "Play"接口，
+
+<img src="../Media/image/SearchPlayApi.jpg" width="500" />
+
+将Event BeginPlay节点连接 Play节点。
+
+<img src="../Media/image/ConnectPlayApi.jpg" width="500" />
 
 点击顶部导航栏的 “Play”（运行）按钮。
 
@@ -211,8 +185,6 @@ B站（中文）：
 打包环境要求：Visual Studio 2022, MSVC v143 x64。
 
 <img src="../Media/image/package.jpg" width="500" />
-
-重要提示：打包后，请确保 .ply 文件存放在目标机器上相同的绝对路径下，以保证应用程序能够正确运行。
 
 ## 打包 Pico VR APK
 
