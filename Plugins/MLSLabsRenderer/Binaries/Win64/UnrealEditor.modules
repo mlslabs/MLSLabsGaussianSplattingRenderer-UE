@@ -3,6 +3,7 @@
 	"Modules": 
 	{
 		"MLSLabsRenderer": "UnrealEditor-MLSLabsRenderer.dll",
-		"MLSLabsRendererImporter": "UnrealEditor-MLSLabsRendererImporter.dll"
+		"MLSLabsRendererImporter": "UnrealEditor-MLSLabsRendererImporter.dll",
+		"MLSLabsWebP": "UnrealEditor-MLSLabsWebP.dll"
 	}
 }

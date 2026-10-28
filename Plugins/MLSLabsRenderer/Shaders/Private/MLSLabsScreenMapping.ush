@@ -1,5 +1,4 @@
 // Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
-// PassViewport <-> sub-rect within scene/GSR/depth buffers (editor resize, TSR, letterbox).
 
 #ifndef MLSLABS_SCREEN_MAPPING_USH
 #define MLSLABS_SCREEN_MAPPING_USH
@@ -26,6 +25,22 @@ int2 MLSLabsBufferPixelFromPassNormInt(float2 PassNorm, float2 BufferViewRectMin
 {
     float2 PixelF = MLSLabsBufferPixelFromPassNorm(PassNorm, BufferViewRectMin, BufferViewRectSize);
     return MLSLabsClampPixel(int2(PixelF), BufferSize);
+}
+
+// Splat depth -> UE linear depth (cm), or -1 where no splat wrote depth. The raster stores linear view-Z in metres
+// past 1 m and device Z = near / Z closer; empty texels are 0 or >= 1e8 (reading those as near / Z would put soft
+// colour fringes in front of everything and paint a silhouette halo).
+float MLSLabsSplatLinearDepthCm(float EncodedDepth)
+{
+    if (EncodedDepth <= 0.0f || EncodedDepth >= 1.0e8f)
+    {
+        return -1.0f;
+    }
+    if (EncodedDepth > 1.0f)
+    {
+        return EncodedDepth * 100.0f;
+    }
+    return GetPrimaryView().NearPlane / max(EncodedDepth, 1e-6f);
 }
 
 #endif // MLSLABS_SCREEN_MAPPING_USH

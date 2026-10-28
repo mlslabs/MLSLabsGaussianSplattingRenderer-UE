@@ -1,0 +1,106 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Playback depth counting sort over the packed splats:
+// ClearHistogramCS -> CountHistogramCS -> PrefixScanCS -> ScatterIndicesCS.
+
+#include "/Engine/Public/Platform.ush"
+#include "/Engine/Private/Common.ush"
+
+StructuredBuffer<float4> PackedSplat;
+StructuredBuffer<uint> LiveIndices;
+RWBuffer<uint> LiveCount;
+RWStructuredBuffer<uint> Histogram;
+RWStructuredBuffer<uint> Cursors;
+RWBuffer<uint> SortedIndices;
+uint SplatCount;
+uint UseLiveList;
+float3 LocalDepthDirection;
+float DepthMaximum;
+float DepthScale;
+uint BinCount;
+
+// LiveCount: [0] kept, [1] source, [2] one hidden packed index, [3] sort path.
+// A zero kept count is treated as "the shader could not see the count" and sorts every slot.
+uint Scheme1Limit()
+{
+	if (UseLiveList == 0u)
+	{
+		return SplatCount;
+	}
+	uint Kept = LiveCount[0];
+	if (Kept == 0u || Kept > SplatCount)
+	{
+		return SplatCount;
+	}
+	return Kept;
+}
+
+uint GetDepthBin(uint PackedIndex)
+{
+	float Depth = dot(PackedSplat[PackedIndex * 3u].xyz, LocalDepthDirection);
+	return DepthScale > 0.0
+		? uint(clamp(floor((DepthMaximum - Depth) * DepthScale), 0, int(BinCount - 1u)))
+		: 0u;
+}
+
+[numthreads(64, 1, 1)]
+void ClearHistogramCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	if (DispatchThreadId.x < BinCount)
+	{
+		Histogram[DispatchThreadId.x] = 0;
+		Cursors[DispatchThreadId.x] = 0;
+	}
+}
+
+[numthreads(128, 1, 1)]
+void CountHistogramCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Index = DispatchThreadId.x;
+	uint Limit = Scheme1Limit();
+	if (Index == 0u && UseLiveList != 0u)
+	{
+		uint Kept = LiveCount[0];
+		LiveCount[3] = (Kept > 0u && Kept <= SplatCount) ? 1u : 2u;
+	}
+	if (Index >= Limit)
+	{
+		return;
+	}
+	// Limit < SplatCount means the live list is a strict prefix. A full limit sorts original slots.
+	uint PackedIndex = (UseLiveList != 0u && Limit < SplatCount) ? LiveIndices[Index] : Index;
+	InterlockedAdd(Histogram[GetDepthBin(PackedIndex)], 1u);
+}
+
+[numthreads(1, 1, 1)]
+void PrefixScanCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Sum = 0u;
+	for (uint Bin = 0u; Bin < BinCount; ++Bin)
+	{
+		uint Count = Histogram[Bin];
+		Cursors[Bin] = Sum;
+		Sum += Count;
+	}
+}
+
+[numthreads(128, 1, 1)]
+void ScatterIndicesCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Index = DispatchThreadId.x;
+	if (Index >= SplatCount)
+	{
+		return;
+	}
+	uint Limit = Scheme1Limit();
+	bool bLivePrefix = UseLiveList != 0u && Limit < SplatCount;
+	if (bLivePrefix && Index >= Limit)
+	{
+		// Tail stays a real hidden splat so project/tile can still walk SplatCount.
+		SortedIndices[Index] = LiveCount[2];
+		return;
+	}
+	uint PackedIndex = bLivePrefix ? LiveIndices[Index] : Index;
+	uint Destination = 0;
+	InterlockedAdd(Cursors[GetDepthBin(PackedIndex)], 1u, Destination);
+	SortedIndices[Destination] = PackedIndex;
+}

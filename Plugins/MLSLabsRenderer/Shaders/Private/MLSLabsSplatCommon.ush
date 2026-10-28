@@ -1,0 +1,98 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Packed splat record and SH rest bands, read by the Android projection and Desktop/MLSLabsSplatTileProject.usf.
+
+#ifndef MLSLABS_SPLAT_COMMON_USH
+#define MLSLABS_SPLAT_COMMON_USH
+
+#include "/Engine/Public/Platform.ush"
+
+// 3 float4 per splat (MLSLabsDynamicBake.usf WritePackedSplat, MLSLabsPlyReader), UE local space in cm:
+// (position, cov xx), (cov xy, xz, yy, yz), (cov zz, r | g << 16 fp16, b fp16 | opacity unorm16 << 16, 0).
+StructuredBuffer<float4> SplatData;
+// 45 SH rest coefficients per splat, channel-major: red 0-14, green 15-29, blue 30-44.
+StructuredBuffer<uint4> SHData;
+float SHScale;
+
+float3x3 DecodeSplatCovariance(float4 A, float4 B, float4 C)
+{
+	return float3x3(
+		A.w, B.x, B.y,
+		B.x, B.z, B.w,
+		B.y, B.w, C.x);
+}
+
+float DecodeSplatOpacity(uint PackedBA)
+{
+	return float(PackedBA >> 16) / 65535.0;
+}
+
+// SH0 rgb and opacity.
+float4 DecodeSplatColor(float4 C)
+{
+	uint PackedRG = asuint(C.y);
+	uint PackedBA = asuint(C.z);
+	return float4(
+		f16tof32(PackedRG & 0xffffu),
+		f16tof32(PackedRG >> 16),
+		f16tof32(PackedBA & 0xffffu),
+		DecodeSplatOpacity(PackedBA));
+}
+
+// int8 coefficients scaled by SHScale (3 uint4 per splat), or fp16 coefficients (6 uint4 per splat) when bHalf.
+float ReadSHCoefficient(uint SplatIndex, uint Index, bool bHalf)
+{
+	if (bHalf)
+	{
+		uint4 Block = SHData[SplatIndex * 6u + Index / 8u];
+		uint Word = Block[(Index % 8u) / 2u];
+		return f16tof32((Index & 1u) != 0u ? (Word >> 16) : (Word & 0xffffu));
+	}
+	uint4 Block = SHData[SplatIndex * 3u + Index / 16u];
+	uint Word = Block[(Index % 16u) / 4u];
+	int Raw = int(Word << (24u - (Index & 3u) * 8u)) >> 24;
+	return float(Raw) * SHScale;
+}
+
+float3 ReadSHTriplet(uint SplatIndex, uint Coefficient, bool bHalf)
+{
+	return float3(
+		ReadSHCoefficient(SplatIndex, Coefficient, bHalf),
+		ReadSHCoefficient(SplatIndex, 15u + Coefficient, bHalf),
+		ReadSHCoefficient(SplatIndex, 30u + Coefficient, bHalf));
+}
+
+// SH rest bands 1..Degree (Degree >= 1) toward ImportedDirection, a unit vector in UE local space.
+// The basis uses the dataset axes: UE local = dataset (z, x, -y) * 100.
+float3 EvaluateSHRest(uint SplatIndex, float3 ImportedDirection, uint Degree, bool bHalf)
+{
+	float3 Dir = float3(ImportedDirection.y, -ImportedDirection.z, ImportedDirection.x);
+	float x = Dir.x, y = Dir.y, z = Dir.z;
+	float xx = x * x, yy = y * y, zz = z * z;
+	float3 Rgb =
+		ReadSHTriplet(SplatIndex, 0u, bHalf) * (-0.488602512 * y)
+		+ ReadSHTriplet(SplatIndex, 1u, bHalf) * (0.488602512 * z)
+		+ ReadSHTriplet(SplatIndex, 2u, bHalf) * (-0.488602512 * x);
+	if (Degree >= 2u)
+	{
+		Rgb +=
+			ReadSHTriplet(SplatIndex, 3u, bHalf) * (1.092548431 * x * y)
+			+ ReadSHTriplet(SplatIndex, 4u, bHalf) * (-1.092548431 * y * z)
+			+ ReadSHTriplet(SplatIndex, 5u, bHalf) * (0.315391565 * (2.0 * zz - xx - yy))
+			+ ReadSHTriplet(SplatIndex, 6u, bHalf) * (-1.092548431 * x * z)
+			+ ReadSHTriplet(SplatIndex, 7u, bHalf) * (0.546274215 * (xx - yy));
+	}
+	if (Degree >= 3u)
+	{
+		Rgb +=
+			ReadSHTriplet(SplatIndex, 8u, bHalf) * (-0.590043590 * y * (3.0 * xx - yy))
+			+ ReadSHTriplet(SplatIndex, 9u, bHalf) * (2.890611442 * x * y * z)
+			+ ReadSHTriplet(SplatIndex, 10u, bHalf) * (-0.457045799 * y * (4.0 * zz - xx - yy))
+			+ ReadSHTriplet(SplatIndex, 11u, bHalf) * (0.373176333 * z * (2.0 * zz - 3.0 * xx - 3.0 * yy))
+			+ ReadSHTriplet(SplatIndex, 12u, bHalf) * (-0.457045799 * x * (4.0 * zz - xx - yy))
+			+ ReadSHTriplet(SplatIndex, 13u, bHalf) * (1.445305721 * z * (xx - yy))
+			+ ReadSHTriplet(SplatIndex, 14u, bHalf) * (-0.590043590 * x * (xx - 3.0 * yy));
+	}
+	return Rgb;
+}
+
+#endif // MLSLABS_SPLAT_COMMON_USH

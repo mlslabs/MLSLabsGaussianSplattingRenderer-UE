@@ -1,0 +1,86 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Android peripheral foveation: splats outside the foveation zones are thinned by a stable hash,
+// shared by the projection (MLSLabsSplatTileProject.usf) and the survivor compaction (MLSLabsFoveationCompact.usf).
+
+#ifndef MLSLABS_SPLAT_FOVEATION_USH
+#define MLSLABS_SPLAT_FOVEATION_USH
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatCommon.ush"
+
+float4x4 OtherEyeWorldToClip;
+float2 OtherEyeViewSize;
+float FoveationCenterY;
+float FullRateCutoff;
+float HalfRateCutoff;
+uint PeripheralOptimizationLevel;
+uint UseOtherEyeFoveationView;
+// Foveation never drops splats at or above this opacity (0 = off): boosting the opacity of the
+// survivors cannot restore coverage that an opaque splat provided, so dropping them notches silhouettes.
+float FoveationKeepOpacity;
+
+uint HashSplatIndex(uint Value)
+{
+	Value ^= Value >> 16;
+	Value *= 0x7feb352d;
+	Value ^= Value >> 15;
+	Value *= 0x846ca68b;
+	Value ^= Value >> 16;
+	return Value;
+}
+
+float GetFoveationRadius(float4 CenterClip, float2 FoveationViewSize)
+{
+	if (CenterClip.w <= 1e-5) return 0.0;
+	float2 SafeViewSize = max(FoveationViewSize, 1.0);
+	float2 Ndc = CenterClip.xy / CenterClip.w;
+	float2 CenterPixel = float2((Ndc.x * 0.5 + 0.5) * SafeViewSize.x,
+		(0.5 - Ndc.y * 0.5) * SafeViewSize.y);
+	float2 FoveationCenter = float2(SafeViewSize.x * 0.5, SafeViewSize.y * FoveationCenterY);
+	return length(CenterPixel - FoveationCenter) / max(length(SafeViewSize * 0.5), 1.0);
+}
+
+// With UseOtherEyeFoveationView the splat keeps the zone of whichever eye sees it closer to its center.
+float GetFoveationRadiusForSplat(float4 CenterWorld, float4 CenterClip, float2 EyeViewSize)
+{
+	float Radius = GetFoveationRadius(CenterClip, EyeViewSize);
+	if (UseOtherEyeFoveationView != 0u)
+	{
+		float4 OtherEyeClip = mul(CenterWorld, OtherEyeWorldToClip);
+		Radius = min(Radius, GetFoveationRadius(OtherEyeClip, OtherEyeViewSize));
+	}
+	return Radius;
+}
+
+// Fraction of splats kept at Radius; never below 0.125.
+float GetFoveationRetention(float Radius)
+{
+	float Retention = 1.0;
+	if (Radius > HalfRateCutoff)
+	{
+		Retention = PeripheralOptimizationLevel == 1u ? 0.5
+			: (PeripheralOptimizationLevel == 2u ? 0.475
+			: (PeripheralOptimizationLevel == 3u ? 0.25 : 0.125));
+	}
+	else if (Radius > FullRateCutoff)
+	{
+		Retention = PeripheralOptimizationLevel == 1u ? 1.0
+			: (PeripheralOptimizationLevel == 2u ? 0.65
+			: (PeripheralOptimizationLevel == 3u ? 0.5 : 0.25));
+	}
+	return Retention;
+}
+
+// Stable per-splat selection, so the same splats survive from frame to frame.
+bool IsFoveationSelected(uint SplatIndex, float Retention)
+{
+	float StableSelection = float(HashSplatIndex(SplatIndex) >> 8) * (1.0 / 16777216.0);
+	return StableSelection < Retention;
+}
+
+bool IsFoveationKeptOpaque(uint SplatIndex)
+{
+	float Opacity = DecodeSplatOpacity(asuint(SplatData[SplatIndex * 3u + 2u].z));
+	return FoveationKeepOpacity > 0.0 && Opacity >= FoveationKeepOpacity;
+}
+
+#endif // MLSLABS_SPLAT_FOVEATION_USH

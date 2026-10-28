@@ -1,0 +1,41 @@
+// Copyright 2026 MaLanShan Audio & Video Laboratory. All Rights Reserved.
+// Desktop tile raster: per-tile ranges of the sorted pairs.
+
+#include "/Plugin/MLSLabsRenderer/Private/MLSLabsSplatTileCommon.ush"
+
+StructuredBuffer<uint> Meta;
+StructuredBuffer<uint> SortedTileKeys;
+RWStructuredBuffer<uint> RWTileRanges;
+uint NumTiles;
+
+// RWTileRanges[2t], [2t+1] = begin, end of tile t in the sorted pairs (pre-cleared to 0).
+[numthreads(LINEAR_GROUP_SIZE, 1, 1)]
+void TileRangesCS(uint3 DispatchThreadId : SV_DispatchThreadID)
+{
+	uint Pairs = Meta[META_PAIRS];
+	uint Stride = LinearGroupCount(Pairs) * LINEAR_GROUP_SIZE;
+	for (uint Index = DispatchThreadId.x; Index < Pairs; Index += Stride)
+	{
+		uint Tile = min(SortedTileKeys[Index], NumTiles);
+		uint PrevTile = 0xffffffffu;
+		if (Index > 0u)
+		{
+			PrevTile = min(SortedTileKeys[Index - 1u], NumTiles);
+		}
+		if (Tile != PrevTile)
+		{
+			if (Tile < NumTiles)
+			{
+				RWTileRanges[Tile * 2u] = Index;
+			}
+			if (PrevTile < NumTiles)
+			{
+				RWTileRanges[PrevTile * 2u + 1u] = Index;
+			}
+		}
+		if (Index == Pairs - 1u && Tile < NumTiles)
+		{
+			RWTileRanges[Tile * 2u + 1u] = Pairs;
+		}
+	}
+}
