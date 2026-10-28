@@ -131,8 +131,8 @@ The `Plugins` folder contains the MLSLabsRenderer plugin source code. The `docs`
 
 **Quick Links:**
 
-- [Tutorial Doc (EN)](./Plugins/MLSLabsRenderer/Docs/README.md)
-- [Tutorial Doc (Chinese)](./Plugins/MLSLabsRenderer/Docs/README_CN.md)
+- [Tutorial Doc (EN)](./docs//README.md)
+- [Tutorial Doc (Chinese)](./docs/README_CN.md)
 
 ### 4. Blueprint API
 
