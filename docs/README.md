@@ -120,9 +120,9 @@ Open Unreal Editor, create a Demo project, and create a Level.
 
 <img src="../Media/image/import_multiple_plys.jpg" width="500" />
 
-2. Select multiple .ply files. You do not need to select every file. Selecting two or more files loads the whole sequence in that directory.
+2. Select multiple .ply files. The number of frames you select determines how many frames will be imported, but you must select at least two; alternatively, you can select all to import every frame.
 
-<img src="../Media/image/select_multiple_plys.jpg" width="500" />
+<img src="../Media/image/select_multiple_plys_2.jpg" width="500" />
 
 3. Drag the generated animation Blueprint (BP) asset into the viewport.
 
