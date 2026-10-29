@@ -29,7 +29,7 @@
 </p>
 
 [**下载 (Releases)**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/releases) •
-[**教学视频**](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364) •
+[**教学视频**](https://www.bilibili.com/video/BV122sf6GEcE/?share_source=copy_web&vd_source=47afd2cc3b7200f29565b2dc08c7d6a6) •
 [**教学文档**](https://github.com/mlslabs/MLSLabsGaussianSplattingRenderer-UE/blob/Pro_2.0_ue5.7/docs/README_CN.md) •
 [**文档**](#文档) •
 [**安装**](#installation) •
