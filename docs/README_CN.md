@@ -119,9 +119,9 @@ B站（中文）：
 
 <img src="../Media/image/import_multiple_plys.jpg" width="500" />
 
-2.选择多个 .ply 文件（无需选择所有文件；只需选择其中两个以上的文件，插件会自动加载该目录下的整个序列）。
+2.选择多个.ply文件（选择多少个，就会导入多少帧，但是需至少选择2个以上；也可以全部选择，导入所有帧）。
 
-<img src="../Media/image/select_multiple_plys.jpg" width="500" />
+<img src="../Media/image/select_multiple_plys_2.jpg" width="500" />
 
 3.将生成的动画蓝图 (BP) 资产拖入视口。
 
