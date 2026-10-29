@@ -31,10 +31,10 @@ Available features:
 ## Video Tutorial
 
 Youtube (English):  
-[How to Use MLSLabsRenderer (Gaussian Splatting) Plugin in UE5(Updated)](https://youtu.be/4ArswzhQ0VU)
+[UE5 3D/4D Gaussian Splatting Plugin MLSLabsRender V2 Tutorial for Pico VR Android](https://www.youtube.com/watch?v=IoY80YsT9Wc)
 
 Bilibili (Chinese):  
-[MLSLabsRenderer（高斯泼溅）插件操作教程](https://www.bilibili.com/video/BV1dgcizLEAx/?vd_source=2c7de8ebd046c0fc280b916fd7f72364)
+[UE5 3D/4D Gaussian Splating （高斯泼溅）Plugin MLSLabsRender V2 使用教程Pico VR Android](https://www.bilibili.com/video/BV122sf6GEcE/?share_source=copy_web&vd_source=47afd2cc3b7200f29565b2dc08c7d6a6)
 
 
 ## System Requirements
